@@ -13,7 +13,7 @@ import {
   MdOutlineDashboard,
   MdOutlineProductionQuantityLimits,
 } from "react-icons/md";
-import logo from "../assets/graphics/logoo2.png";
+import logo from "../assets/graphics/fafullz-logo.jpg";
 import useAuth from "../hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
@@ -112,8 +112,8 @@ function SellerDashboard() {
       <div className=" bg-secondary text-light p-2 md:p-5 flex flex-col md:flex-row justify-between fixed top-0 left-0 right-0 z-10 ">
         <div className="flex justify-between py-2 px-2 items-center">
           <div className="flex gap-4 items-center">
-            {/* <img src={logo} alt="" className=" w-[30px] h-[30px] " /> */}
-            <h1 className="text-2xl">⭐ FaFullz</h1>
+            <img src={logo} alt="" className=" w-[30px] h-[30px] " />
+            {/* <h1 className="text-2xl">⭐ FaFullz</h1> */}
           </div>
           <div className="md:hidden">
             {mobileMenu ? (

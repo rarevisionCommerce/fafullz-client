@@ -11,8 +11,8 @@ import { toast } from "react-toastify";
 import PulseLoader from "react-spinners/PulseLoader";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { FaTelegramPlane } from "react-icons/fa";
-import hacker from "../assets/graphics/hacker.jpeg";
-import logo from "../assets/graphics/logo3.png";
+import hacker from "../assets/graphics/fafullz.jpg";
+import logo from "../assets/graphics/fafullz-logo.jpg";
 
 function Register() {
   const navigate = useNavigate();
@@ -66,7 +66,10 @@ function Register() {
   return (
     <div className="bg-black flex flex-col justify-center items-center min-h-[100vh]   ">
       {/* <h1 className="text-5xl font-bold text-light p-3 mb-2">⭐ FaFullz</h1> */}
-      <img src={logo} alt="" className=" w-[] h-[50px] mb-3 " />
+      <div className="flex gap-1 items-center mb-3">
+        <img src={logo} alt="" className=" w-[] h-[50px]  " />
+        <h1 className="text-5xl font-bold text-light p-3 ">Fafullz</h1>
+      </div>
 
       {/* Login form  */}
       <div className="flex flex-col lg:flex-row border w-full md:w-[50%] ">

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { HiUser } from "react-icons/hi";
 import { RiLockPasswordFill } from "react-icons/ri";
-import hacker from "../assets/graphics/hacker.jpeg";
-import logo from "../assets/graphics/logo3.png";
+import hacker from "../assets/graphics/fafullz.jpg";
+import logo from "../assets/graphics/fafullz-logo.jpg";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import axios from "../api/axios";
@@ -123,8 +123,10 @@ function LoginPage() {
           Contact admin to activate your account. Admin Jabber Id:
         </Alert>
       </div>
-      <img src={logo} alt="" className=" w-[] h-[50px] mb-3 " />
-      {/* <h1 className="text-5xl font-bold text-light p-3 mb-2">⭐ FaFullz</h1> */}
+      <div className="flex gap-1 items-center mb-3">
+        <img src={logo} alt="" className=" w-[] h-[50px]  " />
+        <h1 className="text-5xl font-bold text-light p-3 ">Fafullz</h1>
+      </div>
       {/* Login form  */}
       <div className="flex flex-col lg:flex-row border w-full md:w-[50%]  ">
         {/* image */}
@@ -236,7 +238,7 @@ function LoginPage() {
               </h1>
             </div>
           </form>
-          <a className="" href="https://t.me" target="_blank">
+          <a className="" href="https://t.me/FaFullzShop" target="_blank">
             <p className="bg-blue-500 h-8  flex items-center hover:bg-blue-600 text-white font-bold py-[1px] px-4 ">
               <FaTelegramPlane className="inline-block mr-2" />
               <p className="hidden text-sm md:flex">Join Us on Telegram</p>

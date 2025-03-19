@@ -19,7 +19,7 @@ import { RiCellphoneFill } from "react-icons/ri";
 import { VscFileSymlinkDirectory } from "react-icons/vsc";
 import { FaRegIdCard } from "react-icons/fa";
 import ProfileDropDown from "../../components/ProfileDropDown";
-import logo from "../../assets/graphics/logo3.png";
+import logo from "../../assets/graphics/fafullz-logo.jpg";
 import useAuth from "../../hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
@@ -204,7 +204,7 @@ function Dashboard() {
           </div>
           <a
             className="md:hidden"
-            href="https://t.me/RareVisionShop"
+            href="https://t.me/FaFullzShop"
             target="_blank"
           >
             <button className="bg-blue-500 flex items-center hover:bg-blue-600 text-white font-bold py-1 px-4 rounded">
@@ -224,7 +224,7 @@ function Dashboard() {
             )}
           </div>
         </div>
-        <a className="hidden md:flex" href="https://t.me/" target="_blank">
+        <a className="hidden md:flex" href="https://t.me/FaFullzShop" target="_blank">
           <p className="bg-blue-500 h-8  flex items-center hover:bg-blue-600 text-white font-bold py-[1px] px-4 rounded">
             <FaTelegramPlane className="inline-block mr-2" />
             <p className="hidden text-sm md:flex">Join Us on Telegram</p>
