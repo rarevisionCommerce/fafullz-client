@@ -162,7 +162,7 @@ function SSNDOB() {
       {
         keepPreviousData: true,
         refetchInterval: 3000,
-        // 5 seconds in milliseconds
+        // 5 seconds in milliseconds,
       }
     );
   }
@@ -178,6 +178,8 @@ function SSNDOB() {
     }
     return false;
   }
+
+  console.log(ssnData?.data?.ssns);
 
   return (
     <div className="">
@@ -266,7 +268,7 @@ function SSNDOB() {
 
               <MultiRangeSlider
                 min={1910}
-                max={2023}
+                max={2025}
                 step={5}
                 ruler={false}
                 label={false}
@@ -460,7 +462,7 @@ function SSNDOB() {
                       {account?.firstName || ""}
                     </td>
                     <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.dob?.split("-")[0]}
+                      {account?.dob}
                     </td>
                     <td className="border-collapse border-b border-slate-500 py-2 px-3">
                       {account?.description}
@@ -476,10 +478,10 @@ function SSNDOB() {
                     </td>
 
                     <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      ✅
+                    {account?.ssn ? "✅" : "❌"}
                     </td>
                     <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      ✅
+                    {account?.address ? "✅" : "❌"}
                     </td>
 
                     <td className="border-collapse border-b border-slate-500 py-2 px-3">
@@ -495,7 +497,7 @@ function SSNDOB() {
                       {account?.faPass ? "✅" : "❌"}
                     </td>
                     <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.backuCode ? "✅" : "❌"}
+                      {account?.backupCode ? "✅" : "❌"}
                     </td>
                     <td className="border-collapse border-b border-slate-500 py-2 px-3">
                       {account?.securityQa ? "✅" : "❌"}
@@ -504,9 +506,9 @@ function SSNDOB() {
                       ${account?.price?.price}
                     </td>
                     <td className=" border-collapse border-b border-slate-500 py-3 px-3">
-                      {loadingCart || loadingUserCart ? (
+                      {loadingCart  ? (
                         <span>
-                          <Loader color="green" size={17} />
+                          <Loader color="green" size={12} />
                         </span>
                       ) : (
                         <span>
@@ -515,7 +517,7 @@ function SSNDOB() {
                           ) : (
                             <span
                               onClick={() => onSubmitting(account?._id)}
-                              className="flex gap-2 cursor-pointer bg-primary py-1 px-2 text-center items-center justify-center rounded-md text-light hover:bg-secondary"
+                              className="flex gap-2 cursor-pointer bg-primary py- px-2 text-center items-center justify-center rounded-md text-light hover:bg-secondary"
                             >
                               <h1 className="">{"Add"}</h1>
                               <CgShoppingCart size={17} />

@@ -40,10 +40,16 @@ function SsnOrders(props) {
         ?.map((order, index) => {
           return `Order ID: ${index + 1}\nName:${order?.firstName || ""}  ${
             order?.lastName || ""
-          }  \nSSN:${order?.ssn || ""}\nDOB:${order?.dob || ""}\nAddress:${
+          }  \nSSN:${order?.ssn || ""}\nDOB:${order?.dob?.split('T')[0] || ""}\nAddress:${
             order?.address || ""
           }\nCity:${order?.city || ""}\nState: ${order?.state || ""}\nZip:${
             order?.zip || ""
+          }\nEmail:${order?.email || ""}\nEmail Pass:${
+            order?.emailPass || ""
+          }\nfa Uname:${order?.faUname || ""}\nfa Pass:${
+            order?.faPass || ""
+          }\nBackup code:${order?.backupCode || ""}\n Security Q&A:${
+            order?.securityQa || ""
           }\nDescription:  ${order.description || ""}\nCS:  ${
             order.cs || ""
           }\nPurchase Date:  ${
@@ -138,7 +144,7 @@ function SsnOrders(props) {
                           {item?.faPass}
                         </td>
                         <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                          {item?.backuCode}
+                          {item?.backupCode}
                         </td>
                         <td className="border-collapse border-b border-slate-500 py-2 px-3">
                           {item?.securityQa}

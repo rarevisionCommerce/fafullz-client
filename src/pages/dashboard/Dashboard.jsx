@@ -224,11 +224,7 @@ function Dashboard() {
             )}
           </div>
         </div>
-        <a
-          className="hidden md:flex"
-          href="https://t.me/RareVisionShop"
-          target="_blank"
-        >
+        <a className="hidden md:flex" href="https://t.me/" target="_blank">
           <p className="bg-blue-500 h-8  flex items-center hover:bg-blue-600 text-white font-bold py-[1px] px-4 rounded">
             <FaTelegramPlane className="inline-block mr-2" />
             <p className="hidden text-sm md:flex">Join Us on Telegram</p>
@@ -253,37 +249,22 @@ function Dashboard() {
           </div>
 
           <h1>Cart</h1>
-          {loadingCart ? (
-            <Link to={"cart"}>
-              <div className="flex">
-                <CgShoppingCart size={23} />
-                <p
-                  className={
-                    totalItems < 1
-                      ? "hidden"
-                      : "absolute cursor-pointer rounded-full px-1 text-white text-sm text-bold top-[63px] md:top-3   bg-primary "
-                  }
-                >
-                  {totalItems}
-                </p>
-              </div>
-            </Link>
-          ) : (
-            <Link to={"cart"}>
-              <div className="flex">
-                <Indicator
-                  inline
-                  size={16}
-                  offset={4}
-                  position="top-end"
-                  color=""
-                  label={totalItems}
-                >
-                  <CgShoppingCart size={30} />
-                </Indicator>
-              </div>
-            </Link>
-          )}
+
+          <Link to={"cart"}>
+            <div className="flex">
+              <Indicator
+                inline
+                size={16}
+                offset={4}
+                position="top-end"
+                color=""
+                label={totalItems || 0}
+              >
+                <CgShoppingCart size={30} />
+              </Indicator>
+            </div>
+          </Link>
+
           <div
             className=" pl-5 flex gap-4 hover:cursor-pointer"
             onClick={() => {
@@ -311,7 +292,7 @@ function Dashboard() {
       </div>
 
       {/* main content*/}
-      <div className="flex pt-[100px] md:pt-[60px] overflow- min-h-[100vh]">
+      <div className="flex pt-[130px] md:pt-[60px] overflow- min-h-[100vh]">
         <div
           style={{ width: isOpen ? "270px" : "80px" }}
           className="hidden md:flex flex-col bg-tertiary text-white h-screen w-[260px]  overflow-y-auto  ease-in-0ut duration-500 "

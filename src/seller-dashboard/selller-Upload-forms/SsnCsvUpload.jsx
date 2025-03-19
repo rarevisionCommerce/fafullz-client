@@ -92,7 +92,7 @@ const {auth} = useAuth()
       })
   }
 const handleDownload = async () => {
-    const response = await fetch('https://api.rarevision.net/uploads/ssnCsv.csv');
+    const response = await fetch('https://api.fafullz.com/uploads/ssnCsv.csv');
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

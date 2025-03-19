@@ -236,7 +236,7 @@ function LoginPage() {
               </h1>
             </div>
           </form>
-          <a className="" href="https://t.me/RareVisionShop" target="_blank">
+          <a className="" href="https://t.me" target="_blank">
             <p className="bg-blue-500 h-8  flex items-center hover:bg-blue-600 text-white font-bold py-[1px] px-4 ">
               <FaTelegramPlane className="inline-block mr-2" />
               <p className="hidden text-sm md:flex">Join Us on Telegram</p>

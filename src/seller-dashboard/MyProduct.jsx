@@ -27,12 +27,12 @@ function MyProduct() {
         <Tabs defaultValue="ssn">
           <Tabs.List>
             <Tabs.Tab value="ssn">SSN/DOB</Tabs.Tab>
-            <Tabs.Tab value="googleVoice">Google Voice</Tabs.Tab>
+            {/* <Tabs.Tab value="googleVoice">Google Voice</Tabs.Tab>
             <Tabs.Tab value="textNow">TextNow/Mail</Tabs.Tab>
             <Tabs.Tab value="cards">Cards</Tabs.Tab>
             <Tabs.Tab value="files">Files</Tabs.Tab>
             <Tabs.Tab value="accounts">Accounts</Tabs.Tab>
-            <Tabs.Tab value="dumps">Dumps</Tabs.Tab>
+            <Tabs.Tab value="dumps">Dumps</Tabs.Tab> */}
           </Tabs.List>
 
           <Tabs.Panel value="ssn" pt="xs">
