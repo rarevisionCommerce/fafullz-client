@@ -179,7 +179,6 @@ function SSNDOB() {
     return false;
   }
 
-  console.log(ssnData?.data?.ssns);
 
   return (
     <div className="">
@@ -351,12 +350,6 @@ function SSNDOB() {
                 scope="col"
                 className="border-collapse border border-slate-500 py-2 px-3"
               >
-                Description
-              </th>
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
                 State
               </th>
               <th
@@ -456,16 +449,13 @@ function SSNDOB() {
                     className="odd:bg-[#595a59] hover:bg-gray-600 text-light text-center "
                   >
                     <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.base}
+                      {account?.price?.base}
                     </td>
                     <td className="border-collapse border-b border-slate-500 py-2 px-3">
                       {account?.firstName || ""}
                     </td>
                     <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.dob}
-                    </td>
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.description}
+                      {account?.dobYear}
                     </td>
                     <td className="border-collapse border-b border-slate-500 py-2 px-3">
                       {account?.state}
