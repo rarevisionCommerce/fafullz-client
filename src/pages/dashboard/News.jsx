@@ -1,69 +1,87 @@
-import React from 'react'
+import React from "react";
 
 function News() {
   return (
-    <div className='p-4'>
-        <div className='border border-[#3c3c36] text-light  bg-[#343434] shadow-md rounded-md '>
-            <div className='bg-[#3e3e3b] py-3 my-4 mx-3 rounded-md'>
-                <h1 className='mx-2'>Format</h1>
+    <div className="max-w-2xl mx-auto  pt-[50px] rounded-lg shadow-md">
+      <h2 className="text-xl font-bold text-light mb-4">
+        Instructions on How to Use fafullz.com Matched Fullz
+      </h2>
 
-            </div>
+      <section className="mb-6">
+        <h3 className="text-lg font-semibold text-light">
+          Step 1: Login to FSAID
+        </h3>
+        <ul className="list-disc list-inside ml-4 text-light">
+          <li>
+            Go to the <span className="font-medium">FSAID</span> website.
+          </li>
+          <li>
+            Enter the <span className="font-medium">"Email"</span> as the
+            username on the login screen.
+          </li>
+          <li>
+            Enter <span className="font-medium">"FA Pass"</span> as the
+            password.
+          </li>
+        </ul>
+      </section>
 
-            {/* The table  */}
-            <div className='mx-3 my-2 pb-6 overflow-x-auto'>
-                <table className='w-full table-auto border-collapse border border-slate-900 text-sm'>
-                    <thead>
-                     <tr>
-                    <th className='border-collapse border border-slate-500 py-2 px-3'>Base</th>
-                    <th className='border-collapse border border-slate-500 py-2 px-3'>Format</th>
-                    <th className='border-collapse border border-slate-500 py-2 px-3'>Price $</th>
-                    </tr>   
-                    </thead>
+      <section className="mb-6">
+        <h3 className="text-lg font-semibold text-light">
+          Option 1: Login Using Email Verification Code
+        </h3>
+        <ul className="list-disc list-inside ml-4 text-light">
+          <li>
+            Go to <span className="font-medium">mail.tm</span> website.
+          </li>
+          <li>
+            Click on <span className="font-medium">Profile</span> in the top
+            right corner and log in.
+          </li>
+          <li>
+            Enter the <span className="font-medium">Email</span> and{" "}
+            <span className="font-medium">Email Pass</span> to log in.
+          </li>
+          <li>Retrieve the verification code and proceed.</li>
+        </ul>
+      </section>
 
-                    <tbody>
-                        <tr className='hover:bg-slate-700'>
-                        <td className="border border-slate-500 py-2 px-1 font-semibold"> USA TOP BASE, DL </td>
-                        <td className="border border-slate-500 py-2 px-1">  NAME|SSN|DOB|Address|City|State|ZIP|USA|DL/DL state</td>
-                        <td className="border border-slate-500 py-2 px-1 font-semibold">2.5 </td>
-                        </tr>
+      <section className="mb-6">
+        <h3 className="text-lg font-semibold text-light">
+          Option 2 (Recommended): Login Using Backup Code
+        </h3>
+        <ul className="list-disc list-inside ml-4 text-light">
+          <li>
+            Click on{" "}
+            <span className="font-medium">"Help me access my account"</span>{" "}
+            instead of "Send Code".
+          </li>
+          <li>
+            Select{" "}
+            <span className="font-medium">
+              "Backup Code & Challenge Questions"
+            </span>{" "}
+            and click <span className="font-medium">"Enter Code"</span>.
+          </li>
+          <li>
+            Enter the Backup Code from the fullz and click{" "}
+            <span className="font-medium">"Continue"</span>.
+          </li>
+          <li>Answer the Security Questions from the fullz.</li>
+          <li>Proceed to access the account.</li>
+        </ul>
+      </section>
 
-                        <tr className='hover:bg-slate-700'>
-                        <td className="border border-slate-500 py-2 px-1 font-semibold">  Private fresh fullz </td>
-                        <td className="border border-slate-500 py-2 px-1">    SSN|Name|USA|Address|City|State|ZIP|DOB|</td>
-                        <td className="border border-slate-500 py-2 px-1 font-semibold">0.5 - 1 </td>
-                        </tr>
-
-                        <tr className='hover:bg-slate-700'>
-                        <td className="border border-slate-500 py-2 px-1 font-semibold">  USA Full info + DL</td>
-                        <td className="border border-slate-500 py-2 px-1">    Name|SSN|DOB|DL|DL State|Address|USA|City|State IN|ZIP|Phone|Email</td>
-                        <td className="border border-slate-500 py-2 px-1 font-semibold">1.5 </td>
-                        </tr>
-
-                        <tr className='hover:bg-slate-700'>
-                        <td className="border border-slate-500 py-2 px-1 font-semibold">  Federal base USA </td>
-                        <td className="border border-slate-500 py-2 px-1">    Name|SSN|DOB|Address|City|State|ZIP|USA</td>
-                        <td className="border border-slate-500 py-2 px-1 font-semibold">2 </td>
-                        </tr>
-
-                        <tr className='hover:bg-slate-700'>
-                        <td className="border border-slate-500 py-2 px-1 font-semibold">  BIG UPDATE, BIG UPDATE 2 </td>
-                        <td className="border border-slate-500 py-2 px-1">    Name|Address|City|State|ZIP|SSN|DOB|USA</td>
-                        <td className="border border-slate-500 py-2 px-1 font-semibold">0.55 </td>
-                        </tr>
-
-                        <tr className='hover:bg-slate-700'>
-                        <td className="border border-slate-500 py-2 px-1 font-semibold">  USA FULL INFO + CS (Credit score) </td>
-                        <td className="border border-slate-500 py-2 px-1">   Name|Age|DOB|SSN|Address|City|State|ZIP|CS|USA CS - Credit score </td>
-                        <td className="border border-slate-500 py-2 px-1 font-semibold">8-12 </td>
-                        </tr>
-
-                    </tbody>
-                </table>
-
-            </div>
-        </div>
+      <section>
+        <h3 className="text-lg font-semibold text-light">Final Steps</h3>
+        <p className="text-light">Once logged in, remember to:</p>
+        <ul className="list-disc list-inside ml-4 text-light">
+          <li>Change the email to your own.</li>
+          <li>Update the address and username.</li>
+        </ul>
+      </section>
     </div>
-  )
+  );
 }
 
-export default News
+export default News;

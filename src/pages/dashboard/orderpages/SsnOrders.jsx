@@ -31,28 +31,50 @@ function SsnOrders(props) {
     setEarlierOrders(earlierOrders);
   }, [props?.ssn]);
 
+  const instructions =
+    "INSTRUCTIONS on how to use fafullz.com Matched Fullz.\n\n" +
+    "- Go to FSAID Website\n" +
+    '- Enter the "Email" as username on the login screen\n' +
+    '- Enter "FA Pass" as Password on the login screen\n\n' +
+    "Option 1:\n" +
+    "Login using Email Verification Code:\n" +
+    "- Go to mail.tm website\n" +
+    "- Head over to the top right corner and click on profile then login\n" +
+    "- Enter the Email and Email Pass and login\n" +
+    "You will receive your code there then proceed.\n\n" +
+    "Option 2 (Recommended):\n" +
+    "Login using Backup Code:\n" +
+    '- Instead of proceeding with "Send Code"; proceed with "Help me access my account"\n' +
+    '- Select the "Backup Code & Challenge Questions" and click "Enter Code"\n' +
+    '- Enter the Backup Code from the fullz and click "Continue"\n' +
+    "- Enter the answers from the fullz SecurityQ&A\n" +
+    "- Then proceed.\n\n" +
+    "Once in, remember to change the email to your own, update the address and the username.";
+
+
   // download orders function.
   const downloadOrders = (orders) => {
     // Create a text representation of the orders
     const orderText =
       "SSN/DOB Orders \n\n" +
+      instructions +
       orders
         ?.map((order, index) => {
           return `Order ID: ${index + 1}\nName:${order?.firstName || ""}  ${
             order?.lastName || ""
-          }  \nSSN:${order?.ssn || ""}\nDOB:${order?.dob?.split('T')[0] || ""}\nAddress:${
-            order?.address || ""
-          }\nCity:${order?.city || ""}\nState: ${order?.state || ""}\nZip:${
-            order?.zip || ""
-          }\nEmail:${order?.email || ""}\nEmail Pass:${
-            order?.emailPass || ""
-          }\nfa Uname:${order?.faUname || ""}\nfa Pass:${
-            order?.faPass || ""
-          }\nBackup code:${order?.backupCode || ""}\n Security Q&A:${
-            order?.securityQa || ""
-          }\nDescription:  ${order.description || ""}\nCS:  ${
-            order.cs || ""
-          }\nPurchase Date:  ${
+          }  \nSSN:${order?.ssn || ""}\nDOB:${
+            order?.dob?.split("T")[0] || ""
+          }\nAddress:${order?.address || ""}\nCity:${
+            order?.city || ""
+          }\nState: ${order?.state || ""}\nZip:${order?.zip || ""}\nEmail:${
+            order?.email || ""
+          }\nEmail Pass:${order?.emailPass || ""}\nfa Uname:${
+            order?.faUname || ""
+          }\nfa Pass:${order?.faPass || ""}\nBackup code:${
+            order?.backupCode || ""
+          }\n Security Q&A:${order?.securityQa || ""}\nDescription:  ${
+            order.description || ""
+          }\nCS:  ${order.cs || ""}\nPurchase Date:  ${
             order.purchaseDate || ""
           } \n\n_______________________________________ \n`;
         })

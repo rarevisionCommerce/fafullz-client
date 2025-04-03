@@ -41,10 +41,11 @@ function SSNDOB() {
     set_minValue(e.minValue);
     set_maxValue(e.maxValue);
   };
+  console.log(base)
 
   const fetchFiles = () => {
     return axios.get(
-      `/ssn?page=${activePage}&perPage=${perPage}&base=${base}&city=${city}&zip=${zip}&country=${country1}&dob=${minValue}&dobMax=${maxValue}&cs=${cs}&name=${name}&state=${state}`
+      `/ssn?page=${activePage}&perPage=${perPage}&base=${base?.base || ""}&city=${city}&zip=${zip}&country=${country1}&dob=${minValue}&dobMax=${maxValue}&cs=${cs}&name=${name}&state=${state}`
     );
   };
 
@@ -111,7 +112,7 @@ function SSNDOB() {
   basesData?.data?.bases?.map((base, index) => {
     baseOptions.push({
       label: base.base,
-      value: base.base,
+      value: { base: base.base, showDescription: base.showDescription },
     });
   });
   //end...........
@@ -121,25 +122,26 @@ function SSNDOB() {
     return axios.post("/cart", cartData);
   };
 
-  const { mutate: cartMutate, isLoading: loadingCart, error } = useMutation(
-    createCart,
-    {
-      onSuccess: (response) => {
-        const text = response?.data.message;
-        toast.success(text);
-        queryClient.invalidateQueries([`shoppingCart-${auth?.userId}`]);
-        queryClient.invalidateQueries([`shoppingCartsnn-${auth?.userId}`]);
-      },
-      onError: (err) => {
-        const text = err?.response.data.message;
+  const {
+    mutate: cartMutate,
+    isLoading: loadingCart,
+    error,
+  } = useMutation(createCart, {
+    onSuccess: (response) => {
+      const text = response?.data.message;
+      toast.success(text);
+      queryClient.invalidateQueries([`shoppingCart-${auth?.userId}`]);
+      queryClient.invalidateQueries([`shoppingCartsnn-${auth?.userId}`]);
+    },
+    onError: (err) => {
+      const text = err?.response.data.message;
 
-        toast.error(text);
-        if (!err.response.data.message) {
-          toast.error("something went wrong");
-        }
-      },
-    }
-  );
+      toast.error(text);
+      if (!err.response.data.message) {
+        toast.error("something went wrong");
+      }
+    },
+  });
 
   const onSubmitting = (ProductId) => {
     const data = {
@@ -178,7 +180,6 @@ function SSNDOB() {
     }
     return false;
   }
-
 
   return (
     <div className="">
@@ -416,6 +417,12 @@ function SSNDOB() {
               </th>
               <th
                 scope="col"
+                className={`${!base?.showDescription && "hidden"} border-collapse border border-slate-500 py-2 px-3`}
+              >
+                Description
+              </th>
+              <th
+                scope="col"
                 className="border-collapse border border-slate-500 py-2 px-3"
               >
                 Price
@@ -468,10 +475,10 @@ function SSNDOB() {
                     </td>
 
                     <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {account?.ssn ? "✅" : "❌"}
+                      {account?.ssn ? "✅" : "❌"}
                     </td>
                     <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {account?.address ? "✅" : "❌"}
+                      {account?.address ? "✅" : "❌"}
                     </td>
 
                     <td className="border-collapse border-b border-slate-500 py-2 px-3">
@@ -493,10 +500,13 @@ function SSNDOB() {
                       {account?.securityQa ? "✅" : "❌"}
                     </td>
                     <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                      {account?.description}
+                    </td>
+                    <td className={`${!base?.showDescription && "hidden"} border-collapse border-b border-slate-500 py-2 px-3`}>
                       ${account?.price?.price}
                     </td>
                     <td className=" border-collapse border-b border-slate-500 py-3 px-3">
-                      {loadingCart  ? (
+                      {loadingCart ? (
                         <span>
                           <Loader color="green" size={12} />
                         </span>
