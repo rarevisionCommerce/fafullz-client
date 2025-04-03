@@ -41,11 +41,13 @@ function SSNDOB() {
     set_minValue(e.minValue);
     set_maxValue(e.maxValue);
   };
-  console.log(base)
+  console.log(base);
 
   const fetchFiles = () => {
     return axios.get(
-      `/ssn?page=${activePage}&perPage=${perPage}&base=${base?.base || ""}&city=${city}&zip=${zip}&country=${country1}&dob=${minValue}&dobMax=${maxValue}&cs=${cs}&name=${name}&state=${state}`
+      `/ssn?page=${activePage}&perPage=${perPage}&base=${
+        base?.base || ""
+      }&city=${city}&zip=${zip}&country=${country1}&dob=${minValue}&dobMax=${maxValue}&cs=${cs}&name=${name}&state=${state}`
     );
   };
 
@@ -417,7 +419,9 @@ function SSNDOB() {
               </th>
               <th
                 scope="col"
-                className={`${!base?.showDescription && "hidden"} border-collapse border border-slate-500 py-2 px-3`}
+                className={`${
+                  !base?.showDescription && "hidden"
+                } border-collapse border border-slate-500 py-2 px-3`}
               >
                 Description
               </th>
@@ -499,10 +503,16 @@ function SSNDOB() {
                     <td className="border-collapse border-b border-slate-500 py-2 px-3">
                       {account?.securityQa ? "✅" : "❌"}
                     </td>
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                    <td
+                      className={`${
+                        !base?.showDescription && "hidden"
+                      } border-collapse border-b border-slate-500 py-2 px-3`}
+                    >
                       {account?.description}
                     </td>
-                    <td className={`${!base?.showDescription && "hidden"} border-collapse border-b border-slate-500 py-2 px-3`}>
+                    <td
+                      className={` border-collapse border-b border-slate-500 py-2 px-3`}
+                    >
                       ${account?.price?.price}
                     </td>
                     <td className=" border-collapse border-b border-slate-500 py-3 px-3">
