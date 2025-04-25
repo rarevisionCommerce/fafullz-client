@@ -51,7 +51,6 @@ function SsnOrders(props) {
     "- Then proceed.\n\n" +
     "Once in, remember to change the email to your own, update the address and the username.";
 
-
   // download orders function.
   const downloadOrders = (orders) => {
     // Create a text representation of the orders
@@ -92,6 +91,88 @@ function SsnOrders(props) {
     link.click();
   };
 
+  /**
+   * Function to download orders data as CSV
+   * @param {Array} orders - Array of order objects
+   */
+  const downloadOrdersAsCSV = (orders) => {
+    // Verify inputs
+    if (!Array.isArray(orders) || orders.length === 0) {
+      console.error("Orders data is empty or invalid");
+      return;
+    }
+
+    // Create a copy of the orders with the excluded fields removed
+    const filteredOrders = orders.map((order) => {
+      const orderCopy = { ...order };
+      // Remove the excluded fields
+      delete orderCopy.sellerId;
+      delete orderCopy.base;
+      delete orderCopy._id;
+      delete orderCopy.price;
+      delete orderCopy.status;
+      delete orderCopy.isPaid;
+      delete orderCopy.productType;
+      delete orderCopy.__v;
+      delete orderCopy.createdAt;
+      delete orderCopy.updatedAt;
+      return orderCopy;
+    });
+
+    // Create CSV header from the keys of the first filtered order object
+    const headers = Object.keys(filteredOrders[0]);
+
+    // Create CSV content
+    let csvContent = headers.join(",") + "\n";
+
+    // Add data rows
+    filteredOrders.forEach((order) => {
+      const row = headers
+        .map((header) => {
+          // Format the value properly for CSV
+          const value = order[header];
+          // Handle special cases, null, undefined, and escape commas and quotes
+          if (value === null || value === undefined) {
+            return "";
+          }
+
+          // Convert to string and escape quotes by doubling them
+          const stringValue = String(value).replace(/"/g, '""');
+
+          // Wrap value in quotes if it contains commas, quotes, or newlines
+          if (
+            stringValue.includes(",") ||
+            stringValue.includes('"') ||
+            stringValue.includes("\n")
+          ) {
+            return `"${stringValue}"`;
+          }
+
+          return stringValue;
+        })
+        .join(",");
+
+      csvContent += row + "\n";
+    });
+
+    // Create a Blob with the CSV content
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+
+    // Create a download link and trigger the download
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "orders_data.csv");
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // Example usage:
+  // downloadOrdersAsCSV(orders);
+
   return (
     <div>
       <div className="mb-[30px]">
@@ -106,7 +187,7 @@ function SsnOrders(props) {
             <div className="overflow-x-auto mb-3">
               <div className="flex items-center gap-3">
                 <h2 className="my-2 text-light pb-2">Todays Orders</h2>
-                <div>
+                <div className="flex gap-2 items-center ">
                   <button
                     className="text-sm bg-gray-200 px-2 py-1 rounded-md  "
                     onClick={() => {
@@ -114,6 +195,14 @@ function SsnOrders(props) {
                     }}
                   >
                     Download
+                  </button>
+                  <button
+                    className="text-sm bg-gray-200 px-2 py-1 rounded-md  "
+                    onClick={() => {
+                      downloadOrdersAsCSV(todaysOrders);
+                    }}
+                  >
+                    Download csv
                   </button>
                 </div>
               </div>{" "}
@@ -183,7 +272,7 @@ function SsnOrders(props) {
             <div className="overflow-x-auto mb-3">
               <div className="flex items-center gap-3">
                 <h2 className="my-2 text-light pb-2">Yesterday Orders</h2>
-                <div>
+                <div className="flex gap-2 items-center ">
                   <button
                     className="text-sm bg-gray-200 px-2 py-1 rounded-md  "
                     onClick={() => {
@@ -191,6 +280,14 @@ function SsnOrders(props) {
                     }}
                   >
                     Download
+                  </button>
+                  <button
+                    className="text-sm bg-gray-200 px-2 py-1 rounded-md  "
+                    onClick={() => {
+                      downloadOrdersAsCSV(yesterdaysOrders);
+                    }}
+                  >
+                    Download csv
                   </button>
                 </div>
               </div>
@@ -264,14 +361,22 @@ function SsnOrders(props) {
                     : "Earlier"}{" "}
                   Orders
                 </h2>
-                <div>
+                <div className="flex gap-2 items-center ">
                   <button
-                    className="text-  bg-gray-200 px-2 py-1 rounded-md  "
+                    className="text-sm bg-gray-200 px-2 py-1 rounded-md  "
                     onClick={() => {
                       downloadOrders(earlierOrders);
                     }}
                   >
                     Download
+                  </button>
+                  <button
+                    className="text-sm bg-gray-200 px-2 py-1 rounded-md  "
+                    onClick={() => {
+                      downloadOrdersAsCSV(earlierOrders);
+                    }}
+                  >
+                    Download csv
                   </button>
                 </div>
               </div>
