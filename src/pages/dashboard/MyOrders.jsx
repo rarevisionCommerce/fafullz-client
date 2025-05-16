@@ -28,7 +28,7 @@ function MyOrders(props) {
     data: orders,
     refetch,
     isRefetching: refetchingOrdes,
-  } = useQuery([`files-${userId}`], fetchOrders, {
+  } = useQuery([`orders-${userId}`], fetchOrders, {
     keepPreviousData: true,
     retry: 1
   });
