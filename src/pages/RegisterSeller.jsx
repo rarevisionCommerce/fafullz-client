@@ -19,7 +19,7 @@ function RegisterSeller() {
 
           <div className="bg-primary text-white py-2 px-4 flex flex-col gap-4 rounded-md items-center">
             <p className="text-sm font-medium">
-              Ready to start selling your products on RareVision?
+              Ready to start selling your products on Fafullz?
             </p>
             <p
               className="text-sm font-bold text-center ml-4 py-2 px-3 rounded-lg bg-white text-blue-500"

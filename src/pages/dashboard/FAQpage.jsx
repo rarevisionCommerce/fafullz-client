@@ -13,7 +13,7 @@ function FAQpage() {
         <FAQ
           question="Rules"
           answer={[
-            "1. All your balance, replenished by any method, is a part of the RareVision website and is non-refundable (non-returnable) outside RareVision.",
+            "1. All your balance, replenished by any method, is a part of the Fafullz website and is non-refundable (non-returnable) outside Fafullz.",
 
             <br />,
             <br />,
@@ -30,7 +30,7 @@ function FAQpage() {
             <br />,
             <br />,
 
-            "5. There is no moneyback out of RareVision.",
+            "5. There is no moneyback out of Fafullz.",
           ]}
         />
 
@@ -39,7 +39,7 @@ function FAQpage() {
           answer={[
             <p className=" text-2xl md:text-4xl pb-4  ">
               We think that it will be fair for you to open seller-2-buyer
-              disclosure terms via RareVision.
+              disclosure terms via Fafullz.
             </p>,
             <hr />,
             <br />,
@@ -47,8 +47,8 @@ function FAQpage() {
             <p className="text-3xl">Rules for seller:</p>,
             <div className="pl-6 pt-2">
               1. All your balance, replenished by any method, is a part of the
-              RareVision website and is non-refundable (non-returnable) outside
-              RareVision.
+              Fafullz website and is non-refundable (non-returnable) outside
+              Fafullz.
               <br />
               <br />
               2. We are not responsible for your links passability
@@ -63,7 +63,7 @@ function FAQpage() {
               without refunds.
               <br />
               <br />
-              5. There is no moneyback out of RareVision.
+              5. There is no moneyback out of Fafullz.
             </div>,
           ]}
         />
