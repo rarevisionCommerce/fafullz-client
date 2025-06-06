@@ -28,7 +28,7 @@ function SellerDetails() {
   const { errors } = formState;
   const qaueryClient = useQueryClient();
   const { userId } = useParams();
-  const {auth} = useAuth();
+  const { auth } = useAuth();
 
   //   fetching seller info
   const getSeller = () => {
@@ -401,6 +401,28 @@ function SellerDetails() {
     messageMutate(data);
   };
 
+  const changePassword = (data) => {
+    return axios.patch(`/users/${userId}`, data);
+  };
+
+  const { mutate: changePassMutate, isLoading: loadingChangePass } =
+    useMutation(changePassword, {
+      onSuccess: (response) => {
+        const text = response?.data?.message;
+        toast.success(text);
+        reset();
+      },
+      onError: (err) => {
+        const text = err?.response?.data?.message || "something went wrong";
+        toast.error(text);
+      },
+    });
+
+  const handlePasswordChange = () => {
+    const data = { password: "123456q", type: "reset" };
+    changePassMutate(data);
+  };
+
   return (
     <div className="bg-light min-h-screen px-4 py-5">
       <h1 className="font-bold text-lg ">Seller Info</h1>
@@ -433,6 +455,13 @@ function SellerDetails() {
                 {sellerData?.data?.status}
               </p>
             </div>
+            <button
+              onClick={handlePasswordChange}
+              disabled={loadingChangePass}
+              className="bg-primary w-full md:w-[50%] p-2 rounded-md cursor-pointer  text-center my-5 text-light shadow-lg"
+            >
+              {loadingChangePass ? "Saving..." : "Reset Password"}
+            </button>
           </div>
 
           <div>
