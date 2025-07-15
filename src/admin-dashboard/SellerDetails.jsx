@@ -22,15 +22,13 @@ import { MultiSelect } from "@mantine/core";
 
 function SellerDetails() {
   const axios = useAxiosPrivate();
-
-  // seller id from auth
   const { register, handleSubmit, reset, formState } = useForm();
   const { errors } = formState;
   const qaueryClient = useQueryClient();
   const { userId } = useParams();
   const { auth } = useAuth();
 
-  //   fetching seller info
+  // Fetching seller info
   const getSeller = () => {
     return axios.get(`/users/account/${userId}`);
   };
@@ -45,9 +43,7 @@ function SellerDetails() {
   });
   const jabberId = sellerData?.data?.jabberId;
 
-  // end of get seller info
-
-  //   fetching seller products analysis infor
+  // Fetching seller products analysis info
   const fetchInfo = () => {
     return axios.get(`/sellers/${jabberId}`);
   };
@@ -62,7 +58,7 @@ function SellerDetails() {
     }
   );
 
-  // computing data
+  // Computing data
   const totalProducts =
     productsData?.data?.account?.totalProducts +
     productsData?.data?.card?.totalProducts +
@@ -99,7 +95,7 @@ function SellerDetails() {
       .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
-  // activate user
+  // Activate user
   const activateUser = (data) => {
     return axios.patch(`/users/update/${userId}/Active`, data);
   };
@@ -120,8 +116,7 @@ function SellerDetails() {
     }
   );
 
-  //end of activate user
-  // Deactivate  user
+  // Deactivate user
   const deactivateUser = (data) => {
     return axios.patch(`/users/update/${userId}/Inactive`, data);
   };
@@ -139,9 +134,8 @@ function SellerDetails() {
         toast.error(text);
       },
     });
-  //end of deacxtivate user  change
 
-  // suspend  user
+  // Suspend user
   const suspendUser = (data) => {
     return axios.patch(`/users/update/${userId}/Suspended`, data);
   };
@@ -162,33 +156,37 @@ function SellerDetails() {
     }
   );
 
-  //end of suspend user  change
-
-  // deactivate user alert
-  const deactivateById = () => {
+  // Confirmation dialogs
+  const showConfirmDialog = (
+    title,
+    message,
+    onConfirm,
+    confirmText,
+    confirmClass = "bg-blue-600 hover:bg-blue-700"
+  ) => {
     confirmAlert({
       customUI: ({ onClose }) => {
         return (
-          <div className=" shadow-xl p-[30px] flex flex-col gap-4">
-            <h1 className="font-bold text-xl">Deactivate User!</h1>
-            <p className="pb-1">
-              Are you sure you want to de-activate this user?
-            </p>
-            <div className="flex gap-1">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md mx-auto">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              {title}
+            </h2>
+            <p className="text-gray-600 mb-6">{message}</p>
+            <div className="flex gap-3 justify-end">
               <button
-                className="rounded-md  bg-gray-400 text-white w-[50%]font-bold px-5 py-1 hover:bg-tertiary "
+                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200"
                 onClick={onClose}
               >
                 Cancel
               </button>
               <button
-                className="rounded-md  bg-red-500 text-white font-bold px-5 w-[50%] py-1 hover:bg-tertiary "
+                className={`px-4 py-2 text-white rounded-md transition-colors duration-200 ${confirmClass}`}
                 onClick={() => {
-                  deactivateMutate();
+                  onConfirm();
                   onClose();
                 }}
               >
-                De-Activate
+                {confirmText}
               </button>
             </div>
           </div>
@@ -196,73 +194,8 @@ function SellerDetails() {
       },
     });
   };
-  // end of de-activate alert
 
-  // suspend   user alert
-  const suspend = () => {
-    confirmAlert({
-      customUI: ({ onClose }) => {
-        return (
-          <div className=" shadow-xl p-[30px] flex flex-col gap-4">
-            <h1 className="font-bold text-xl">Suspend User!</h1>
-            <p className="pb-1">Are you sure you want to suspend this user?</p>
-            <div className="flex gap-1">
-              <button
-                className="rounded-md  bg-gray-400 text-white w-[50%]font-bold px-5 py-1 hover:bg-tertiary "
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-md  bg-red-500 text-white font-bold px-5 w-[50%] py-1 hover:bg-tertiary "
-                onClick={() => {
-                  suspendMutate();
-                  onClose();
-                }}
-              >
-                Suspend
-              </button>
-            </div>
-          </div>
-        );
-      },
-    });
-  };
-  // end of suspend alert
-
-  // activate  user
-  const activate = () => {
-    confirmAlert({
-      customUI: ({ onClose }) => {
-        return (
-          <div className=" shadow-xl p-[30px] flex flex-col gap-4">
-            <h1 className="font-bold text-xl">Activate User!</h1>
-            <p className="pb-1">Are you sure you want to activate this user?</p>
-            <div className="flex gap-1">
-              <button
-                className="rounded-md  bg-gray-400 text-white w-[50%]font-bold px-5 py-1 hover:bg-tertiary "
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-md  bg-red-500 text-white font-bold px-5 w-[50%] py-1 hover:bg-tertiary "
-                onClick={() => {
-                  activateMutate();
-                  onClose();
-                }}
-              >
-                Activate
-              </button>
-            </div>
-          </div>
-        );
-      },
-    });
-  };
-  // end of activate
-
-  // pay all user products
+  // Pay all user products
   const payAll = (data) => {
     return axios.put(`/sellers/all/${jabberId}/?amount=${sellerEarning}`, data);
   };
@@ -280,41 +213,8 @@ function SellerDetails() {
         toast.error(text);
       },
     });
-  // pay all alert
-  const payUser = () => {
-    confirmAlert({
-      customUI: ({ onClose }) => {
-        return (
-          <div className=" shadow-xl p-[30px] flex flex-col gap-4">
-            <h1 className="font-bold text-xl">Pay All!</h1>
-            <p className="pb-1">
-              Are you sure you want to pay all user earnings?
-            </p>
-            <div className="flex gap-1">
-              <button
-                className="rounded-md  bg-gray-400 text-white w-[50%]font-bold px-5 py-1 hover:bg-tertiary "
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-md  bg-red-500 text-white font-bold px-5 w-[50%] py-1 hover:bg-tertiary "
-                onClick={() => {
-                  payAllProductsMutate();
-                  onClose();
-                }}
-              >
-                Pay all
-              </button>
-            </div>
-          </div>
-        );
-      },
-    });
-  };
-  // end of alert
 
-  // pay one user products
+  // Pay one user products
   const payOneProduct = (data) => {
     return axios.put(`/sellers/all/${jabberId}`, data);
   };
@@ -333,7 +233,8 @@ function SellerDetails() {
       },
     }
   );
-  // update  products categories
+
+  // Update products categories
   const updateCategories = (data) => {
     return axios.patch(`/users/categories/${sellerData?.data?._id}`, data);
   };
@@ -365,6 +266,7 @@ function SellerDetails() {
     { value: "account", label: "Accounts" },
     { value: "dump", label: "Dumps" },
   ];
+
   const updateCategoriesFunction = () => {
     if (!categories || categories.length < 1) {
       return toast.warn("Select atleast one category");
@@ -374,7 +276,8 @@ function SellerDetails() {
     };
     updateCategoryMutate(data);
   };
-  // send message
+
+  // Send message
   const sendMessage = (data) => {
     return axios.post(`/support/admin`, data);
   };
@@ -423,261 +326,411 @@ function SellerDetails() {
     changePassMutate(data);
   };
 
+  const updateSellerProductStatus = (data) => {
+    return axios.post(`/ssn/update/seller`, data);
+  };
+
+  const { mutate: updateProductStatusMutate, isLoading: loadingProductStatus } =
+    useMutation(updateSellerProductStatus, {
+      onSuccess: (response) => {
+        qaueryClient.invalidateQueries(`seller-${userId}`);
+        const text = response?.data?.message;
+        toast.success(text);
+      },
+      onError: (err) => {
+        const text = err?.response?.data?.message || "something went wrong";
+        toast.error(text);
+      },
+    });
+
+  const handleUpdateSellerProductStatus = () => {
+    const data = {
+      sellerId: sellerData?.data?.jabberId,
+      status:
+        sellerData?.data?.productStatus == "Available"
+          ? "Suspended"
+          : "Available",
+    };
+    updateProductStatusMutate(data);
+  };
+
   return (
-    <div className="bg-light min-h-screen px-4 py-5">
-      <h1 className="font-bold text-lg ">Seller Info</h1>
-      {loadingSeller ? (
-        <div className="flex flex-col w-[90%] justify-center md:w-full md:grid md:grid-cols-3 gap-4 md:content-center p-[50px] ">
-          <Skeleton height={90} radius="sm" />
-          <Skeleton height={90} radius="sm" />
-          <Skeleton height={90} radius="sm" />
+    <div className="min-h-screen bg-gray-50">
+      <div className=" px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">
+            Seller Management
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Manage seller information and products
+          </p>
         </div>
-      ) : (
-        <div className="flex flex-col md:grid md:grid-cols-3 bg-gray-100 drop-shadow-md min-h-[150px] py-3 px-2">
-          <div className="flex flex-col gap-4  ">
-            <div className="flex  gap-4 my-[12]">
-              <h1 className="text-gray-600">User Name: </h1>
-              <h1>{sellerData?.data?.userName}</h1>
-            </div>
-            <div className="flex  gap-4  ">
-              <h1 className="text-gray-600">Seller Id: </h1>
-              <h1>{sellerData?.data?.jabberId}</h1>
-            </div>
-            <div className=" mr-9">
-              <h1 className="text-gray-600">Seller Status: </h1>
-              <p
-                className={
-                  sellerData?.data?.status === "Active"
-                    ? "text-green-500   text-start my-1 text-lg"
-                    : "text-red-500   text-start my-1 text-lg"
-                }
-              >
-                {sellerData?.data?.status}
-              </p>
-            </div>
-            <button
-              onClick={handlePasswordChange}
-              disabled={loadingChangePass}
-              className="bg-primary w-full md:w-[50%] p-2 rounded-md cursor-pointer  text-center my-5 text-light shadow-lg"
-            >
-              {loadingChangePass ? "Saving..." : "Reset Password"}
-            </button>
+
+        {/* Seller Information Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Seller Information
+            </h2>
           </div>
 
-          <div>
-            <h1 className="text-gray-600">Update seller status: </h1>
-            {loadingActivating || loadingDeactivate || loadingSuspend ? (
-              <div>
-                <h1 className="text-primary my-5 text-center  ">Updating...</h1>
-              </div>
-            ) : (
-              <div className="flex  gap-4">
-                {sellerData?.data?.status === "Active" ? (
-                  <p
-                    className="bg-red-500 w-[120px] p-2 rounded-md  cursor-pointer text-center my-5 text-light shadow-lg"
-                    onClick={deactivateById}
-                  >
-                    Deactivate
-                  </p>
-                ) : (
-                  <p
-                    onClick={activate}
-                    className="bg-green-500 w-24 p-2 rounded-md cursor-pointer  text-center my-5 text-light shadow-lg"
-                  >
-                    Activate
-                  </p>
-                )}
-
-                <p
-                  className={
-                    sellerData?.data?.status === "Suspended"
-                      ? "hidden"
-                      : "bg-yellow-500 rounded-md  cursor-pointer w-24 p-2 text-center my-5 text-light shadow-lg"
-                  }
-                  onClick={suspend}
-                >
-                  Suspend
-                </p>
-              </div>
-            )}
-            <div>
-              {/* send message */}
-              <form action="" onSubmit={handleSubmit(submitMessage)}>
-                <div className="flex flex-col justify-center gap- w-full pr-3 ">
-                  <h1>Message seller</h1>
-                  <input
-                    type="text"
-                    min={0}
-                    step="any"
-                    className="border-2 w-full rounded-md py-[6px]  px-2 outline-none  focus:border-gray-700 focus:border-[1px] "
-                    {...register("message", {
-                      required: true,
-                    })}
-                  />
-                  <p className="text-red-500 text-xs">
-                    {errors.message?.type === "required" &&
-                      "Message is required"}
+          {loadingSeller ? (
+            <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Skeleton height={120} radius="md" />
+              <Skeleton height={120} radius="md" />
+              <Skeleton height={120} radius="md" />
+            </div>
+          ) : (
+            <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Basic Info */}
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-500">
+                    Username
+                  </label>
+                  <p className="mt-1 text-gray-900">
+                    {sellerData?.data?.userName}
                   </p>
                 </div>
                 <div>
-                  {loadingMessage ? (
-                    <div className="flex justify-center  items-center">
-                      <PulseLoader color="#6ba54a" size={10} />
-                    </div>
-                  ) : (
-                    <button className="bg-primary  ml-7 mt-2 text-white rounded-md px-5 py-1 hover:bg-secondary  ">
-                      Send
-                    </button>
-                  )}
+                  <label className="text-sm font-medium text-gray-500">
+                    Seller ID
+                  </label>
+                  <p className="mt-1 text-gray-900 font-mono text-sm">
+                    {sellerData?.data?.jabberId}
+                  </p>
                 </div>
-              </form>
-            </div>
-          </div>
-          <div className="md:border-l md:border-secondary md:pl-4">
-            <h1>Categories</h1>
-            {loadingSeller ? (
-              <div></div>
-            ) : (
-              <div>
-                <MultiSelect
-                  value={categories}
-                  onChange={setCategories}
-                  data={categoriesData}
-                  className="w-full"
-                />
-                <div className="flex justify-center items-center">
-                  {loadingUpdateCategories ? (
+                <div>
+                  <label className="text-sm font-medium text-gray-500">
+                    Status
+                  </label>
+                  <div className="mt-1">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        sellerData?.data?.status === "Active"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {sellerData?.data?.status}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">
+                   Product Status
+                  </label>
+                  <div className="mt-1">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        sellerData?.data?.productStatus === "Available"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {sellerData?.data?.productStatus}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-4">
+                  <button
+                    onClick={handlePasswordChange}
+                    disabled={loadingChangePass}
+                    className="w-full px-4 py-2 text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 rounded-md transition-colors duration-200"
+                  >
+                    {loadingChangePass ? "Resetting..." : "Reset Password"}
+                  </button>
+
+                  <button
+                    onClick={handleUpdateSellerProductStatus}
+                    disabled={loadingProductStatus}
+                    className={`${sellerData?.data?.productStatus == "Available" ? "bg-red-600 hover:bg-red-700" :"bg-blue-600 hover:bg-blue-700"}  w-full px-4 py-2 text-sm font-medium text-white  hover:bg-blue-700 disabled:bg-blue-400 rounded-md transition-colors duration-200`}
+                  >
+                    {loadingProductStatus
+                      ? "Updating..."
+                      : sellerData?.data?.productStatus == "Available"
+                      ? "Suspend Products"
+                      : "Activate Products"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Status Management */}
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-500">
+                    Status Management
+                  </label>
+                </div>
+
+                {loadingActivating || loadingDeactivate || loadingSuspend ? (
+                  <div className="flex items-center justify-center py-8">
+                    <PulseLoader color="#6B7280" size={8} />
+                    <span className="ml-2 text-gray-600">
+                      Updating status...
+                    </span>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {sellerData?.data?.status === "Active" ? (
+                      <button
+                        className="w-full px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors duration-200"
+                        onClick={() =>
+                          showConfirmDialog(
+                            "Deactivate User",
+                            "Are you sure you want to deactivate this user?",
+                            deactivateMutate,
+                            "Deactivate",
+                            "bg-red-600 hover:bg-red-700"
+                          )
+                        }
+                      >
+                        Deactivate
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() =>
+                          showConfirmDialog(
+                            "Activate User",
+                            "Are you sure you want to activate this user?",
+                            activateMutate,
+                            "Activate",
+                            "bg-green-600 hover:bg-green-700"
+                          )
+                        }
+                        className="w-full px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors duration-200"
+                      >
+                        Activate
+                      </button>
+                    )}
+
+                    {sellerData?.data?.status !== "Suspended" && (
+                      <button
+                        className="w-full px-4 py-2 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 rounded-md transition-colors duration-200"
+                        onClick={() =>
+                          showConfirmDialog(
+                            "Suspend User",
+                            "Are you sure you want to suspend this user?",
+                            suspendMutate,
+                            "Suspend",
+                            "bg-yellow-600 hover:bg-yellow-700"
+                          )
+                        }
+                      >
+                        Suspend
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Message Form */}
+                <div className="pt-4">
+                  <form
+                    onSubmit={handleSubmit(submitMessage)}
+                    className="space-y-3"
+                  >
                     <div>
-                      <h1>Updating...</h1>
+                      <label className="text-sm font-medium text-gray-500">
+                        Send Message
+                      </label>
+                      <textarea
+                        rows={3}
+                        className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        placeholder="Type your message..."
+                        {...register("message", { required: true })}
+                      />
+                      {errors.message?.type === "required" && (
+                        <p className="text-red-500 text-xs mt-1">
+                          Message is required
+                        </p>
+                      )}
                     </div>
-                  ) : (
+
+                    <button
+                      type="submit"
+                      disabled={loadingMessage}
+                      className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-md transition-colors duration-200"
+                    >
+                      {loadingMessage ? (
+                        <div className="flex items-center justify-center">
+                          <PulseLoader color="#FFFFFF" size={6} />
+                        </div>
+                      ) : (
+                        "Send Message"
+                      )}
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              {/* Categories */}
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-500">
+                    Product Categories
+                  </label>
+                </div>
+
+                {loadingSeller ? (
+                  <Skeleton height={80} radius="md" />
+                ) : (
+                  <div className="space-y-3">
+                    <MultiSelect
+                      value={categories}
+                      onChange={setCategories}
+                      data={categoriesData}
+                      placeholder="Select categories"
+                      className="w-full"
+                    />
+
                     <button
                       onClick={updateCategoriesFunction}
-                      className="bg-primary mt-3  px-4 py-1 rounded-md hover:bg-green-800 text-light "
+                      disabled={loadingUpdateCategories}
+                      className="w-full px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400 rounded-md transition-colors duration-200"
                     >
-                      Update
+                      {loadingUpdateCategories
+                        ? "Updating..."
+                        : "Update Categories"}
                     </button>
-                  )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Analytics Cards */}
+        <div className="mb-8">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Sales Analytics
+              </h2>
+            </div>
+
+            {loadingProduct ? (
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} height={120} radius="md" />
+                ))}
+              </div>
+            ) : (
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-gray-900">
+                    {productsData.data ? totalProducts : "0"}
+                  </div>
+                  <div className="text-sm text-gray-600 mt-1">
+                    Products Uploaded
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-gray-900">
+                    {productsData.data ? totalSold : "0"}
+                  </div>
+                  <div className="text-sm text-gray-600 mt-1">Total Sold</div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    ${productsData.data ? formatCurrency(sellerEarning) : "0"}
+                  </div>
+                  <div className="text-sm text-gray-600 mt-1">
+                    Seller Earnings
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-blue-600">
+                    ${productsData.data ? formatCurrency(pullzEarning) : "0"}
+                  </div>
+                  <div className="text-sm text-gray-600 mt-1">
+                    Platform Earnings
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4 text-center">
+                  <button
+                    disabled={
+                      sellerEarning === 0 || !auth?.roles?.includes("Admin")
+                    }
+                    onClick={() =>
+                      showConfirmDialog(
+                        "Pay Seller",
+                        "Are you sure you want to pay all seller earnings?",
+                        payAllProductsMutate,
+                        "Pay All",
+                        "bg-green-600 hover:bg-green-700"
+                      )
+                    }
+                    title={sellerEarning === 0 ? "Seller has no earnings" : ""}
+                    className="w-full px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-md transition-colors duration-200"
+                  >
+                    {loadingPayAll ? (
+                      <PulseLoader color="#FFFFFF" size={6} />
+                    ) : (
+                      "Pay All"
+                    )}
+                  </button>
                 </div>
               </div>
             )}
           </div>
         </div>
-      )}
-      {/* end user details  */}
 
-      {/* seller products summary  */}
-      <h1 className="font-bold text-lg mt-5">Seller Products</h1>
-
-      <div className="bg-gray-100 my-4">
-        {loadingProduct ? (
-          <div className="flex flex-col w-[90%] justify-center md:w-full md:grid md:grid-cols-4 gap-4 md:content-center p-[50px] ">
-            <Skeleton height={90} radius="sm" />
-            <Skeleton height={90} radius="sm" />
-            <Skeleton height={90} radius="sm" />
-            <Skeleton height={90} radius="sm" />
+        {/* Products Breakdown */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Product Categories
+            </h2>
           </div>
-        ) : (
-          <div className="flex flex-col w-[90%] justify-center md:w-full md:grid md:grid-cols-5 gap-4 md:content-center p-[50px] ">
-            <div className="min-h-[100px] bg-secondary bg-opacity-100  text-gray-200 px-1 py-2 shadow-md shadow-[#184267] hover:bg-opacity-90 h ">
-              <h1 className="text-lg font-semibold text-center">
-                Products Uploaded
-              </h1>
-              <div className="text-center text-lg font-semibold my-4  ">
-                {productsData.data ? totalProducts : "0"}
-              </div>
-            </div>
-            <div className="min-h-[100px] bg-secondary bg-opacity-100  text-gray-200 px-1 py-2 shadow-md shadow-[#184267] hover:bg-opacity-90 ">
-              <h1 className="text-lg font-semibold text-center">
-                Total Sold Products
-              </h1>
-              <div className="text-center text-lg font-semibold my-3 ">
-                {productsData.data ? totalSold : "0"}
-              </div>
-            </div>
-            <div className="min-h-[100px] bg-secondary bg-opacity-100  text-gray-200 px-1 py-2 shadow-md shadow-[#184267] hover:bg-opacity-90 ">
-              <h1 className="text-lg font-semibold text-center">
-                Seller Earnings
-              </h1>
-              <div className="text-center text-lg font-semibold my-3 ">
-                ${productsData.data ? formatCurrency(sellerEarning) : "0"}
-              </div>
-            </div>
-            <div className="min-h-[100px] bg-secondary bg-opacity-100  text-gray-200 px-1 py-2 shadow-md shadow-[#184267] hover:bg-opacity-90 ">
-              <h1 className="text-lg font-semibold text-center">
-                Pullz Earnings
-              </h1>
-              <div className="text-center text-lg font-semibold my-3 ">
-                ${productsData.data ? formatCurrency(pullzEarning) : "0"}
-              </div>
-            </div>
-            <div className="min-h-[100px] bg-secondary bg-opacity-100  text-gray-200 px-1 py-2 shadow-md shadow-[#184267] hover:bg-opacity-90 ">
-              <h1 className="text-lg font-semibold text-center">Pay Seller </h1>
-              {loadingPayAll ? (
-                <div></div>
-              ) : (
-                <div className="flex justify-center my-4 ">
-                  <button
-                    disabled={
-                      sellerEarning === 0 || !auth?.roles?.includes("Admin")
-                        ? true
-                        : false
-                    }
-                    onClick={payUser}
-                    title={sellerEarning === 0 ? "Seller has no earnings" : ""}
-                    className="bg-primary  px-4 py-1 rounded-md hover:bg-green-800 disabled:cursor-not-allowed "
-                  >
-                    {" "}
-                    Pay all{" "}
-                  </button>
-                </div>
-              )}
-            </div>
+
+          <div className="p-6">
+            <Tabs defaultValue="ssn">
+              <Tabs.List>
+                <Tabs.Tab value="ssn">SSN/DOB</Tabs.Tab>
+                <Tabs.Tab value="googleVoice">Google Voice</Tabs.Tab>
+                <Tabs.Tab value="textNow">TextNow/Mail</Tabs.Tab>
+                <Tabs.Tab value="cards">Cards</Tabs.Tab>
+                <Tabs.Tab value="files">Files</Tabs.Tab>
+                <Tabs.Tab value="accounts">Accounts</Tabs.Tab>
+                <Tabs.Tab value="dumps">Dumps</Tabs.Tab>
+              </Tabs.List>
+
+              <Tabs.Panel value="ssn" pt="md">
+                {jabberId && <SsnProducts jabberId={jabberId} />}
+              </Tabs.Panel>
+
+              <Tabs.Panel value="googleVoice" pt="md">
+                {jabberId && <GoogleVoiceProducts jabberId={jabberId} />}
+              </Tabs.Panel>
+
+              <Tabs.Panel value="textNow" pt="md">
+                {jabberId && <TextNowProducts jabberId={jabberId} />}
+              </Tabs.Panel>
+
+              <Tabs.Panel value="cards" pt="md">
+                {jabberId && <CardProducts jabberId={jabberId} />}
+              </Tabs.Panel>
+
+              <Tabs.Panel value="files" pt="md">
+                {jabberId && <FileProducts jabberId={jabberId} />}
+              </Tabs.Panel>
+
+              <Tabs.Panel value="accounts" pt="md">
+                {jabberId && <AccountProducts jabberId={jabberId} />}
+              </Tabs.Panel>
+
+              <Tabs.Panel value="dumps" pt="md">
+                {jabberId && <DumpProducts jabberId={jabberId} />}
+              </Tabs.Panel>
+            </Tabs>
           </div>
-        )}
-      </div>
-
-      {/* products breakdown  */}
-      <div className=" overflow-x-auto my-6 mx-1 md:mx-5">
-        <Tabs defaultValue="ssn">
-          <Tabs.List>
-            <Tabs.Tab value="ssn">SSN/DOB</Tabs.Tab>
-            <Tabs.Tab value="googleVoice">Google Voice</Tabs.Tab>
-            <Tabs.Tab value="textNow">TextNow/Mail</Tabs.Tab>
-            <Tabs.Tab value="cards">Cards</Tabs.Tab>
-            <Tabs.Tab value="files">Files</Tabs.Tab>
-            <Tabs.Tab value="accounts">Accounts</Tabs.Tab>
-            <Tabs.Tab value="dumps">Dumps</Tabs.Tab>
-          </Tabs.List>
-
-          <Tabs.Panel value="ssn" pt="xs">
-            {jabberId && <SsnProducts jabberId={jabberId} />}
-          </Tabs.Panel>
-
-          <Tabs.Panel value="googleVoice" pt="xs">
-            {jabberId && <GoogleVoiceProducts jabberId={jabberId} />}
-          </Tabs.Panel>
-
-          <Tabs.Panel value="textNow" pt="xs">
-            {jabberId && <TextNowProducts jabberId={jabberId} />}
-          </Tabs.Panel>
-
-          <Tabs.Panel value="cards" pt="xs">
-            {jabberId && <CardProducts jabberId={jabberId} />}
-          </Tabs.Panel>
-
-          <Tabs.Panel value="files" pt="xs">
-            {jabberId && <FileProducts jabberId={jabberId} />}
-          </Tabs.Panel>
-
-          <Tabs.Panel value="accounts" pt="xs">
-            {jabberId && <AccountProducts jabberId={jabberId} />}
-          </Tabs.Panel>
-
-          <Tabs.Panel value="dumps" pt="xs">
-            {jabberId && <DumpProducts jabberId={jabberId} />}
-          </Tabs.Panel>
-        </Tabs>
+        </div>
       </div>
     </div>
   );
