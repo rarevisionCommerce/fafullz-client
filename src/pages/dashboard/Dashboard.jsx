@@ -4,6 +4,7 @@ import {
   FaUserAlt,
   FaCartArrowDown,
   FaQuestionCircle,
+  FaSearch,
 } from "react-icons/fa";
 import { FaTelegramPlane } from "react-icons/fa";
 import { Link, NavLink, Outlet } from "react-router-dom";
@@ -193,6 +194,47 @@ function Dashboard() {
   });
   // end...................
 
+  // Send Lookup Button Component
+  const SendLookupButton = ({ isMobile = false, isCollapsed = false }) => {
+    const handleLookupClick = () => {
+      window.open('https://vshop01.com', '_blank');
+    };
+
+    if (isMobile) {
+      return (
+        <button
+          onClick={handleLookupClick}
+          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2 w-full md:w-auto"
+        >
+          <FaSearch className="text-sm" />
+          <span className="text-sm">Send Lookup</span>
+        </button>
+      );
+    }
+
+    if (isCollapsed) {
+      return (
+        <button
+          onClick={handleLookupClick}
+          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold p-2 rounded-lg shadow-lg transform hover:scale-110 transition-all duration-300 flex items-center justify-center"
+          title="Send Lookup"
+        >
+          <FaSearch size={18} />
+        </button>
+      );
+    }
+
+    return (
+      <button
+        onClick={handleLookupClick}
+        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
+      >
+        <FaSearch className="text-sm" />
+        <span className="text-sm">Send Lookup</span>
+      </button>
+    );
+  };
+
   return (
     <div className="">
       {/* navbar */}
@@ -202,16 +244,21 @@ function Dashboard() {
             <img src={logo} alt="" className=" w-[] h-[50px] " />
             {/* <h1 className="text-2xl">FAFullz</h1> */}
           </div>
-          <a
-            className="md:hidden"
-            href="https://t.me/FaFullzShop"
-            target="_blank"
-          >
-            <button className="bg-blue-500 flex items-center hover:bg-blue-600 text-white font-bold py-1 px-4 rounded">
-              <FaTelegramPlane className="inline-block mr-2" />
-              <p className="hidden md:flex">Join Us on Telegram</p>
-            </button>
-          </a>
+          
+          {/* Mobile buttons container */}
+          <div className="md:hidden flex gap-2 items-center">
+            <SendLookupButton isMobile={true} />
+            <a
+              href="https://t.me/FaFullzShop"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <button className="bg-blue-500 flex items-center hover:bg-blue-600 text-white font-bold py-1 px-2 rounded">
+                <FaTelegramPlane size={16} />
+              </button>
+            </a>
+          </div>
+          
           <div className="md:hidden">
             {mobileMenu ? (
               <div onClick={(e) => setMobileMenu(!mobileMenu)}>
@@ -224,12 +271,23 @@ function Dashboard() {
             )}
           </div>
         </div>
-        <a className="hidden md:flex" href="https://t.me/FaFullzShop" target="_blank">
-          <p className="bg-blue-500 h-8  flex items-center hover:bg-blue-600 text-white font-bold py-[1px] px-4 rounded">
-            <FaTelegramPlane className="inline-block mr-2" />
-            <p className="hidden text-sm md:flex">Join Us on Telegram</p>
-          </p>
-        </a>
+
+        {/* Desktop header buttons */}
+        <div className="hidden md:flex gap-3 items-center">
+          <SendLookupButton />
+          <a 
+            className="flex" 
+            href="https://t.me/FaFullzShop" 
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <p className="bg-blue-500 h-8  flex items-center hover:bg-blue-600 text-white font-bold py-[1px] px-4 rounded">
+              <FaTelegramPlane className="inline-block mr-2" />
+              <p className="hidden text-sm md:flex">Join Us on Telegram</p>
+            </p>
+          </a>
+        </div>
+
         <hr className="w-full border-1 mb-4  border-primary md:hidden" />
         <div className="flex gap-2 pr-5 justify-end">
           <div className="pr-5" title="Support">
@@ -309,6 +367,12 @@ function Dashboard() {
               )}
             </div>
           </div>
+
+          {/* Send Lookup Button in Sidebar */}
+          <div className="px-[15px] pb-[10px]">
+            <SendLookupButton isCollapsed={!isOpen} />
+          </div>
+
           {menuItem?.map((item, index) => {
             return (
               <NavLink
@@ -327,6 +391,7 @@ function Dashboard() {
             );
           })}
         </div>
+
         {/* mobile sidebar */}
         <div
           className={
@@ -335,6 +400,20 @@ function Dashboard() {
               : " absolute left-[-100%] "
           }
         >
+          {/* Send Lookup Button in Mobile Menu */}
+          <div className="px-[15px] pb-[10px]">
+            <button
+              onClick={() => {
+                window.open('https://vshop01.com', '_blank');
+                setMobileMenu(false);
+              }}
+              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-3 w-full"
+            >
+              <FaSearch size={20} className="text-white" />
+              <span className="text-sm">Send Lookup</span>
+            </button>
+          </div>
+
           {menuItem?.map((item, index) => {
             return (
               <NavLink
@@ -350,14 +429,8 @@ function Dashboard() {
               </NavLink>
             );
           })}
-
-          {/* {menuItem.map((item, index) => 
-          
-
-
-            
-          )} */}
         </div>
+
         <main
           className="w-full py-6 px-3 md:px-6 overflow-y-scroll h-[100vh] pb-[200px] bg-[#2d2d2d]  "
           onClick={() => {
