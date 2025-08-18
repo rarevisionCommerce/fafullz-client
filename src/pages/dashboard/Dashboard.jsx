@@ -197,7 +197,7 @@ function Dashboard() {
   // Send Lookup Button Component
   const SendLookupButton = ({ isMobile = false, isCollapsed = false }) => {
     const handleLookupClick = () => {
-      window.open('https://vshop01.com', '_blank');
+      window.open('https://rarevision.net', '_blank');
     };
 
     if (isMobile) {
