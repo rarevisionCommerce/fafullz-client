@@ -194,7 +194,7 @@ function Dashboard() {
   });
   // end...................
 
-  // Send Lookup Button Component
+  // SSN Lookup Button Component
   const SendLookupButton = ({ isMobile = false, isCollapsed = false }) => {
     const handleLookupClick = () => {
       window.open('https://rarevision.net', '_blank');
@@ -207,7 +207,7 @@ function Dashboard() {
           className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2 w-full md:w-auto"
         >
           <FaSearch className="text-sm" />
-          <span className="text-sm">Send Lookup</span>
+          <span className="text-sm">SSN Lookup</span>
         </button>
       );
     }
@@ -217,7 +217,7 @@ function Dashboard() {
         <button
           onClick={handleLookupClick}
           className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold p-2 rounded-lg shadow-lg transform hover:scale-110 transition-all duration-300 flex items-center justify-center"
-          title="Send Lookup"
+          title="SSN Lookup"
         >
           <FaSearch size={18} />
         </button>
@@ -230,7 +230,7 @@ function Dashboard() {
         className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
       >
         <FaSearch className="text-sm" />
-        <span className="text-sm">Send Lookup</span>
+        <span className="text-sm">SSN Lookup</span>
       </button>
     );
   };
@@ -368,7 +368,7 @@ function Dashboard() {
             </div>
           </div>
 
-          {/* Send Lookup Button in Sidebar */}
+          {/* SSN Lookup Button in Sidebar */}
           <div className="px-[15px] pb-[10px]">
             <SendLookupButton isCollapsed={!isOpen} />
           </div>
@@ -400,7 +400,7 @@ function Dashboard() {
               : " absolute left-[-100%] "
           }
         >
-          {/* Send Lookup Button in Mobile Menu */}
+          {/* SSN Lookup Button in Mobile Menu */}
           <div className="px-[15px] pb-[10px]">
             <button
               onClick={() => {
@@ -410,7 +410,7 @@ function Dashboard() {
               className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-3 w-full"
             >
               <FaSearch size={20} className="text-white" />
-              <span className="text-sm">Send Lookup</span>
+              <span className="text-sm">SSN Lookup</span>
             </button>
           </div>
 

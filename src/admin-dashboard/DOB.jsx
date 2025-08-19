@@ -537,14 +537,30 @@ function DOB() {
           {/* end of filters */}
         </div>
       )}
-      <div className="mt-10 pb-2">
-        <div className="">
-          <Pagination
-            total={totalPages || 0}
-            page={activePage}
-            color="yellow"
-            onChange={setPage}
-          />
+      <div className="py-3 px-3 flex justify-start mt-2">
+        <Pagination
+          total={totalPages || 0}
+          page={activePage}
+          color="yellow"
+          onChange={setPage}
+        />
+        <div className="flex justify-center items-center ml-4 text-dark">
+          <p>Showing </p>
+          <select
+            name=""
+            value={perPage}
+            id=""
+            className="px-1 py-1 mx-2 rounded-md border bg-gray-50 "
+            onChange={(e) => {
+              setPerPage(e.target.value);
+            }}
+          >
+            <option value={300}>300</option>
+            <option value={500}>500</option>
+            <option value={700}>700</option>
+            <option value={3000}>3000</option>
+          </select>
+          <p>Per page</p>
         </div>
       </div>
 
@@ -586,6 +602,7 @@ function DOB() {
               <option value={300}>300</option>
               <option value={500}>500</option>
               <option value={700}>700</option>
+              <option value={3000}>3000</option>
             </select>
             <p>Per page</p>
           </div>
