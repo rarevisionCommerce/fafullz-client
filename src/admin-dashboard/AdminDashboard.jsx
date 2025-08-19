@@ -16,7 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import PulseLoader from "react-spinners/PulseLoader";
 import AdminProfile from "../components/AdminProfile";
-import {  Indicator } from "@mantine/core";
+import { Indicator } from "@mantine/core";
 
 function AdminDashboard() {
   const axios = useAxiosPrivate();
@@ -44,6 +44,11 @@ function AdminDashboard() {
       path: "buyers",
       name: "Buyers ",
       icon: <MdSell size={20} />,
+    },
+    {
+      path: "all-products",
+      name: "SSN",
+      icon: <RiRefund2Line size={20} />,
     },
     {
       path: "requests",
@@ -106,7 +111,7 @@ function AdminDashboard() {
     refetchOnWindowFocus: true,
     keepPreviousData: true,
     staleTime: 5000, // data can remain stale for 5 seconds
-    refetchInterval: 5000 // refetch every 5 seconds
+    refetchInterval: 5000, // refetch every 5 seconds
   });
 
   // get all refunds
@@ -121,10 +126,10 @@ function AdminDashboard() {
       refetchOnWindowFocus: true,
       keepPreviousData: true,
       staleTime: 5000, // data can remain stale for 5 seconds
-      refetchInterval: 5000 // refetch every 5 seconds
+      refetchInterval: 5000, // refetch every 5 seconds
     }
   );
-  
+
   // get all refunds
   const fetchWithdrawRequestsCount = () => {
     return axios.get(`/withdrawals/unread`);
@@ -137,7 +142,7 @@ function AdminDashboard() {
       refetchOnWindowFocus: true,
       keepPreviousData: true,
       staleTime: 5000, // data can remain stale for 5 seconds
-      refetchInterval: 5000 // refetch every 5 seconds
+      refetchInterval: 5000, // refetch every 5 seconds
     }
   );
 
@@ -167,11 +172,7 @@ function AdminDashboard() {
           <div className="pr-4 pt-[2px] " title="Withdraw Requests">
             <Link to={"/admin-dash/requests"}>
               {withdrawData?.data > 0 ? (
-                <Indicator
-                  inline
-                  label={withdrawData?.data}
-                  size={16}
-                >
+                <Indicator inline label={withdrawData?.data} size={16}>
                   <AiFillMoneyCollect size={23} />
                 </Indicator>
               ) : (
@@ -196,12 +197,13 @@ function AdminDashboard() {
           </div>
           <div title="Refund">
             <Link to={"/admin-dash/refund"}>
-              {
-                refundData?.data > 0 ? 
-              <Indicator inline label={refundData?.data} size={16}>
+              {refundData?.data > 0 ? (
+                <Indicator inline label={refundData?.data} size={16}>
+                  <FaCommentsDollar size={25} />
+                </Indicator>
+              ) : (
                 <FaCommentsDollar size={25} />
-              </Indicator> : <FaCommentsDollar size={25} />
-              }
+              )}
             </Link>
           </div>
 

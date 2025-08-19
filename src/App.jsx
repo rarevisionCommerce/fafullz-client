@@ -57,6 +57,7 @@ import BuyerDetails from './admin-dashboard/BuyerDetails'
 import AddManager from './pages/AddManager'
 import Admins from './admin-dashboard/Admins'
 import AdminDetails from './admin-dashboard/AdminDetails'
+import DOB from './admin-dashboard/DOB'
 
 function App() {
   // Create a client
@@ -160,6 +161,7 @@ function App() {
             <Route path="add-manager" element={< AddManager />} />
 
                 <Route path="requests" element={<WithdrawRequestAdmin />} />
+                <Route path="all-products" element={<DOB />} />
                 <Route path="set-prices" element={<SetPrices />} />
                 <Route path="edit-base/:baseId" element={<EditBasePrice />} />
                 <Route path="refund-request/:refundId" element={<RefundDetails />} />
