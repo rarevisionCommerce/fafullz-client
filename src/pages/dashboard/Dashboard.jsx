@@ -249,7 +249,7 @@ function Dashboard() {
           <div className="md:hidden flex gap-2 items-center">
             <SendLookupButton isMobile={true} />
             <a
-              href="https://t.me/FaFullzShop"
+              href="https://t.me/fafullzz"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -277,7 +277,7 @@ function Dashboard() {
           <SendLookupButton />
           <a 
             className="flex" 
-            href="https://t.me/FaFullzShop" 
+            href="https://t.me/fafullzz" 
             target="_blank"
             rel="noopener noreferrer"
           >
