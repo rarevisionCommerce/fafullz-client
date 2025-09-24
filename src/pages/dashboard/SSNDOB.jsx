@@ -435,6 +435,12 @@ function SSNDOB() {
                 scope="col"
                 className="border-collapse border border-slate-500 py-2 px-3"
               >
+                Enrollment
+              </th>
+              <th
+                scope="col"
+                className="border-collapse border border-slate-500 py-2 px-3"
+              >
                 Action
               </th>
             </tr>
@@ -514,6 +520,9 @@ function SSNDOB() {
                       className={` border-collapse border-b border-slate-500 py-2 px-3`}
                     >
                       ${account?.price?.price}
+                    </td>
+                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                      {account?.enrollment ? "✅" : "❌"}
                     </td>
                     <td className=" border-collapse border-b border-slate-500 py-3 px-3">
                       {loadingCart ? (

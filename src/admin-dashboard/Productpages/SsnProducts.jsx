@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
-import useAxiosPrivate from '../../hooks/useAxiosPrivate';
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useAuth from "../../hooks/useAuth";
 import Select from "react-select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,7 +9,7 @@ import { confirmAlert } from "react-confirm-alert";
 import { toast } from "react-toastify";
 
 function SsnProducts(props) {
-    const axios = useAxiosPrivate();
+  const axios = useAxiosPrivate();
 
   const [status, setStatus] = useState("");
   const [isPaid, setIsPaid] = useState("");
@@ -44,29 +44,29 @@ function SsnProducts(props) {
 
   //end of fetching products------------------
   const [productId, setProductId] = useState("");
-  
-   // pay one user products 
+
+  // pay one user products
   const payOneProduct = (data) => {
-    const productType = 'ssn'
-    return axios.put(`sellers/one/${productId}/${productType}`, data)
-  }
+    const productType = "ssn";
+    return axios.put(`sellers/one/${productId}/${productType}`, data);
+  };
 
   const { mutate: payOneProductMutate, isLoading: loadingPayOne } = useMutation(
     payOneProduct,
     {
       onSuccess: (response) => {
-        const text = response?.data?.message
-        toast.success(text)
+        const text = response?.data?.message;
+        toast.success(text);
         queryClient.invalidateQueries([`ssn-${auth?.jabberId}`, activePage]);
       },
       onError: (err) => {
-        const text = err?.response?.data?.message || 'something went wrong'
-        toast.error(text)
+        const text = err?.response?.data?.message || "something went wrong";
+        toast.error(text);
       },
-    },
-  ) 
- // pay one alert  
-    const payUser = () => {
+    }
+  );
+  // pay one alert
+  const payUser = () => {
     confirmAlert({
       customUI: ({ onClose }) => {
         return (
@@ -83,11 +83,11 @@ function SsnProducts(props) {
               <button
                 className="rounded-md  bg-green-500 text-white font-bold px-5 w-[50%] py-1 hover:bg-tertiary "
                 onClick={() => {
-                 payOneProductMutate();
+                  payOneProductMutate();
                   onClose();
                 }}
               >
-                Pay 
+                Pay
               </button>
             </div>
           </div>
@@ -96,7 +96,6 @@ function SsnProducts(props) {
     });
   };
   // end of alert
- 
 
   function formatCurrency(number) {
     return Number.parseFloat(number).toFixed(2);
@@ -104,11 +103,8 @@ function SsnProducts(props) {
   return (
     <div>
       <div className="my-[2px]">
-       
-
         <div className="flex justify-between  px-1 md:px-4 ">
           <h1>Total: {productData?.data?.count || 0}</h1>
-         
         </div>
 
         <div className="overflow-x-auto mb-3">
@@ -164,13 +160,17 @@ function SsnProducts(props) {
                   Price
                 </th>
                 <th className="border-collapse border border-slate-500 py-2 px-3">
+                  Enrollment
+                </th>
+                <th className="border-collapse border border-slate-500 py-2 px-3">
                   Action
                 </th>
               </tr>
             </thead>
 
             <tbody className="text-dark">
-              {!productData?.data?.ssns || productData?.data?.ssns?.length < 1 ? (
+              {!productData?.data?.ssns ||
+              productData?.data?.ssns?.length < 1 ? (
                 <tr>
                   <td colSpan={12} className="text-gray-800 text-center py-3">
                     No SSN/DOB products
@@ -231,24 +231,25 @@ function SsnProducts(props) {
                         ${formatCurrency(item?.price?.price)}
                       </td>
                       <td className="border-collapse border-b border-slate-500 py-3 px-3">
-                         {
-                          item.isPaid === 'Is Paid' ? 
-                          <h1>Paid</h1>:
-
-                          item.status === "Sold" && item.isPaid === "Not Paid" ?
-
-                        <button
-                          onClick={()=>{
-                            setProductId(item._id);
-                            payUser();
-                          }}                
-                          className="bg-green-500 text-white rounded-md px-3 py-1 hover:bg-green-400 disabled:cursor-not-allowed disabled:bg-red-300 disabled:text-gray-300"
-                        >
-                          Pay
-                        </button>
-                        :                       
-                        <h1>Not sold</h1>
-                        }
+                        {item?.enrollment || "N/A"}
+                      </td>
+                      <td className="border-collapse border-b border-slate-500 py-3 px-3">
+                        {item.isPaid === "Is Paid" ? (
+                          <h1>Paid</h1>
+                        ) : item.status === "Sold" &&
+                          item.isPaid === "Not Paid" ? (
+                          <button
+                            onClick={() => {
+                              setProductId(item._id);
+                              payUser();
+                            }}
+                            className="bg-green-500 text-white rounded-md px-3 py-1 hover:bg-green-400 disabled:cursor-not-allowed disabled:bg-red-300 disabled:text-gray-300"
+                          >
+                            Pay
+                          </button>
+                        ) : (
+                          <h1>Not sold</h1>
+                        )}
                       </td>
                     </tr>
                   );

@@ -184,7 +184,7 @@ function SsnOrders(props) {
             order.description || ""
           }\nCS:  ${order.cs || ""}\nPurchase Date:  ${
             order.purchaseDate || ""
-          } \n\n_______________________________________ \n`;
+          }\nEnrollment:  ${order.enrollment || ""}  \n\n_______________________________________ \n`;
         })
         .join("\n");
 
