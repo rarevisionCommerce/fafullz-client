@@ -93,48 +93,11 @@ function Dashboard() {
       name: "SSN/DOB",
       icon: <AiFillCreditCard />,
     },
-    // {
-    //   path: "accounts",
-    //   name: "Accounts",
-    //   icon: <FaUserAlt />,
-    // },
-    // {
-    //   path: "cards",
-    //   name: "Cards",
-    //   icon: <AiFillCreditCard size={20} />,
-    // },
-    // {
-    //   path: "voice",
-    //   name: "Google Voice",
-    //   icon: <TbPhoneCall size={22} />,
-    // },
-
-    // {
-    //   path: "text-now",
-    //   name: "TextNow/Mail",
-    //   icon: <RiCellphoneFill size={20} />,
-    // },
-    // {
-    //   path: "files",
-    //   name: "Files",
-    //   icon: <VscFileSymlinkDirectory size={21} />,
-    // },
-    // {
-    //   path: "dumps",
-    //   name: "Dumps",
-    //   icon: <FaRegIdCard size={21} />,
-    // },
     {
       path: "my-orders",
       name: "My Orders",
       icon: <FaCartArrowDown size={20} />,
     },
-
-    // {
-    //   path: "faq",
-    //   name: "FAQ",
-    //   icon: <FaQuestionCircle size={20} />,
-    // },
     {
       path: "support",
       name: "Support ",
@@ -167,13 +130,6 @@ function Dashboard() {
     setIsOpen(false);
   }
 
-  // const productToSore = cartData?.cart || []
-
-  // useEffect(() => {
-  //   // Update local storage whenever the products are updated
-  //   localStorage.setItem("products", JSON.stringify(productToSore));
-  // }, [cartData?.cart]);
-
   function formatCurrency(number) {
     return Number.parseFloat(number)
       .toFixed(2)
@@ -195,299 +151,318 @@ function Dashboard() {
   });
   // end...................
 
-  // SSN Lookup Button Component
-  const SendLookupButton = ({ isMobile = false, isCollapsed = false }) => {
-    const handleLookupClick = () => {
-      window.open('https://rarevision.net', '_blank');
+  // Improved CTA Button Components with better styling and positioning
+  const CTAButton = ({ 
+    onClick, 
+    icon: Icon, 
+    label, 
+    variant = 'primary',
+    size = 'default',
+    className = '',
+    ...props 
+  }) => {
+    const baseClasses = "font-semibold rounded-xl shadow-md transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2";
+    
+    const variants = {
+      primary: "bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white focus:ring-blue-500",
+      secondary: "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white focus:ring-orange-500",
+      telegram: "bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white focus:ring-blue-400"
     };
     
- 
-
-    if (isMobile) {
-      return (
-        <button
-          onClick={handleLookupClick}
-          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2 w-full md:w-auto"
-        >
-          <FaSearch className="text-sm" />
-          <span className="text-sm">SSN Lookup</span>
-        </button>
-      );
-    }
-
-    if (isCollapsed) {
-      return (
-        <button
-          onClick={handleLookupClick}
-          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold p-2 rounded-lg shadow-lg transform hover:scale-110 transition-all duration-300 flex items-center justify-center"
-          title="SSN Lookup"
-        >
-          <FaSearch size={18} />
-        </button>
-      );
-    }
-
+    const sizes = {
+      small: "py-2 px-3 text-xs",
+      default: "py-2.5 px-4 text-sm",
+      large: "py-3 px-6 text-base",
+      icon: "p-2.5"
+    };
+    
     return (
       <button
-        onClick={handleLookupClick}
-        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
+        onClick={onClick}
+        className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`}
+        {...props}
       >
-        <FaSearch className="text-sm" />
-        <span className="text-sm">SSN Lookup</span>
+        <Icon size={size === 'icon' ? 20 : 16} />
+        {size !== 'icon' && <span>{label}</span>}
       </button>
     );
   };
-  
-  
- const GoToBot = ({ isMobile = false, isCollapsed = false }) => {
-  const handleBotClick = () => {
-    window.open("https://t.me/FafullzBot", "_blank");
-  };
-
-  if (isMobile) {
-    return (
-      <button
-        onClick={handleBotClick}
-        className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2 w-full md:w-auto"
-      >
-        <FaRobot className="text-sm" />
-        <span className="text-sm">Go to Bot</span>
-      </button>
-    );
-  }
-
-  if (isCollapsed) {
-    return (
-      <button
-        onClick={handleBotClick}
-        className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold p-2 rounded-lg shadow-lg transform hover:scale-110 transition-all duration-300 flex items-center justify-center"
-        title="Go to Bot"
-      >
-        <FaRobot size={18} />
-      </button>
-    );
-  }
 
   return (
-    <button
-      onClick={handleBotClick}
-      className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
-    >
-      <FaRobot className="text-sm" />
-      <span className="text-sm">Go to Bot</span>
-    </button>
-  );
-};
+    <div className="bg-gray-900 min-h-screen">
+      {/* Enhanced Navbar */}
+      <nav className="bg-secondary text-white shadow-2xl fixed top-0 left-0 right-0 z-50 border-b border-gray-700">
+        {/* Main navbar content */}
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo and brand */}
+            <div className="flex items-center gap-3">
+              <img src={logo} alt="FAFullz Logo" className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg" />
+              <h1 className="hidden sm:block text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                FAFullz
+              </h1>
+            </div>
 
+            {/* Desktop CTA Buttons - Better positioned and styled */}
+            <div className="hidden lg:flex items-center gap-3">
+              <CTAButton
+                onClick={() => window.open('https://rarevision.net', '_blank')}
+                icon={FaSearch}
+                label="SSN Lookup"
+                variant="secondary"
+                title="SSN Lookup Service"
+              />
+              <CTAButton
+                onClick={() => window.open("https://t.me/FafullzBot", "_blank")}
+                icon={FaRobot}
+                label="Telegram Bot"
+                variant="primary"
+                title="Access our Telegram Bot"
+              />
+              <CTAButton
+                onClick={() => window.open("https://t.me/fafullzz", "_blank")}
+                icon={FaTelegramPlane}
+                label="Join Community"
+                variant="telegram"
+                title="Join our Telegram community"
+              />
+            </div>
 
+            {/* User info and cart - Better organized */}
+            <div className="flex items-center gap-4">
+              {/* Support notification */}
+              <Link 
+                to="/dash/support" 
+                className="relative p-2 hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                title="Support Messages"
+              >
+                {conversationData?.data?.totalCustomerUnread > 0 ? (
+                  <Indicator
+                    inline
+                    label={conversationData?.data?.totalCustomerUnread}
+                    size={16}
+                    color="red"
+                  >
+                    <TbMessageCircle size={24} />
+                  </Indicator>
+                ) : (
+                  <TbMessageCircle size={24} />
+                )}
+              </Link>
 
-
-  return (
-    <div className="">
-      {/* navbar */}
-      <div className=" bg-secondary text-light p-2 flex flex-col md:flex-row justify-between fixed top-0 left-0 right-0 z-10 ">
-        <div className="flex justify-between py-2 px-2 items-center">
-          <div className="flex gap-4 items-center">
-            <img src={logo} alt="" className=" w-[] h-[50px] " />
-            {/* <h1 className="text-2xl">FAFullz</h1> */}
-          </div>
-          
-          {/* Mobile buttons container */}
-          <div className="md:hidden flex gap-2 items-center">
-            <SendLookupButton isMobile={true} />
-            <GoToBot isMobile={true} />
-            <a
-              href="https://t.me/fafullzz"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <button className="bg-blue-500 flex items-center hover:bg-blue-600 text-white font-bold py-1 px-2 rounded">
-                <FaTelegramPlane size={16} />
-              </button>
-            </a>
-          </div>
-          
-          <div className="md:hidden">
-            {mobileMenu ? (
-              <div onClick={(e) => setMobileMenu(!mobileMenu)}>
-                <AiOutlineClose size={22} />
-              </div>
-            ) : (
-              <div onClick={(e) => setMobileMenu(!mobileMenu)}>
-                <FaBars size={22} />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Desktop header buttons */}
-        <div className="hidden md:flex gap-3 items-center">
-          <SendLookupButton />
-          <GoToBot />
-          <a 
-            className="flex" 
-            href="https://t.me/fafullzz" 
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <p className="bg-blue-500 h-8  flex items-center hover:bg-blue-600 text-white font-bold py-[1px] px-4 rounded">
-              <FaTelegramPlane className="inline-block mr-2" />
-              <p className="hidden text-sm md:flex">Join Us on Telegram</p>
-            </p>
-          </a>
-        </div>
-
-        <hr className="w-full border-1 mb-4  border-primary md:hidden" />
-        <div className="flex gap-2 pr-5 justify-end">
-          <div className="pr-5" title="Support">
-            <Link to={"/dash/support"}>
-              {conversationData?.data?.totalCustomerUnread > 0 ? (
+              {/* Shopping cart */}
+              <Link 
+                to="cart" 
+                className="relative p-2 hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                title="Shopping Cart"
+              >
                 <Indicator
                   inline
-                  label={conversationData?.data?.totalCustomerUnread}
                   size={16}
+                  offset={4}
+                  position="top-end"
+                  color="blue"
+                  label={totalItems || 0}
                 >
-                  <TbMessageCircle size={25} />
+                  <CgShoppingCart size={26} />
                 </Indicator>
-              ) : (
-                <TbMessageCircle size={25} />
-              )}
-            </Link>
-          </div>
+              </Link>
 
-          <h1>Cart</h1>
-
-          <Link to={"cart"}>
-            <div className="flex">
-              <Indicator
-                inline
-                size={16}
-                offset={4}
-                position="top-end"
-                color=""
-                label={totalItems || 0}
+              {/* User profile dropdown */}
+              <div
+                className="relative flex items-center gap-3 p-2 hover:bg-gray-700 rounded-lg cursor-pointer transition-colors duration-200"
+                onClick={() => setDropdown(!dropdown)}
               >
-                <CgShoppingCart size={30} />
-              </Indicator>
-            </div>
-          </Link>
-
-          <div
-            className=" pl-5 flex gap-4 hover:cursor-pointer"
-            onClick={() => {
-              setDropdown(!dropdown);
-            }}
-          >
-            {loadingCart ? (
-              <div>
-                <h1 className="bg-primary px-2 h-7   rounded ">
-                  {"$" + formatCurrency(cartData?.balanceObj?.balance || 0)}
-                </h1>
-              </div>
-            ) : (
-              <h1 className="bg-primary px-2 h-7   rounded ">
-                {"$" + formatCurrency(paymentsData?.data?.balance || 0)}
-              </h1>
-            )}
-            <p className="hidden sm:flex">{userName}</p>
-            <h1 className="mt-1">
-              <AiOutlineCaretDown size={23} />
-            </h1>
-            {dropdown && <ProfileDropDown />}
-          </div>
-        </div>
-      </div>
-
-      {/* main content*/}
-      <div className="flex pt-[130px] md:pt-[60px] overflow- min-h-[100vh]">
-        <div
-          style={{ width: isOpen ? "270px" : "80px" }}
-          className="hidden md:flex flex-col bg-tertiary text-white h-screen w-[260px]  overflow-y-auto  ease-in-0ut duration-500 "
-        >
-          <div className="flex items-center align-middle py-[20px] pl-[15px] ">
-            <div
-              style={{ marginLeft: isOpen ? "50px" : "0px" }}
-              className="flex text-[25px]  ml-[50px] "
-            >
-              {isOpen ? (
-                <AiOutlineClose onClick={toggle} />
-              ) : (
-                <FaBars onClick={toggle} />
-              )}
-            </div>
-          </div>
-
-          {/* SSN Lookup Button in Sidebar */}
-          <div className="px-[15px] pb-[10px]">
-            <SendLookupButton isCollapsed={!isOpen} />
-            <GoToBot isCollapsed={!isOpen} />
-          </div>
-
-          {menuItem?.map((item, index) => {
-            return (
-              <NavLink
-                to={item.path}
-                key={index}
-                className="flex  py-[10px] px-[15px] gap-[15px]  border-b border-b-black bottom-2 ease-in-out duration-500   hover:ease-in-out hover:duration-500 "
-              >
-                <div className="text-[23px]  text-primary  ">{item.icon}</div>
-                <div
-                  style={{ display: isOpen ? "block" : "none" }}
-                  className="text-sm"
-                >
-                  {item.name}
+                <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 rounded-lg text-sm font-semibold">
+                  ${formatCurrency(paymentsData?.data?.balance || 0)}
                 </div>
-              </NavLink>
-            );
-          })}
+                <span className="hidden sm:block text-sm font-medium">{userName}</span>
+                <AiOutlineCaretDown size={16} className={`transform transition-transform duration-200 ${dropdown ? 'rotate-180' : ''}`} />
+                {dropdown && <ProfileDropDown />}
+              </div>
+
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setMobileMenu(!mobileMenu)}
+                className="lg:hidden p-2 hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                aria-label="Toggle mobile menu"
+              >
+                {mobileMenu ? (
+                  <AiOutlineClose size={24} />
+                ) : (
+                  <FaBars size={24} />
+                )}
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* mobile sidebar */}
-        <div
-          className={
-            mobileMenu
-              ? "absolute top-[108px] ease-in-out duration-500 h-screen text-light flex flex-col bg-secondary w-[100%] py-6 md:hidden z-10"
-              : " absolute left-[-100%] "
-          }
+        {/* Mobile CTA buttons bar - Better positioned below main nav */}
+        <div className="lg:hidden bg-gray-800 px-4 py-3 border-t border-gray-700">
+          <div className="flex gap-2 justify-center">
+            <CTAButton
+              onClick={() => window.open('https://rarevision.net', '_blank')}
+              icon={FaSearch}
+              label="SSN Lookup"
+              variant="secondary"
+              size="small"
+              className="flex-1 max-w-32"
+            />
+            <CTAButton
+              onClick={() => window.open("https://t.me/FafullzBot", "_blank")}
+              icon={FaRobot}
+              label="Bot"
+              variant="primary"
+              size="small"
+              className="flex-1 max-w-24"
+            />
+            <CTAButton
+              onClick={() => window.open("https://t.me/fafullzz", "_blank")}
+              icon={FaTelegramPlane}
+              label="Community"
+              variant="telegram"
+              size="small"
+              className="flex-1 max-w-32"
+            />
+          </div>
+        </div>
+      </nav>
+
+      {/* Main content layout */}
+      <div className="flex pt-16 lg:pt-16">
+        {/* Desktop Sidebar - Enhanced design */}
+        <aside
+          style={{ width: isOpen ? "280px" : "80px" }}
+          className="hidden lg:flex flex-col bg-tertiary text-white h-screen fixed left-0 top-16 shadow-2xl border-r border-gray-700 transition-all duration-300 ease-in-out z-40"
         >
-          {/* SSN Lookup Button in Mobile Menu */}
-          <div className="px-[15px] pb-[10px]">
+          {/* Sidebar toggle */}
+          <div className="flex items-center justify-center py-6 border-b border-gray-700">
             <button
-              onClick={() => {
-                window.open('https://vshop01.com', '_blank');
-                setMobileMenu(false);
-              }}
-              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-3 w-full"
+              onClick={toggle}
+              className="p-2 hover:bg-gray-700 rounded-lg transition-colors duration-200"
+              aria-label="Toggle sidebar"
             >
-              <FaSearch size={20} className="text-white" />
-              <span className="text-sm">SSN Lookup</span>
+              {isOpen ? <AiOutlineClose size={24} /> : <FaBars size={24} />}
             </button>
           </div>
 
-          {menuItem?.map((item, index) => {
-            return (
+          {/* Sidebar CTA buttons */}
+          <div className="p-4 space-y-3 border-b border-gray-700">
+            <CTAButton
+              onClick={() => window.open('https://rarevision.net', '_blank')}
+              icon={FaSearch}
+              label={isOpen ? "SSN Lookup" : undefined}
+              variant="secondary"
+              size={isOpen ? "default" : "icon"}
+              className="w-full"
+              title="SSN Lookup Service"
+            />
+            <CTAButton
+              onClick={() => window.open("https://t.me/FafullzBot", "_blank")}
+              icon={FaRobot}
+              label={isOpen ? "Telegram Bot" : undefined}
+              variant="primary"
+              size={isOpen ? "default" : "icon"}
+              className="w-full"
+              title="Access our Telegram Bot"
+            />
+          </div>
+
+          {/* Navigation menu */}
+          <nav className="flex-1 py-4">
+            {menuItem.map((item, index) => (
               <NavLink
-                onClick={() => setMobileMenu(!mobileMenu)}
                 to={item.path}
                 key={index}
-                className="flex  py-[10px] px-[15px] gap-[15px]  border-b border-b-black bottom-2 ease-in-out duration-500  hover:bg-[#1a1a1a] hover:ease-in-out hover:duration-500 "
+                className={({ isActive }) =>
+                  `flex items-center gap-4 py-3 px-4 mx-2 rounded-lg transition-all duration-200 hover:bg-gray-700 ${
+                    isActive ? 'bg-blue-600 shadow-lg' : ''
+                  }`
+                }
               >
-                <div className="text-[px]  text-primary  ">{item.icon}</div>
-                <div className="text-sm text-light hover:text-light">
-                  {item.name}
-                </div>
+                <div className="text-blue-400 flex-shrink-0">{item.icon}</div>
+                {isOpen && (
+                  <span className="text-sm font-medium whitespace-nowrap">
+                    {item.name}
+                  </span>
+                )}
               </NavLink>
-            );
-          })}
-        </div>
+            ))}
+          </nav>
+        </aside>
 
-        <main
-          className="w-full py-6 px-3 md:px-6 overflow-y-scroll h-[100vh] pb-[200px] bg-[#2d2d2d]  "
-          onClick={() => {
-            setDropdown(false);
-          }}
+        {/* Mobile sidebar overlay */}
+        <div
+          className={`fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden transition-opacity duration-300 ${
+            mobileMenu ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+          onClick={() => setMobileMenu(false)}
+        />
+
+        {/* Mobile sidebar */}
+        <aside
+          className={`fixed top-16 left-0 h-full w-80 bg-secondary text-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 lg:hidden ${
+            mobileMenu ? 'translate-x-0' : '-translate-x-full'
+          }`}
         >
-          <Outlet />
+          <div className="p-4 space-y-4 border-b border-gray-700">
+            <h2 className="text-lg font-semibold text-center">Quick Actions</h2>
+            <div className="space-y-3">
+              <CTAButton
+                onClick={() => {
+                  window.open('https://rarevision.net', '_blank');
+                  setMobileMenu(false);
+                }}
+                icon={FaSearch}
+                label="SSN Lookup Service"
+                variant="secondary"
+                className="w-full"
+              />
+              <CTAButton
+                onClick={() => {
+                  window.open("https://t.me/FafullzBot", "_blank");
+                  setMobileMenu(false);
+                }}
+                icon={FaRobot}
+                label="Telegram Bot"
+                variant="primary"
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          <nav className="p-4">
+            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+              Navigation
+            </h3>
+            {menuItem.map((item, index) => (
+              <NavLink
+                onClick={() => setMobileMenu(false)}
+                to={item.path}
+                key={index}
+                className={({ isActive }) =>
+                  `flex items-center gap-4 py-3 px-4 rounded-lg transition-all duration-200 hover:bg-gray-700 ${
+                    isActive ? 'bg-blue-600 shadow-lg' : ''
+                  }`
+                }
+              >
+                <div className="text-blue-400 flex-shrink-0">{item.icon}</div>
+                <span className="text-sm font-medium">{item.name}</span>
+              </NavLink>
+            ))}
+          </nav>
+        </aside>
+
+        {/* Main content area */}
+        <main
+          className={`flex-1 transition-all duration-300 ease-in-out ${
+            isOpen ? 'lg:ml-[280px]' : 'lg:ml-[80px]'
+          }`}
+          onClick={() => setDropdown(false)}
+        >
+          <div className="p-4 sm:p-6 lg:p-8 bg-gray-900 min-h-screen">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
