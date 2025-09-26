@@ -14,6 +14,7 @@ import {
   AiFillCreditCard,
   AiOutlineCaretDown,
 } from "react-icons/ai";
+import { FaRobot } from "react-icons/fa";
 import { BiBitcoin, BiNews, BiSupport } from "react-icons/bi";
 import { TbPhoneCall, TbMessageCircle } from "react-icons/tb";
 import { RiCellphoneFill } from "react-icons/ri";
@@ -199,6 +200,8 @@ function Dashboard() {
     const handleLookupClick = () => {
       window.open('https://rarevision.net', '_blank');
     };
+    
+ 
 
     if (isMobile) {
       return (
@@ -234,6 +237,50 @@ function Dashboard() {
       </button>
     );
   };
+  
+  
+ const GoToBot = ({ isMobile = false, isCollapsed = false }) => {
+  const handleBotClick = () => {
+    window.open("https://t.me/FafullzBot", "_blank");
+  };
+
+  if (isMobile) {
+    return (
+      <button
+        onClick={handleBotClick}
+        className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2 w-full md:w-auto"
+      >
+        <FaRobot className="text-sm" />
+        <span className="text-sm">Go to Bot</span>
+      </button>
+    );
+  }
+
+  if (isCollapsed) {
+    return (
+      <button
+        onClick={handleBotClick}
+        className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold p-2 rounded-lg shadow-lg transform hover:scale-110 transition-all duration-300 flex items-center justify-center"
+        title="Go to Bot"
+      >
+        <FaRobot size={18} />
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={handleBotClick}
+      className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
+    >
+      <FaRobot className="text-sm" />
+      <span className="text-sm">Go to Bot</span>
+    </button>
+  );
+};
+
+
+
 
   return (
     <div className="">
@@ -248,6 +295,7 @@ function Dashboard() {
           {/* Mobile buttons container */}
           <div className="md:hidden flex gap-2 items-center">
             <SendLookupButton isMobile={true} />
+            <GoToBot isMobile={true} />
             <a
               href="https://t.me/fafullzz"
               target="_blank"
@@ -275,6 +323,7 @@ function Dashboard() {
         {/* Desktop header buttons */}
         <div className="hidden md:flex gap-3 items-center">
           <SendLookupButton />
+          <GoToBot />
           <a 
             className="flex" 
             href="https://t.me/fafullzz" 
@@ -371,6 +420,7 @@ function Dashboard() {
           {/* SSN Lookup Button in Sidebar */}
           <div className="px-[15px] pb-[10px]">
             <SendLookupButton isCollapsed={!isOpen} />
+            <GoToBot isCollapsed={!isOpen} />
           </div>
 
           {menuItem?.map((item, index) => {
