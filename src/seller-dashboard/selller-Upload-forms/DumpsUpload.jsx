@@ -1,15 +1,13 @@
 import React, { useState, useMemo } from 'react'
-import Select from 'react-select'
+import { Select, TextInput, NumberInput, Button, Title, Paper, Grid, Loader } from '@mantine/core'
+import { DateInput } from '@mantine/dates'
 import countryList from 'react-select-country-list'
 import { useForm, Controller } from 'react-hook-form'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 import { toast } from 'react-toastify'
-import PulseLoader from 'react-spinners/PulseLoader'
 import useAuth from '../../hooks/useAuth'
 import filterOptions from '../../pages/filterOptions'
-import DatePicker from 'react-datepicker'
-
 
 
 
@@ -17,17 +15,13 @@ function DumpsUpload() {
     const axios = useAxiosPrivate();
   // selct country value...........
   const [countryValue, setCountryValue] = useState(null)
-  const [singleFile, setSingleFile] = useState('')
-  const [noCoutry, setNoCountry] = useState('')
+
   // seller id from auth
     const {auth} = useAuth();
     const sellerId = auth?.jabberId;
 
    const options = useMemo(() => countryList().getData(), [])
 
-  const countryHandler = (countryValue) => {
-    setCountryValue(countryValue.label);
-  }
   // ....................
 
   // use form 
@@ -57,8 +51,7 @@ function DumpsUpload() {
     onSuccess: (response) => {
       toast.success(response?.data?.message);
        reset();  
-
-      
+       setCountryValue(null);
     },
     onError: (err) => {
       const text = err?.response?.data?.message;
@@ -73,14 +66,11 @@ function DumpsUpload() {
 
 
 const submitDump = (data) => {
-  if(countryValue === null ){
-    setNoCountry("Please Select Country!");
-    setTimeout(() => {
-        setNoCountry("");
-      }, 15000);
-    return 0;
-  };
-data.country = countryValue;  
+//   if(!data.country){ // handled by required rule in Controller now
+//     toast.error("Please Select Country!");
+//     return;
+//   };
+  // data.country = countryValue; // already in data if using Controller
 
   console.log(data)
    dumpMutate(data);
@@ -89,218 +79,209 @@ data.country = countryValue;
 
 
   return (
-    <div>
+    <div className="max-w-4xl mx-auto">
+        <form onSubmit={handleSubmit(submitDump)}>
+            <Title order={3} align="center" mb="lg" color="white">Sell Dumps</Title>
 
-        <form action="" className='w-full px-2  ' onSubmit={handleSubmit(submitDump)}>
-            <h1 className='text-center py-4 px-2'>Sell dumps</h1>
+            <Paper p="md" shadow="sm" radius="md" style={{ backgroundColor: '#1f2937' }}>
+                 <Grid>
+                    <Grid.Col span={12} md={4}>
+                        <TextInput
+                            label={<span className="text-gray-200">Bin <span className="text-red-500">*</span></span>}
+                            placeholder="Bin"
+                            type="number"
+                            {...register('bin', { required: 'Bin is required' })}
+                            error={errors.bin?.message}
+                            styles={{
+                                label: { color: "#d1d5db" },
+                                input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' }
+                            }}
+                        />
+                    </Grid.Col>
 
-            {/* ALL inputs div */}
-            <div className='flex flex-col md:grid md:grid-cols-3  gap-3  ' >
-               
+                    <Grid.Col span={12} md={4}>
+                        <TextInput
+                            label={<span className="text-gray-200">Track 1 <span className="text-red-500">*</span></span>}
+                            placeholder="Track 1"
+                            {...register('track1')}
+                             styles={{
+                                label: { color: "#d1d5db" },
+                                input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' }
+                            }}
+                        />
+                    </Grid.Col>
 
-                <div className='flex flex-col gap-2'>
-                    <label htmlFor=""> Bin <span className='text-red-500'><sup>*</sup></span> </label>
+                    <Grid.Col span={12} md={4}>
+                        <TextInput
+                            label={<span className="text-gray-200">Track 2 <span className="text-red-500">*</span></span>}
+                            placeholder="Track 2"
+                            {...register('track2', { required: 'Track 2 is required' })}
+                            error={errors.track2?.message}
+                            styles={{
+                                label: { color: "#d1d5db" },
+                                input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' }
+                            }}
+                        />
+                    </Grid.Col>
 
-                    <input type="number" className='w-full p-1 outline-none border focus:border-secondary' 
-                    
-                    {...register('bin', {
-                required: true,
-              })}
-            />
-            <p className="text-red-500 text-xs">
-              {errors.bin?.type === 'required' && 'Bin is required'}
-            </p>
+                    <Grid.Col span={12} md={4}>
+                        <Controller
+                            control={control}
+                            name="exp"
+                            rules={{ required: "Exp is required" }}
+                            render={({ field }) => (
+                                <DateInput
+                                    label={<span className="text-gray-200">EXP <span className="text-red-500">*</span></span>}
+                                    placeholder="MM/YYYY"
+                                    valueFormat="MM/YYYY"
+                                    {...field}
+                                    error={errors.exp?.message}
+                                    styles={{
+                                        label: { color: "#d1d5db" },
+                                        input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' },
+                                        calendar: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
+                                        monthLevelGroup: { backgroundColor: '#1f2937' },
+                                        decadeLevelGroup: { backgroundColor: '#1f2937' },
+                                         day: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' }, color: 'white' }
+                                    }}
+                                />
+                            )}
+                        />
+                    </Grid.Col>
 
+                    <Grid.Col span={12} md={4}>
+                         <TextInput
+                            label={<span className="text-gray-200">SVC <span className="text-red-500">*</span></span>}
+                            placeholder="SVC"
+                            type="number"
+                             {...register('svc', { required: 'SVC is required' })}
+                            error={errors.svc?.message}
+                            styles={{
+                                label: { color: "#d1d5db" },
+                                input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' }
+                            }}
+                        />
+                    </Grid.Col>
+
+                    <Grid.Col span={12} md={4}>
+                        <TextInput
+                            label={<span className="text-gray-200">Bank <span className="text-red-500">*</span></span>}
+                            placeholder="Bank"
+                             {...register('bank', { required: 'Bank is required' })}
+                            error={errors.bank?.message}
+                            styles={{
+                                label: { color: "#d1d5db" },
+                                input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' }
+                            }}
+                        />
+                    </Grid.Col>
+
+                    <Grid.Col span={12} md={4}>
+                        <Controller
+                            name="country"
+                            control={control}
+                            rules={{ required: "Country is required" }}
+                            render={({ field }) => (
+                                <Select
+                                    label={<span className="text-gray-200">Country <span className="text-red-500">*</span></span>}
+                                    placeholder="Select Country"
+                                    data={options}
+                                    {...field}
+                                    onChange={(value) => {
+                                         const opt = options.find(o => o.value === value);
+                                         field.onChange(opt ? opt.label : value);
+                                    }}
+                                    value={options.find(o => o.label === field.value)?.value || field.value}
+                                    error={errors.country?.message}
+                                    searchable
+                                    styles={{
+                                        label: { color: "#d1d5db" },
+                                        input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' },
+                                        item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                                        dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                                    }}
+                                />
+                            )}
+                        />
+                    </Grid.Col>
+
+                    <Grid.Col span={12} md={4}>
+                         <Controller
+                            name="type"
+                            control={control}
+                            rules={{ required: "Type is required" }}
+                            render={({ field }) => (
+                                <Select
+                                    label={<span className="text-gray-200">Type <span className="text-red-500">*</span></span>}
+                                    placeholder="Select Type"
+                                    data={filterOptions?.cardsType || []}
+                                    {...field}
+                                    error={errors.type?.message}
+                                    styles={{
+                                        label: { color: "#d1d5db" },
+                                        input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' },
+                                        item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                                        dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                                    }}
+                                />
+                            )}
+                        />
+                    </Grid.Col>
+
+                    <Grid.Col span={12} md={4}>
+                         <Controller
+                            name="level"
+                            control={control}
+                            rules={{ required: "Level is required" }}
+                            render={({ field }) => (
+                                <Select
+                                    label={<span className="text-gray-200">Level <span className="text-red-500">*</span></span>}
+                                    placeholder="Select Level"
+                                    data={filterOptions?.cardsLevel || []}
+                                    {...field}
+                                    error={errors.level?.message}
+                                    styles={{
+                                        label: { color: "#d1d5db" },
+                                        input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' },
+                                        item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                                        dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                                    }}
+                                />
+                            )}
+                        />
+                    </Grid.Col>
+
+                    <Grid.Col span={12} md={4} style={{ display: 'none' }}>
+                        <TextInput value={sellerId} {...register('sellerId', { required: true })} />
+                    </Grid.Col>
+
+                    <Grid.Col span={12} md={4}>
+                        <TextInput
+                            label={<span className="text-gray-200">Price <span className="text-red-500">*</span></span>}
+                            placeholder="Price"
+                            type="number"
+                            min={0}
+                            {...register('price', { required: 'Price is required' })}
+                            error={errors.price?.message}
+                            styles={{
+                                label: { color: "#d1d5db" },
+                                input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' }
+                            }}
+                        />
+                    </Grid.Col>
+                 </Grid>
+
+                <div className="flex justify-center mt-6 items-center">
+                    {dumpLoading ? (
+                        <Loader color="green" size="sm" />
+                    ) : (
+                        <Button type="submit" color="green" variant="filled">
+                            Upload
+                        </Button>
+                    )}
                 </div>
-                   <div className='flex flex-col gap-2'>
-                    <label htmlFor=""> Track 1  <span className='text-red-500'><sup>*</sup></span> </label>
-
-                    <input type="text" className='w-full p-1 outline-none border focus:border-secondary' 
-                    
-                    {...register('track1')}
-            />
-           
-
-                </div> 
-                 <div className='flex flex-col gap-2'>
-                    <label htmlFor=""> Track 2  <span className='text-red-500'><sup>*</sup></span> </label>
-
-                    <input type="text" className='w-full p-1 outline-none border focus:border-secondary' 
-                    
-                    {...register('track2', {
-                required: true,
-              })}
-            />
-            <p className="text-red-500 text-xs">
-              {errors.track2?.type === 'required' && 'Track 2 is required'}
-            </p>
-
-                </div> 
-
-                <div className='flex flex-col gap-2'>
-                    <label htmlFor=""> EXP <span className='text-red-500'><sup>*</sup></span> </label>
-
-                    <Controller
-              control={control}
-              name="exp"
-              render={({ field: { value, onChange } }) => (
-                <DatePicker
-                  selected={value}
-                  onChange={onChange}
-                  dateFormat="MM/yyyy"
-                  showMonthYearPicker
-                  className="border rounded py-2 px-3 w-full text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              )}
-              rules={{ required: true }}
-              defaultValue={null}
-            />
-             <p className="text-red-500 text-xs">
-              {errors.exp?.type === 'required' && 'Exp is required'}
-            </p>
-
-                </div>
-                <div className='flex flex-col gap-2'>
-                    <label htmlFor=""> SVC <span className='text-red-500'><sup>*</sup></span> </label>
-
-                    <input type="number" className='w-full p-1 outline-none border focus:border-secondary' 
-                    
-                       {...register('svc', {
-                required: true,
-              })}
-            />
-            <p className="text-red-500 text-xs">
-              {errors.svc?.type === 'required' && 'Svc is required'}
-            </p>
-
-                </div>
-
-                <div className='flex flex-col gap-2'>
-                    <label htmlFor=""> Bank <span className='text-red-500'><sup>*</sup></span> </label>
-
-                    <input type="text" className='w-full p-1 outline-none border focus:border-secondary' 
-                    
-                       {...register('bank', {
-                required: true,
-              })}
-            />
-            <p className="text-red-500 text-xs">
-              {errors.bank?.type === 'required' && 'Bank is required'}
-            </p>
-
-                </div>  
-                <div className='flex flex-col gap-2'>
-                    <label htmlFor=""> Country <span className='text-red-500'><sup>*</sup></span> </label>
-
-                     <Select
-              options={options}
-              countryValue={countryValue}
-              onChange={countryHandler}
-              
-            />
-            <h1 className='text-red-500 text-xs'>{noCoutry}</h1>
-
-
-                </div>  
-
-                 <div className='flex flex-col gap-2'>
-                    <label htmlFor=""> Type <span className='text-red-500'><sup>*</sup></span> </label>
-
-                   <Controller
-              name="type"
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  id="type"
-                  options={filterOptions?.cardsType}
-                  value={filterOptions?.cardsType?.find(
-                    (option) => option.value === field.value,
-                  )}
-                  onChange={(selectedOption) => {
-                    field.onChange(selectedOption.value)
-                  }}
-                />
-              )}
-            />
-            {errors.type && (
-              <p className="text-red-500 text-xs">Type is required</p>
-            )}
-
-                </div>    
-
-                 <div className='flex flex-col gap-2'>
-                    <label htmlFor=""> Level <span className='text-red-500'><sup>*</sup></span> </label>
-
-                 <Controller
-              name="level"
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  id="level"
-                  options={filterOptions?.cardsLevel}
-                  value={filterOptions?.cardsLevel?.find(
-                    (option) => option.value === field.value,
-                  )}
-                  onChange={(selectedOption) => {
-                    field.onChange(selectedOption.value)
-                  }}
-                />
-              )}
-            />
-            {errors.type && (
-              <p className="text-red-500 text-xs">Level is required</p>
-            )}
-
-                </div> 
-
-              
-    
-                 <div className='hidden flex-col gap-2'>
-                    <label htmlFor=""> sellerId <span className='text-red-500'><sup>*</sup></span> </label>
-
-                    <input type="text" value={sellerId}  className='w-full p-1 outline-none border focus:border-secondary' 
-                    {...register('sellerId', {
-                required: true,
-              })}
-            />
-            <p className="text-red-500 text-xs" >
-              {errors.sellerId?.type === 'required' && 'Seller Id is required'}
-            </p>
-
-                </div>
-
-                 <div className='flex flex-col gap-2'>
-                    <label htmlFor=""> Price <span className='text-red-500'><sup>*</sup></span></label>
-
-                    <input type="number" min={0} className='w-full p-1 outline-none border focus:border-secondary' 
-                    
-                    {...register('price', {
-                required: true,
-              })}
-            />
-            <p className="text-red-500 text-xs">
-              {errors.price?.type === 'required' && 'Price is required'}
-            </p>
-
-                </div>
-
-
-                
-
-
-            </div>
-            {/* end of inputs div */}
-
-            <div className='flex justify-center my-6 items-center'>
-                <button className='bg-primary text-light py-1 px-4 rounded-md hover:bg-secondary '>Upload</button>
-            </div>
-
+            </Paper>
         </form>
-
     </div>
   )
 }

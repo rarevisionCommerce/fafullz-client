@@ -2,7 +2,8 @@ import React,{useState} from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import PulseLoader from 'react-spinners/PulseLoader'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate';
-import { confirmAlert } from "react-confirm-alert";
+import { Text, Modal, Button, Group } from "@mantine/core";
+import { useDisclosure } from '@mantine/hooks';
 import { toast } from "react-toastify";
 
 
@@ -10,6 +11,7 @@ function AccountsCategories() {
     const axios = useAxiosPrivate();
 
    const [category, setCategory] = useState("");
+     const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false);
      const queryClient = useQueryClient();
   // fetching category
   const fetchCategories = () => {
@@ -38,8 +40,9 @@ function AccountsCategories() {
         const text = response?.data.message;
         toast.success(text);
         queryClient.invalidateQueries([`filescategory-`]);
+        queryClient.invalidateQueries([`accountsCategory`]); 
 
-        refetch();
+        // refetch(); // Same issue as above, refetch missing from destructuring in original code.
       },
       onError: (err) => {
         const text = err?.response.data.message || "Something went wrong!!";
@@ -47,69 +50,44 @@ function AccountsCategories() {
       },
     }
   );
-  const deleteProductById = () => {
-    confirmAlert({
-      customUI: ({ onClose }) => {
-        return (
-          <div className=" shadow-xl p-[30px] flex flex-col gap-4">
-            <h1 className="font-bold text-xl">Delete account category</h1>
-            <p className="pb-1">Are you sure you want to delete this category?</p>
-            <div className="flex gap-1">
-              <button
-                className="rounded-md  bg-gray-400 text-white w-[50%]font-bold px-5 py-1 hover:bg-tertiary "
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-md  bg-red-500 text-white font-bold px-5 w-[50%] py-1 hover:bg-tertiary "
-                onClick={() => {
-                  deleteCategory();
-                  onClose();
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        );
-      },
-    });
+  const handleDelete = () => {
+    deleteCategory();
+    closeDelete();
   };
   // end of delete product
 
 
   return (
     <div>
-      <h1 className='my-3'>Accounts categories added</h1>
-      <div className="overflow-x-auto mb-3">
-          <table className="w-full text-center table-auto border-collapse border border-slate-500 text-light text-sm">
-            <thead className="bg-primary bg-opacity-90 ">
+      <h1 className='my-3 text-white'>Accounts categories added</h1>
+      <div className="overflow-x-auto mb-3 rounded-lg border border-gray-700">
+          <table className="w-full text-center table-auto border-collapse border border-gray-700 text-gray-300 text-sm">
+            <thead className="bg-gray-800 text-gray-200">
               <tr>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border border-gray-700 py-3 px-3">
                   Id
                 </th>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border border-gray-700 py-3 px-3">
                   ProductCategory
                 </th>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border border-gray-700 py-3 px-3">
                   Action
                 </th>
                 
               </tr>
             </thead>
 
-            <tbody className="text-dark">
+            <tbody className="text-gray-300">
               {loadingCategories ? (
-                <tr className="flex justify-center py-4 pr-6 items-center">
-                  <td colSpan={17} className="text-center ">
+                 <tr>
+                  <td colSpan={3} className="text-center py-6">
                     <PulseLoader color="#6ba54a" size={10} />
                   </td>
                 </tr>
               ) : !categoriesData?.data ||
                 categoriesData?.data?.length < 1 ? (
                 <tr>
-                  <td colSpan={7} className="text-gray-800 text-center py-3">
+                  <td colSpan={3} className="text-gray-400 text-center py-3">
                     No categories found!
                   </td>
                 </tr>
@@ -118,26 +96,27 @@ function AccountsCategories() {
                   return (
                     <tr
                       key={index}
-                      className="odd:bg-gray-50 hover:bg-gray-100"
+                      className="odd:bg-gray-800 hover:bg-gray-700 transition-colors"
                     >
-                      <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                      <td className="border border-gray-700 py-2 px-3">
                         {index + 1}
                       </td>
 
-                      <td className="border-collapse border-b  border-slate-500 py-2 px-3">
+                      <td className="border border-gray-700 py-2 px-3 font-medium text-white">
                         { item.category }
                       </td>
-                     <td className="border-collapse border-b border-slate-500 py-3 px-3">
-                        <button
-                          disabled={ isDeleting}
+                     <td className="border border-gray-700 py-3 px-3">
+                         <Button
+                          compact
+                          color="red"
+                          loading={isDeleting}
                           onClick={() => {
                             setCategory(item?.category);
-                            deleteProductById();
+                            openDelete();
                           }}
-                          className="bg-red-500 text-white rounded-md px-3 py-1 hover:bg-red-400 disabled:cursor-not-allowed disabled:bg-red-300 disabled:text-gray-300"
                         >
                           Delete
-                        </button>
+                        </Button>
                       </td>
 
                      
@@ -148,6 +127,21 @@ function AccountsCategories() {
             </tbody>
           </table>
       </div>
+      
+      <Modal 
+        opened={deleteOpened} 
+        onClose={closeDelete} 
+        title="Delete account category" 
+        centered
+        overlayProps={{ opacity: 0.55, blur: 3 }}
+      >
+        <Text size="sm">Are you sure you want to delete this category?</Text>
+        <Group position="right" mt="md">
+          <Button variant="default" onClick={closeDelete}>Cancel</Button>
+          <Button color="red" onClick={handleDelete} loading={isDeleting}>Delete</Button>
+        </Group>
+      </Modal>
+
     </div>
   )
 }

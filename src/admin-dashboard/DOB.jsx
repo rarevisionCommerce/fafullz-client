@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
-import Select from "react-select";
 import PulseLoader from "react-spinners/PulseLoader";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
-import { Loader, Pagination } from "@mantine/core";
+import { Loader, Pagination, Select, Button, TextInput, Checkbox } from "@mantine/core";
 import countryList from "react-select-country-list";
 import { CgShoppingCart } from "react-icons/cg";
 import useAuth from "../hooks/useAuth";
@@ -20,7 +19,7 @@ function DOB() {
 
   const [showFilters, setShowFilters] = useState(true);
 
-  const [perPage, setPerPage] = useState(300);
+  const [perPage, setPerPage] = useState("300");
   const [base, setBase] = useState("");
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
@@ -32,17 +31,17 @@ function DOB() {
   const [activePage, setPage] = useState(1);
   const queryClient = useQueryClient();
   const [sellerId, setSellerId] = useState("");
-  const [paid, setIsPaid] = useState({});
-  const [status, setStatus] = useState({});
+  const [paid, setIsPaid] = useState("");
+  const [status, setStatus] = useState("");
   const [selectAll, setSelectAll] = useState(false);
   const [selectedOrders, setSelectedOrders] = useState(new Set());
 
   const fetchFiles = () => {
     return axios.get(
       `/ssn/admin/all?page=${activePage}&perPage=${perPage}&status=${
-        status?.value || ""
-      }&paid=${paid?.value || ""}&sellerId=${sellerId?.value || ""}&base=${
-        base?.base || ""
+        status || ""
+      }&paid=${paid || ""}&sellerId=${sellerId || ""}&base=${
+        base || ""
       }`
     );
   };
@@ -53,7 +52,7 @@ function DOB() {
     refetch,
     isRefetching: refetchinSsn,
   } = useQuery(
-    ["ssns", activePage, base?.base, perPage, status, paid, sellerId],
+    ["ssns", activePage, base, perPage, status, paid, sellerId],
     fetchFiles,
     {
       keepPreviousData: true,
@@ -61,7 +60,7 @@ function DOB() {
     }
   );
 
-  const totalPages = Math.ceil(ssnData?.data?.count / perPage);
+  const totalPages = Math.ceil(ssnData?.data?.count / Number(perPage));
 
   // Handle select all
   const handleSelectAll = (checked) => {
@@ -107,12 +106,12 @@ function DOB() {
     }
   );
   // making base optopns
-  const baseOptions = [{}];
+  const baseOptions = [];
 
   basesData?.data?.bases?.map((base, index) => {
     baseOptions.push({
       label: base.base,
-      value: { base: base._id, showDescription: base.showDescription },
+      value: base._id,
     });
   });
   //end...........
@@ -283,93 +282,95 @@ function DOB() {
     if (orders?.length === 0) return null;
 
     return (
-      <div className="overflow-x-auto mb-3 text-sm">
-        <div className="flex items-center gap-3 justify-between">
-          <h2 className="my-2 text-light pb-2">{title}</h2>
-          <div className="flex gap-2 items-center py-2">
-            <button
-              className="text-sm bg-red-500 disabled:cursor-not-allowed disabled:bg-gray-400 text-white px-3 py-1 rounded hover:bg-red-600"
+      <div className="overflow-x-auto mb-3 text-sm rounded-lg border border-gray-700">
+        <div className="flex items-center gap-3 justify-between p-2 bg-gray-800 rounded-t-lg">
+          <h2 className="my-2 text-white font-bold">{title}</h2>
+          <div className="flex gap-2 items-center">
+            <Button
+              color="red"
+              size="xs"
               onClick={() => bulkDeleteOrders(true)}
-              disabled={loadingMutate || selectedOrders.size === 0}
+              loading={loadingMutate}
+              disabled={selectedOrders.size === 0}
             >
               Delete Selected
-            </button>
-            <button
-              className="text-sm bg-green-500 text-light px-2 py-1 rounded-md"
+            </Button>
+            <Button
+              color="green"
+              size="xs"
               onClick={() => downloadOrdersAsCSV(orders)}
             >
               Download CSV
-            </button>
+            </Button>
           </div>
         </div>
 
-        <table className="w-full text-center table-auto border-collapse border border-slate-500 text-light text-sm">
-          <thead className="bg-primary/70 text-light text-sm">
+        <table className="w-full text-center table-auto border-collapse border border-gray-700 text-gray-300 text-sm">
+          <thead className="bg-gray-800 text-gray-200">
             <tr>
-              <th className="border-collapse border border-slate-500 py-2 px-3 ">
-                <input
-                  type="checkbox"
-                  checked={selectAll}
-                  onChange={(e) => handleSelectAll(e.target.checked)}
+              <th className="border border-gray-700 py-3 px-3 ">
+                <Checkbox
+                    checked={selectAll}
+                    onChange={(e) => handleSelectAll(e.currentTarget.checked)}
                 />
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 Base
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 Name
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 DOB
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 Description
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 State
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 City
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 Zip
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 SSN
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 Address
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 Email
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 Email_Pass
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 FAUname
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 FAPass
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 Backup_Code
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border-collapse border border-gray-700 py-3 px-3">
                 Security_Q&A
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 Seller
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 Status
               </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 Is Paid
               </th>
             </tr>
           </thead>
-          <tbody className="text-dark">
+          <tbody className="text-gray-300">
             {orders?.map((item, index) => {
               const orderId = item._id;
               const isSelected = selectedOrders.has(orderId);
@@ -377,77 +378,76 @@ function DOB() {
               return (
                 <tr
                   key={orderId || index}
-                  className={` text-dark text-center ${
-                    isSelected ? "bg-blue-600 text-light" : ""
+                  className={`text-center transition-colors ${
+                    isSelected ? "bg-blue-900/50 text-white" : "odd:bg-gray-800 hover:bg-gray-700"
                   }`}
                 >
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    <input
-                      type="checkbox"
+                  <td className="border border-gray-700 py-2 px-3">
+                    <Checkbox
                       checked={isSelected}
                       onChange={(e) =>
-                        handleOrderSelect(orderId, e.target.checked)
+                        handleOrderSelect(orderId, e.currentTarget.checked)
                       }
                     />
                   </td>
 
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item?.base}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item?.firstName || ""} {item?.lastName || ""}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item?.dob?.split("T")[0]}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item?.description?.length > 30
                       ? item.description.substring(0, 30) + "..."
                       : item?.description}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item?.state}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item.city}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item?.zip}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item?.ssn}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item?.address}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3 break-all">
                     {item?.email}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3 break-all">
                     {item?.emailPass}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3 break-all">
                     {item?.faUname}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3 break-all">
                     {item?.faPass}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3 break-all">
                     {item?.backupCode}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item?.securityQa?.length > 30
                       ? item.securityQa.substring(0, 30) + "..."
                       : item?.securityQa}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item?.sellerId}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item?.status}
                   </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {item?.isPaid == "Is Paid" ? "Paid" : item?.isPaid}
+                  <td className="border border-gray-700 py-2 px-3">
+                    {item?.isPaid == "Is Paid" ? <span className="text-green-400">Paid</span> : <span className="text-red-400">{item?.isPaid}</span>}
                   </td>
                 </tr>
               );
@@ -459,107 +459,123 @@ function DOB() {
   };
 
   return (
-    <div className="">
-      <div className="bg-gray-50 w-full rounded-t-md flex items-center gap-2 ">
-        <p className="text-dark px-2 py-3">Fullz </p>
+    <div className="bg-gray-900 min-h-screen p-4">
+      <div className="bg-gray-800 w-full rounded-t-lg flex items-center gap-2 border-b border-gray-700">
+        <p className="text-white px-4 py-3 font-semibold">Fullz </p>
         <p
           onClick={() => {
             setShowFilters(!showFilters);
           }}
-          className="text-primary cursor-pointer"
+          className="text-blue-400 cursor-pointer hover:underline text-sm"
         >
           [{showFilters ? "Hide filters" : "Show Filters"}]
         </p>
       </div>
 
       {showFilters && (
-        <div className="bg-gray-50   rounded-b-md py-3 px-2">
+        <div className="bg-gray-800 rounded-b-lg py-4 px-4 mb-4 border border-t-0 border-gray-700">
           {/* filters */}
-          <div className="grid md:grid-cols-4 gap-8 content-center ">
+          <div className="grid md:grid-cols-4 gap-6 content-center ">
             <div className="flex flex-col w-full gap-2  ">
-              <label htmlFor="" className="text-dark ">
-                Seller:
-              </label>
               <Select
-                options={sellerOptions}
+                label="Seller"
+                labelProps={{ style: { color: "#d1d5db" } }}
+                placeholder="Select Seller"
+                data={sellerOptions}
                 value={sellerId}
-                onChange={(selectOption) => {
-                  setSellerId(selectOption);
+                onChange={setSellerId}
+                searchable
+                styles={{ 
+                    input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
+                    item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                    dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
                 }}
               />
             </div>
             <div className="flex flex-col w-full gap-2  ">
-              <label htmlFor="" className="text-dark ">
-                Base:
-              </label>
-              <Select
-                options={baseOptions}
-                value={base && base.label}
-                onChange={(selectOption) => {
-                  setBase(selectOption?.value);
-                }}
-              />
+                <Select
+                    label="Base"
+                    labelProps={{ style: { color: "#d1d5db" } }}
+                    placeholder="Select Base"
+                    data={baseOptions}
+                    value={base}
+                    onChange={setBase}
+                    searchable
+                     styles={{ 
+                        input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
+                        item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                        dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                    }}
+                />
             </div>
             <div className="flex flex-col w-full gap-2  ">
-              <label htmlFor="" className="text-dark ">
-                Status:
-              </label>
-              <Select
-                options={statusOptions}
+               <Select
+                label="Status"
+                labelProps={{ style: { color: "#d1d5db" } }}
+                placeholder="Select Status"
+                data={statusOptions}
                 value={status}
-                onChange={(selectOption) => {
-                  setStatus(selectOption);
+                onChange={setStatus}
+                 styles={{ 
+                    input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
+                    item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                    dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
                 }}
               />
             </div>
             <div className="flex flex-col w-full gap-2  ">
-              <label htmlFor="" className="text-dark ">
-                Is Paid:
-              </label>
-              <Select
-                options={paidOptions}
+               <Select
+                label="Is Paid"
+                labelProps={{ style: { color: "#d1d5db" } }}
+                placeholder="Paid Status"
+                data={paidOptions}
                 value={paid}
-                onChange={(selectOption) => {
-                  setIsPaid(selectOption);
+                onChange={setIsPaid}
+                 styles={{ 
+                    input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
+                    item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                    dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
                 }}
               />
             </div>
 
-            <div className="flex justify-between items-center ">
-              <h1
-                className="bg-primary   cursor-pointer text-dark py-1 px-5 rounded-md"
-                onClick={resetFilters}
-              >
-                Reset filter
-              </h1>
+            <div className="flex justify-start items-center md:col-span-4">
+              <Button onClick={resetFilters} color="blue">
+                Reset Filter
+              </Button>
             </div>
           </div>
           {/* end of filters */}
         </div>
       )}
-      <div className="py-3 px-3 flex justify-start mt-2">
+      <div className="py-3 px-3 flex justify-between items-center mt-2 bg-gray-800 rounded-lg border border-gray-700 mb-2">
         <Pagination
           total={totalPages || 0}
-          page={activePage}
-          color="yellow"
+          value={activePage}
+          color="blue"
           onChange={setPage}
+          styles={{ 
+            control: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151', '&[data-active]': { backgroundColor: '#2563eb' } } 
+          }}
         />
-        <div className="flex justify-center items-center ml-4 text-dark">
+        <div className="flex justify-center items-center ml-4 text-gray-300">
           <p>Showing </p>
-          <select
-            name=""
-            value={perPage}
-            id=""
-            className="px-1 py-1 mx-2 rounded-md border bg-gray-50 "
-            onChange={(e) => {
-              setPerPage(e.target.value);
+          <Select
+             value={perPage}
+             onChange={setPerPage}
+             data={[
+                 { label: '300', value: '300' },
+                 { label: '500', value: '500' },
+                 { label: '700', value: '700' },
+                 { label: '3000', value: '3000' },
+             ]}
+             className="mx-2 w-24"
+              styles={{ 
+                input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
+                item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
             }}
-          >
-            <option value={300}>300</option>
-            <option value={500}>500</option>
-            <option value={700}>700</option>
-            <option value={3000}>3000</option>
-          </select>
+          />
           <p>Per page</p>
         </div>
       </div>
@@ -567,46 +583,51 @@ function DOB() {
       {/* table */}
       <div className="overflow-y-auto rounded-lg mt-1">
         {loadingSsns || refetchinSsn ? (
-          <tr className="">
-            <td colSpan={12} className="text-center pl-[50%] py-5">
-              <Loader color="#ff9c33" size={25} />
-            </td>
-          </tr>
+            <div className="flex justify-center items-center py-20">
+               <Loader color="blue" size="xl" />
+            </div>
         ) : ssnData?.data?.message ? (
-          <tr>
-            <td colSpan={7} className="text-gray-800 text-center py-3">
+             <div className="bg-gray-800 text-gray-300 text-center py-10 rounded-lg border border-gray-700">
               {ssnData?.data?.message}
-            </td>
-          </tr>
+            </div>
         ) : (
           <div>{renderOrderTable(ssnData?.data?.ssns)}</div>
         )}
-        <div className="py-3 px-3 flex justify-start mt-2">
-          <Pagination
-            total={totalPages || 0}
-            page={activePage}
-            color="yellow"
-            onChange={setPage}
-          />
-          <div className="flex justify-center items-center ml-4 text-dark">
-            <p>Showing </p>
-            <select
-              name=""
-              value={perPage}
-              id=""
-              className="px-1 py-1 mx-2 rounded-md border bg-gray-50 "
-              onChange={(e) => {
-                setPerPage(e.target.value);
-              }}
-            >
-              <option value={300}>300</option>
-              <option value={500}>500</option>
-              <option value={700}>700</option>
-              <option value={3000}>3000</option>
-            </select>
-            <p>Per page</p>
-          </div>
-        </div>
+        
+        {(!loadingSsns && !refetchinSsn && ssnData?.data?.ssns?.length > 0) && (
+            <div className="py-3 px-3 flex justify-between items-center mt-2 bg-gray-800 rounded-lg border border-gray-700">
+            <Pagination
+                total={totalPages || 0}
+                value={activePage}
+                color="blue"
+                onChange={setPage}
+                styles={{ 
+                    control: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151', '&[data-active]': { backgroundColor: '#2563eb' } } 
+                }}
+            />
+            <div className="flex justify-center items-center ml-4 text-gray-300">
+                <p>Showing </p>
+                <Select
+                    value={perPage}
+                    onChange={setPerPage}
+                    data={[
+                        { label: '300', value: '300' },
+                        { label: '500', value: '500' },
+                        { label: '700', value: '700' },
+                        { label: '3000', value: '3000' },
+                    ]}
+                    className="mx-2 w-24"
+                    styles={{ 
+                        input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
+                        item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                        dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                    }}
+                />
+                <p>Per page</p>
+            </div>
+            </div>
+        )}
+        
 
         {/* en of header */}
       </div>

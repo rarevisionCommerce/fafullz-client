@@ -1,16 +1,107 @@
-import React, { useState, useEffect, useMemo } from "react";
-import Select from "react-select";
-import PulseLoader from "react-spinners/PulseLoader";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import { Loader, Pagination } from "@mantine/core";
+import { 
+  Loader, 
+  Pagination, 
+  Select, 
+  RangeSlider, 
+  TextInput, 
+  Button, 
+  Group, 
+  Container, 
+  Paper, 
+  Grid, 
+  Text,
+  Table,
+  Badge,
+  ActionIcon,
+  Tooltip,
+  Collapse,
+  Stack,
+  ScrollArea,
+  Divider,
+  Title,
+  Checkbox,
+  Alert,
+  Affix,
+  Transition,
+  rem
+} from "@mantine/core";
+import { IconShoppingCart, IconFilter, IconFilterOff, IconCheck, IconX, IconInfoCircle } from "@tabler/icons-react";
 import filterOptions from "../filterOptions";
 import countryList from "react-select-country-list";
-import { CgShoppingCart } from "react-icons/cg";
 import useAuth from "../../hooks/useAuth";
 import { toast } from "react-toastify";
-import MultiRangeSlider from "multi-range-slider-react";
-import { axiosPrivate } from "../../api/axios";
+
+// Helper for Boolean status
+const StatusBadge = ({ value }) => (
+    value ? <IconCheck size={18} color="green" /> : <IconX size={18} color="red" />
+);
+
+// Memoized Row Component to prevent re-renders of all rows when one is selected
+const SsnRow = React.memo(({ account, isSelected, toggleRow, inCart, onAddCart, showDescription }) => {
+    return (
+        <tr>
+            <td>
+                <Checkbox 
+                    checked={isSelected} 
+                    onChange={() => toggleRow(account._id)}
+                    color="green"
+                    disabled={inCart}
+                    transitionDuration={0}
+                    style={{ cursor: 'pointer' }}
+                />
+            </td>
+            <td>{account?.price?.base}</td>
+            <td>{account?.firstName || ""}</td>
+            <td>{account?.dobYear}</td>
+            <td>{account?.state}</td>
+            <td>{account?.city}</td>
+            <td>{account?.zip}</td>
+            
+            <td><StatusBadge value={account?.ssn} /></td>
+            <td><StatusBadge value={account?.address} /></td>
+            <td><StatusBadge value={account?.email} /></td>
+            <td><StatusBadge value={account?.emailPass} /></td>
+            <td><StatusBadge value={account?.faUname} /></td>
+            <td><StatusBadge value={account?.faPass} /></td>
+            <td><StatusBadge value={account?.backupCode} /></td>
+            <td><StatusBadge value={account?.securityQa} /></td>
+            
+            {showDescription && (
+                <td><Tooltip label={account?.description}><Text truncate w={100}>{account?.description}</Text></Tooltip></td>
+            )}
+            
+            <td>
+            <Badge variant="filled" color="green" size="md">${account?.price?.price}</Badge>
+            </td>
+            <td><StatusBadge value={account?.enrollment} /></td>
+            
+            <td>
+                {inCart ? (
+                    <Badge color="blue" variant="outline">In Cart</Badge>
+                ) : (
+                    <Tooltip label="Add to Cart">
+                        <ActionIcon 
+                        color="green" 
+                        variant="filled" 
+                        onClick={() => onAddCart(account?._id)}
+                        >
+                            <IconShoppingCart size={16} />
+                        </ActionIcon>
+                    </Tooltip>
+                )}
+            </td>
+        </tr>
+    );
+}, (prevProps, nextProps) => {
+    return (
+        prevProps.isSelected === nextProps.isSelected && 
+        prevProps.inCart === nextProps.inCart && 
+        prevProps.showDescription === nextProps.showDescription
+    );
+});
 
 function SSNDOB() {
   const axios = useAxiosPrivate();
@@ -23,7 +114,7 @@ function SSNDOB() {
 
   const [showFilters, setShowFilters] = useState(true);
 
-  const [perPage, setPerPage] = useState(300);
+  const [perPage, setPerPage] = useState('300');
   const [base, setBase] = useState("");
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
@@ -34,19 +125,16 @@ function SSNDOB() {
   const [name, setName] = useState("");
   const [activePage, setPage] = useState(1);
   const queryClient = useQueryClient();
-  const [slider2Values, setSlider2Values] = useState([1910, currentYear]);
-  const [minValue, set_minValue] = useState(1910);
-  const [maxValue, set_maxValue] = useState(currentYear);
-  const handleInput = (e) => {
-    set_minValue(e.minValue);
-    set_maxValue(e.maxValue);
-  };
-  console.log(base);
+  const [dobRange, setDobRange] = useState([1910, currentYear]);
+  const [selectedRows, setSelectedRows] = useState([]);
+  
+  const minValue = dobRange[0];
+  const maxValue = dobRange[1];
 
   const fetchFiles = () => {
     return axios.get(
       `/ssn?page=${activePage}&perPage=${perPage}&base=${
-        base?.base || ""
+        base || ""
       }&city=${city}&zip=${zip}&country=${country1}&dob=${minValue}&dobMax=${maxValue}&cs=${cs}&name=${name}&state=${state}`
     );
   };
@@ -56,32 +144,12 @@ function SSNDOB() {
     data: ssnData,
     refetch,
     isRefetching: refetchinSsn,
-  } = useQuery(["ssns", activePage], fetchFiles, {
-    refetchOnWindowFocus: true,
+  } = useQuery(["ssns", activePage, perPage, base, state, city, zip, country1, name, minValue, maxValue], fetchFiles, {
     keepPreviousData: true,
+    refetchOnWindowFocus: false // optimization
   });
 
-  const totalPages = Math.ceil(ssnData?.data?.count / perPage);
-
-  // pagination refetch
-  useEffect(() => {
-    // queryClient.invalidateQueries(['ssns', activePage])
-    refetch();
-  }, [
-    activePage,
-    perPage,
-    base,
-    state,
-    city,
-    zip,
-    country1,
-    dob,
-    cs,
-    minValue,
-    maxValue,
-    name,
-  ]);
-  //end of fetching products------------------
+  const totalPages = Math.ceil(ssnData?.data?.count / parseInt(perPage));
 
   // reset filters
   const resetFilters = () => {
@@ -89,12 +157,14 @@ function SSNDOB() {
     setCity("");
     setCountry1("");
     setState("");
-    setPerPage(20);
+    setPerPage('300'); // Ensure string consistency for Select
     setZip("");
     setDob("");
     setCs("");
     setName("");
+    setDobRange([1910, currentYear]);
   };
+  
   //get all bases
   const getBases = () => {
     return axios.get(`/bases`);
@@ -108,16 +178,18 @@ function SSNDOB() {
       keepPreviousData: true,
     }
   );
+  
   // making base optopns
-  const baseOptions = [{}];
-
-  basesData?.data?.bases?.map((base, index) => {
-    baseOptions.push({
+  const baseOptions = basesData?.data?.bases?.map((base) => ({
       label: base.base,
-      value: { base: base.base, showDescription: base.showDescription },
-    });
-  });
-  //end...........
+      value: base.base,
+      // store extra data if needed, but select value must be primitive usually
+      showDescription: base.showDescription 
+  })) || [];
+
+  const selectedBaseObj = basesData?.data?.bases?.find(b => b.base === base);
+  const showDescription = selectedBaseObj?.showDescription;
+
 
   // sending cart details
   const createCart = (cartData) => {
@@ -127,13 +199,13 @@ function SSNDOB() {
   const {
     mutate: cartMutate,
     isLoading: loadingCart,
-    error,
   } = useMutation(createCart, {
     onSuccess: (response) => {
       const text = response?.data.message;
       toast.success(text);
       queryClient.invalidateQueries([`shoppingCart-${auth?.userId}`]);
       queryClient.invalidateQueries([`shoppingCartsnn-${auth?.userId}`]);
+      setSelectedRows([]); // Clear selection on success
     },
     onError: (err) => {
       const text = err?.response.data.message;
@@ -145,13 +217,23 @@ function SSNDOB() {
     },
   });
 
-  const onSubmitting = (ProductId) => {
-    const data = {
+  const onSubmitting = useCallback((ProductId) => {
+    const data = [{
       userId: auth?.userId,
       productId: ProductId,
       productType: "ssn",
-    };
+    }];
     cartMutate(data);
+  }, [auth?.userId, cartMutate]);
+  
+  const onBulkSubmit = () => {
+      if (selectedRows.length === 0) return;
+      const data = selectedRows.map(id => ({
+          userId: auth?.userId,
+          productId: id,
+          productType: "ssn"
+      }));
+      cartMutate(data);
   };
   // end of sending  details
 
@@ -166,420 +248,223 @@ function SSNDOB() {
       {
         keepPreviousData: true,
         refetchInterval: 3000,
-        // 5 seconds in milliseconds,
       }
     );
   }
   const { isLoading: loadingUserCart, data: cartData } = useShoppingCart();
 
   // func to checkm if a product is in cart
-  function isProductInCart(productId) {
-    for (let i = 0; i < cartData?.cart?.length; i++) {
-      // Check if the current item's productId matches the target productId
-      if (cartData?.cart[i]?.productId === productId) {
-        return true;
+  const cartProductIds = useMemo(() => {
+       return new Set(cartData?.cart?.map(item => item.productId));
+  }, [cartData]);
+
+  // Row selection handlers
+  const toggleRow = useCallback((id) => {
+      setSelectedRows((prev) => 
+          prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      );
+  }, []);
+
+  const toggleAll = () => {
+      const availableIds = ssnData?.data?.ssns
+        ?.filter(item => !cartProductIds.has(item._id))
+        ?.map(item => item._id) || [];
+        
+      if (selectedRows.length >= availableIds.length && availableIds.length > 0) {
+          setSelectedRows([]);
+      } else {
+          setSelectedRows(availableIds);
       }
-    }
-    return false;
-  }
+  };
 
+  const allSelected = ssnData?.data?.ssns?.length > 0 && 
+    ssnData?.data?.ssns
+    ?.filter(item => !cartProductIds.has(item._id))
+    ?.every(item => selectedRows.includes(item._id));
+    
   return (
-    <div className="">
-      <div className="bg-[#696a62] w-full rounded-t-md flex items-center gap-2 ">
-        <p className="text-light px-2 py-3">Fullz </p>
-        <p
-          onClick={() => {
-            setShowFilters(!showFilters);
-          }}
-          className="text-primary cursor-pointer"
-        >
-          [{showFilters ? "Hide filters" : "Show Filters"}]
-        </p>
-      </div>
+    <Container size="xl" py="lg">
+        <Paper shadow="sm" radius="md" withBorder>
+             {/* Header */}
+            <Group position="apart" p="md" bg="dark.6" style={{ borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}>
+                 <Title order={4}>Fullz Directory</Title>
+                 <Button 
+                    variant="subtle" 
+                    leftIcon={showFilters ? <IconFilterOff size={16} /> : <IconFilter size={16} />}
+                    onClick={() => setShowFilters(!showFilters)}
+                    size="sm"
+                 >
+                    {showFilters ? "Hide Filters" : "Show Filters"}
+                 </Button>
+            </Group>
+            
+            <Collapse in={showFilters}>
+               <Paper p="md" bg="dark.8" withBorder style={{ borderTop: 0 }}>
+                    <Grid>
+                        <Grid.Col span={12} sm={6} md={3}>
+                             <Select label="Base" data={baseOptions} value={base} onChange={setBase} placeholder="Select Base" clearable />
+                        </Grid.Col>
+                        <Grid.Col span={12} sm={6} md={3}>
+                             <Select label="State" data={filterOptions?.state} value={state} onChange={setState} placeholder="Select State" clearable searchable />
+                        </Grid.Col>
+                        <Grid.Col span={12} sm={6} md={3}>
+                            <TextInput label="City" value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" />
+                        </Grid.Col>
+                         <Grid.Col span={12} sm={6} md={3}>
+                            <TextInput label="Zip" value={zip} onChange={(e) => setZip(e.target.value)} placeholder="Zip Code" />
+                        </Grid.Col>
 
-      {showFilters && (
-        <div className="border border-[#4b4b4b] bg-dark   rounded-b-md py-3 px-2">
-          {/* filters */}
-          <div className="grid md:grid-cols-4 gap-8 content-center ">
-            <div className="flex flex-col w-full gap-2  ">
-              <label htmlFor="" className="text-light ">
-                Base:
-              </label>
-              <Select
-                options={baseOptions}
-                value={base && base.label}
-                onChange={(selectOption) => {
-                  setBase(selectOption?.value);
-                }}
-              />
-            </div>
-            <div className="flex flex-col w-full gap-2">
-              <label htmlFor="" className="text-light ">
-                State:
-              </label>
-              <Select
-                options={filterOptions?.state}
-                value={state && state.label}
-                onChange={(selectOption) => {
-                  setState(selectOption?.value);
-                }}
-              />
-            </div>
-            <div className="flex flex-col w-full  ">
-              <label htmlFor="" className="text-light ">
-                City:
-              </label>
-              <input
-                type="text"
-                className="border-2 py-1 px-2   focus:border-none "
-                value={city}
-                onChange={(e) => {
-                  setCity(e.target.value);
-                }}
-              />
-            </div>
-            <div className="flex flex-col w-full  ">
-              <label htmlFor="" className="text-light ">
-                Zip:
-              </label>
-              <input
-                type="text"
-                className="border-2 py-1 px-2   focus:border-none "
-                value={zip}
-                onChange={(e) => {
-                  setZip(e.target.value);
-                }}
-              />
-            </div>
-            <div className="flex flex-col w-full gap-2">
-              <label htmlFor="" className="text-light ">
-                Country:
-              </label>
-              <Select
-                options={countryOptions}
-                value={country1 && country1.label}
-                onChange={(selectOption) => {
-                  setCountry1(selectOption?.value);
-                }}
-              />
-            </div>
-            <div>
-              <label className="text-light ">
-                DOB: {minValue} - {maxValue}
-              </label>
+                        <Grid.Col span={12} sm={6} md={3}>
+                             <Select label="Country" data={countryOptions} value={country1} onChange={setCountry1} placeholder="Select Country" clearable searchable />
+                        </Grid.Col>
+                        <Grid.Col span={12} sm={6} md={3}>
+                             <TextInput label="Name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name Search" />
+                        </Grid.Col>
+                         <Grid.Col span={12} sm={12} md={6}>
+                            <Text size="sm" weight={500} mb={5}>DOB Range: {dobRange[0]} - {dobRange[1]}</Text>
+                             <RangeSlider 
+                                min={1910} 
+                                max={currentYear} 
+                                step={1} 
+                                value={dobRange} 
+                                onChange={setDobRange}
+                                label={(value) => value}
+                                color="green"
+                             />
+                        </Grid.Col>
+                         <Grid.Col span={12}>
+                             <Group position="right">
+                                 <Button variant="outline" color="red" onClick={resetFilters} size="sm">Reset Filters</Button>
+                             </Group>
+                        </Grid.Col>
+                    </Grid>
+               </Paper>
+            </Collapse>
+            
+            {/* Bulk Select Helper & Controls */}
+             <Group p="md" mt="xs" align="center" spacing="md">
+                 <Alert icon={<IconInfoCircle size="1rem" />} color="blue" variant="outline" py="xs">
+                    <strong>Bulk Action:</strong> Select multiple items using the checkboxes below. Your selection is preserved while you scroll.
+                </Alert>
+            </Group>
 
-              <MultiRangeSlider
-                min={1910}
-                max={2025}
-                step={5}
-                ruler={false}
-                label={false}
-                style={{
-                  border: "none",
-                  boxShadow: "none",
-                  padding: "10px 10px",
-                }}
-                barInnerColor="#6ba54a"
-                minValue={minValue}
-                maxValue={maxValue}
-                onInput={(e) => {
-                  handleInput(e);
-                }}
-              />
-            </div>
+             <Group position="apart" px="md" pb="xs">
+                 <Pagination total={totalPages || 1} page={activePage} onChange={setPage} color="green" size="sm" />
+                 <Group spacing="xs">
+                     <Text size="sm">Per Page:</Text>
+                     <Select 
+                        data={['300', '330', '350']} 
+                        value={perPage} 
+                        onChange={setPerPage} 
+                        size="xs" 
+                        w={80}
+                     />
+                 </Group>
+            </Group>
+            
+            {/* Table */}
+            <ScrollArea>
+                <Table striped highlightOnHover fontSize="xs" verticalSpacing="xs">
+                    <thead>
+                        <tr>
+                            <th>
+                                <Checkbox 
+                                    checked={allSelected && ssnData?.data?.ssns?.length > 0} 
+                                    onChange={toggleAll}
+                                    indeterminate={selectedRows.length > 0 && !allSelected}
+                                    color="green"
+                                    transitionDuration={0}
+                                />
+                            </th>
+                            <th>Base</th>
+                            <th>Name</th>
+                            <th>DOB</th>
+                            <th>State</th>
+                            <th>City</th>
+                            <th>Zip</th>
+                            <th>SSN</th>
+                            <th>Address</th>
+                            <th>Email</th>
+                            <th>Email Pass</th>
+                            <th>FA Uname</th>
+                            <th>FA Pass</th>
+                            <th>Backup</th>
+                            <th>Sec Q&A</th>
+                            {showDescription && <th>Description</th>}
+                            <th>Price</th>
+                            <th>Enrollment</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                         {loadingSsns || refetchinSsn ? (
+                             <tr>
+                                 <td colSpan={19}>
+                                     <Group position="center" py="xl">
+                                         <Loader color="green" />
+                                     </Group>
+                                 </td>
+                             </tr>
+                         ) : ssnData?.data?.message ? (
+                             <tr>
+                                 <td colSpan={19}>
+                                     <Text align="center" py="md">{ssnData?.data?.message}</Text>
+                                 </td>
+                             </tr>
+                         ) : (
+                             ssnData?.data?.ssns?.map((account) => (
+                                 <SsnRow 
+                                    key={account._id}
+                                    account={account}
+                                    isSelected={selectedRows.includes(account._id)}
+                                    toggleRow={toggleRow}
+                                    inCart={cartProductIds.has(account._id)}
+                                    onAddCart={onSubmitting}
+                                    showDescription={showDescription}
+                                 />
+                             ))
+                         )}
+                    </tbody>
+                </Table>
+            </ScrollArea>
+             <Group position="center" p="md">
+                 <Pagination total={totalPages || 1} page={activePage} onChange={setPage} color="green" />
+            </Group>
 
-            <div className="flex flex-col w-full  ">
-              <label htmlFor="" className="text-light ">
-                Name:
-              </label>
-              <input
-                type="text"
-                className="border-2 py-1 px-2   focus:border-none "
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                }}
-              />
-            </div>
+        </Paper>
 
-            <div className="flex justify-between items-center ">
-              <h1
-                className="bg-primary   cursor-pointer text-light py-1 px-5 rounded-md hover:bg-[#064919]  "
-                onClick={resetFilters}
-              >
-                Reset filter
-              </h1>
-            </div>
-          </div>
-          {/* end of filters */}
-        </div>
-      )}
-      <div className="mt-10 pb-2">
-        <div className="">
-          <Pagination
-            total={totalPages || 0}
-            page={activePage}
-            color="yellow"
-            onChange={setPage}
-          />
-        </div>
-      </div>
-
-      {/* table */}
-      <div className="overflow-y-auto rounded-lg mt-1 bg-[#414036]">
-        <table className="w-full table-auto border-collapse border border-slate-500 text-[#FFF] text-sm">
-          {/* table header */}
-          <thead className="bg-primary/70 bg-opacity-90 ">
-            <tr>
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                Base
-              </th>
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                Name
-              </th>
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                DOB
-              </th>
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                State
-              </th>
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                City
-              </th>
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                Zip
-              </th>
-
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                SSN
-              </th>
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                Address
-              </th>
-
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                Email
-              </th>
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                Email_Pass
-              </th>
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                FAUname
-              </th>
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                FAPass
-              </th>
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                Backup_Code
-              </th>
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                Security_Q&A
-              </th>
-              <th
-                scope="col"
-                className={`${
-                  !base?.showDescription && "hidden"
-                } border-collapse border border-slate-500 py-2 px-3`}
-              >
-                Description
-              </th>
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                Price
-              </th>
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                Enrollment
-              </th>
-              <th
-                scope="col"
-                className="border-collapse border border-slate-500 py-2 px-3"
-              >
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="text-dark ">
-            {loadingSsns || refetchinSsn ? (
-              <tr className="">
-                <td colSpan={12} className="text-center pl-[50%] py-5">
-                  <Loader color="#ff9c33" size={25} />
-                </td>
-              </tr>
-            ) : ssnData?.data?.message ? (
-              <tr>
-                <td colSpan={7} className="text-gray-800 text-center py-3">
-                  {ssnData?.data?.message}
-                </td>
-              </tr>
-            ) : (
-              ssnData?.data?.ssns?.map((account, index) => {
-                return (
-                  <tr
-                    key={index}
-                    className="odd:bg-[#595a59] hover:bg-gray-600 text-light text-center "
-                  >
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.price?.base}
-                    </td>
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.firstName || ""}
-                    </td>
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.dobYear}
-                    </td>
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.state}
-                    </td>
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account.city}
-                    </td>
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.zip}
-                    </td>
-
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.ssn ? "✅" : "❌"}
-                    </td>
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.address ? "✅" : "❌"}
-                    </td>
-
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.email ? "✅" : "❌"}
-                    </td>
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.emailPass ? "✅" : "❌"}
-                    </td>
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.faUname ? "✅" : "❌"}
-                    </td>
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.faPass ? "✅" : "❌"}
-                    </td>
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.backupCode ? "✅" : "❌"}
-                    </td>
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.securityQa ? "✅" : "❌"}
-                    </td>
-                    <td
-                      className={`${
-                        !base?.showDescription && "hidden"
-                      } border-collapse border-b border-slate-500 py-2 px-3`}
-                    >
-                      {account?.description}
-                    </td>
-                    <td
-                      className={` border-collapse border-b border-slate-500 py-2 px-3`}
-                    >
-                      ${account?.price?.price}
-                    </td>
-                    <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      {account?.enrollment ? "✅" : "❌"}
-                    </td>
-                    <td className=" border-collapse border-b border-slate-500 py-3 px-3">
-                      {loadingCart ? (
-                        <span>
-                          <Loader color="green" size={12} />
-                        </span>
-                      ) : (
-                        <span>
-                          {isProductInCart(account?._id) ? (
-                            <span>In Cart✅</span>
-                          ) : (
-                            <span
-                              onClick={() => onSubmitting(account?._id)}
-                              className="flex gap-2 cursor-pointer bg-primary py- px-2 text-center items-center justify-center rounded-md text-light hover:bg-secondary"
-                            >
-                              <h1 className="">{"Add"}</h1>
-                              <CgShoppingCart size={17} />
-                            </span>
-                          )}
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })
+        {/* Floating Bulk Add Button */}
+        <Affix position={{ bottom: rem(20), left: 0, right: 0 }} zIndex={199} style={{ pointerEvents: 'none', display: 'flex', justifyContent: 'center' }}>
+            <Transition transition="slide-up" mounted={selectedRows.length > 0}>
+            {(transitionStyles) => (
+                <Paper style={{ ...transitionStyles, pointerEvents: 'auto' }} shadow="md" p="sm" radius="md" withBorder bg="dark.7">
+                    <Group>
+                        <Text size="sm" weight={500} color="white">
+                            {selectedRows.length} items selected
+                        </Text>
+                        <Button 
+                            color="green" 
+                            size="sm" 
+                            leftIcon={<IconShoppingCart size={16} />}
+                            onClick={onBulkSubmit}
+                            loading={loadingCart}
+                        >
+                            Add to Cart
+                        </Button>
+                        <ActionIcon 
+                            size="lg" 
+                            color="gray" 
+                            variant="subtle" 
+                            onClick={() => setSelectedRows([])}
+                        >
+                            <IconX size={16} />
+                        </ActionIcon>
+                    </Group>
+                </Paper>
             )}
-          </tbody>
-        </table>
-        <div className="py-3 px-3 flex justify-start mt-2">
-          <Pagination
-            total={totalPages || 0}
-            page={activePage}
-            color="yellow"
-            onChange={setPage}
-          />
-          <div className="flex justify-center items-center ml-4 text-light">
-            <p>Showing </p>
-            <select
-              name=""
-              value={perPage}
-              id=""
-              className="px-1 py-1 mx-2 rounded-md border bg-dark "
-              onChange={(e) => {
-                setPerPage(e.target.value);
-              }}
-            >
-              <option value={300}>300</option>
-              <option value={330}>330</option>
-              <option value={350}>350</option>
-            </select>
-            <p>Per page</p>
-          </div>
-        </div>
-
-        {/* en of header */}
-      </div>
-    </div>
+            </Transition>
+        </Affix>
+    </Container>
   );
 }
 

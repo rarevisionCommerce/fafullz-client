@@ -4,8 +4,8 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useAuth from "../../hooks/useAuth";
 import Select from "react-select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Checkbox, Pagination } from "@mantine/core";
-import { confirmAlert } from "react-confirm-alert";
+import { Checkbox, Pagination, TextInput, NumberInput, Button } from "@mantine/core";
+
 import { toast } from "react-toastify";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
@@ -41,6 +41,13 @@ function EditBasePrice() {
   const [checked, setChecked] = useState(
     baseData?.data?.showDescription
   );
+  
+  // Sync state when data loads
+  useEffect(() => {
+    if (baseData?.data) {
+        setChecked(baseData.data.showDescription);
+    }
+  }, [baseData]);
 
   // end..............
 
@@ -76,72 +83,75 @@ function EditBasePrice() {
     baseMutate(data);
   };
   return (
-    <div className="bg-light py-5 px-5 h-[100%]">
+    <div className="bg-gray-900 py-5 px-5 h-screen text-white">
       {loadingOneBase ? (
-        <div className="flex justify-center  items-center">
+        <div className="flex justify-center  items-center mt-20">
           <PulseLoader color="#6ba54a" size={10} />
         </div>
       ) : (
         <form
           action=""
           className={
-            " bg-gray-100 md:px-4 px-2 py-3 min-h-[150px] shadow-md mb-2"
+            " bg-gray-800 md:px-6 px-4 py-8 rounded-lg shadow-md mb-2 border border-gray-700 max-w-4xl mx-auto"
           }
           onSubmit={handleSubmit(submitEditBase)}
         >
-          <h1 className="font-bold text-md text-center">Edit SSN/DOB Base </h1>
+          <h1 className="font-bold text-xl text-center mb-6 text-white">Edit SSN/DOB Base </h1>
 
-          <div className="grid  grid-cols-3 place-items-center  gap-3 my-3 ">
+          <div className="md:grid md:grid-cols-3 gap-6 items-end">
             <div className="flex flex-col gap-2 w-full ">
-              <h1>Base</h1>
-              <input
-                type="text"
-                defaultValue={baseData?.data?.base}
-                className="border-2 w-full py-1 px-2 outline-none  focus:border-gray-700 focus:border-[1px] "
-                {...register("base", {
-                  required: true,
-                })}
-              />
-              <p className="text-red-500 text-xs">
-                {errors.base?.type === "required" && "Base is required"}
-              </p>
+                <Controller
+                    name="base"
+                    control={control}
+                    defaultValue={baseData?.data?.base}
+                     rules={{ required: "Base is required" }}
+                    render={({ field }) => (
+                     <TextInput
+                        label="Base"
+                        labelProps={{ style: { color: "#d1d5db" } }}
+                        placeholder="Enter base name"
+                        error={errors.base?.message}
+                        {...field}
+                         styles={{ input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' } }}
+                     />
+                    )}
+                />
             </div>
             <div className="flex flex-col gap-2 w-full ">
-              <h1>Price</h1>
-              <input
-                type="number"
-                defaultValue={baseData?.data?.price}
-                min={0}
-                step="any"
-                className="border-2 w-full py-1 px-2 outline-none  focus:border-gray-700 focus:border-[1px] "
-                {...register("price", {
-                  required: true,
-                })}
-              />
-              <p className="text-red-500 text-xs">
-                {errors.price?.type === "required" && "Price is required"}
-              </p>
+                 <Controller
+                    name="price"
+                    control={control}
+                    defaultValue={baseData?.data?.price}
+                    rules={{ required: "Price is required" }}
+                    render={({ field }) => (
+                     <NumberInput
+                        label="Price"
+                        labelProps={{ style: { color: "#d1d5db" } }}
+                        placeholder="Enter price"
+                        min={0}
+                        precision={2}
+                        error={errors.price?.message}
+                        {...field}
+                         styles={{ input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' } }}
+                     />
+                    )}
+                />
             </div>
-            <div className="flex flex-col gap-2 w-full justify-center">
-              <h1 className="pt-4"></h1>
+            <div className="flex flex-col gap-4 w-full justify-end pb-1">
               <Checkbox
                 checked={checked}
                 onChange={(event) => setChecked(event.currentTarget.checked)}
                 label="Show Description"
+                styles={{ label: { color: "#d1d5db" } }}
               />
-            </div>
-            <div>
-              {loadingBase ? (
-                <div className="flex justify-center  items-center">
-                  <PulseLoader color="#6ba54a" size={10} />
-                </div>
-              ) : (
-                <div className="flex gap-4">
-                  <button className="bg-primary mt-5 text-white rounded-md px-5 py-1 hover:bg-secondary disabled:cursor-not-allowed disabled:bg-red-300 disabled:text-gray-300">
+               <Button
+                    type="submit"
+                    loading={loadingBase}
+                    fullWidth
+                    color="blue"
+                >
                     Update
-                  </button>
-                </div>
-              )}
+                </Button>
             </div>
           </div>
         </form>

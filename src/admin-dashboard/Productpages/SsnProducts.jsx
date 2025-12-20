@@ -5,7 +5,8 @@ import useAuth from "../../hooks/useAuth";
 import Select from "react-select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Pagination } from "@mantine/core";
-import { confirmAlert } from "react-confirm-alert";
+import { Text, Modal, Button, Group } from "@mantine/core";
+import { useDisclosure } from '@mantine/hooks';
 import { toast } from "react-toastify";
 
 function SsnProducts(props) {
@@ -13,6 +14,7 @@ function SsnProducts(props) {
 
   const [status, setStatus] = useState("");
   const [isPaid, setIsPaid] = useState("");
+  const [payOpened, { open: openPay, close: closePay }] = useDisclosure(false);
   const [perPage, setPerPage] = useState(10);
   const [activePage, setPage] = useState(1);
   const queryClient = useQueryClient();
@@ -66,34 +68,9 @@ function SsnProducts(props) {
     }
   );
   // pay one alert
-  const payUser = () => {
-    confirmAlert({
-      customUI: ({ onClose }) => {
-        return (
-          <div className=" shadow-xl p-[30px] flex flex-col gap-4">
-            <h1 className="font-bold text-xl">Pay one product!</h1>
-            <p className="pb-1">{`Are you sure you want to pay one product?`}</p>
-            <div className="flex justify-center items-center gap-1">
-              <button
-                className="rounded-md  bg-gray-400 text-white w-[50%]font-bold px-5 py-1 hover:bg-tertiary "
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-md  bg-green-500 text-white font-bold px-5 w-[50%] py-1 hover:bg-tertiary "
-                onClick={() => {
-                  payOneProductMutate();
-                  onClose();
-                }}
-              >
-                Pay
-              </button>
-            </div>
-          </div>
-        );
-      },
-    });
+  const handlePay = () => {
+    payOneProductMutate();
+    closePay();
   };
   // end of alert
 
@@ -241,7 +218,7 @@ function SsnProducts(props) {
                           <button
                             onClick={() => {
                               setProductId(item._id);
-                              payUser();
+                              openPay();
                             }}
                             className="bg-green-500 text-white rounded-md px-3 py-1 hover:bg-green-400 disabled:cursor-not-allowed disabled:bg-red-300 disabled:text-gray-300"
                           >
@@ -259,6 +236,14 @@ function SsnProducts(props) {
           </table>
         </div>
       </div>
+
+     <Modal opened={payOpened} onClose={closePay} title="Pay one product" centered>
+        <Text size="sm">Are you sure you want to pay one product?</Text>
+        <Group position="right" mt="md">
+          <Button variant="default" onClick={closePay}>Cancel</Button>
+          <Button color="green" onClick={handlePay}>Pay</Button>
+        </Group>
+      </Modal>
     </div>
   );
 }

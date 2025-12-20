@@ -1,17 +1,33 @@
 import React, { useEffect, useRef } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import useAuth from "../../hooks/useAuth";
 import { useForm } from "react-hook-form";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useAuth from "../../hooks/useAuth";
 import { toast } from "react-toastify";
-import PulseLoader from "react-spinners/PulseLoader";
 import { format } from "timeago.js";
+import {
+  Container,
+  Paper,
+  Title,
+  Text,
+  Textarea,
+  Button,
+  Loader,
+  ScrollArea,
+  Group,
+  Stack,
+  Avatar,
+  Box,
+  Grid,
+  Alert
+} from "@mantine/core";
+import { IconSend, IconMessageCircle, IconUser, IconHeadset, IconInfoCircle } from "@tabler/icons-react";
 
 function Support() {
   const axios = useAxiosPrivate();
   const { auth } = useAuth();
   const queryClient = useQueryClient();
-  const scroll = useRef();
+  const viewport = useRef(null);
 
   const {
     register,
@@ -20,23 +36,32 @@ function Support() {
     reset,
   } = useForm();
 
-  //get conversation......................
-  function getConversation() {
+  // Fetch conversation
+  const getConversation = () => {
     return axios.get(`/support/messages/customer/${auth?.jabberId}`);
-  }
-  // querying funtion
+  };
+
   const {
     data: conversationData,
     isLoading: loadingConversation,
-    isError: errorConversation,
   } = useQuery({
     queryKey: [`messages-${auth?.jabberId}`],
     queryFn: getConversation,
-    refetchInterval: 1000,
+    refetchInterval: 3000,
+    onSuccess: () => {
+        // Scroll to bottom on polling update if near bottom or initial load could be handled here
+    }
   });
-  // end...................
 
-  // upload function
+  // Scroll to bottom on new messages
+  useEffect(() => {
+    if (viewport.current) {
+        viewport.current.scrollTo({ top: viewport.current.scrollHeight, behavior: 'smooth' });
+    }
+  }, [conversationData?.data?.messages?.length]);
+
+
+  // Upload message
   const uploadMessage = (message) => {
     return axios.post("/support", message);
   };
@@ -44,133 +69,132 @@ function Support() {
   const {
     mutate: messageMutate,
     isLoading: messageLoading,
-    error,
   } = useMutation({
     mutationFn: uploadMessage,
     onSuccess: (response) => {
       toast.success(response?.data?.message);
       queryClient.invalidateQueries([`messages-${auth?.jabberId}`]);
-
       reset();
     },
     onError: (err) => {
-      const text = err?.response?.data?.message;
+      const text = err?.response?.data?.message || "Something went wrong";
       toast.error(text);
-
-      if (!err.response.data.message) {
-        toast.error("something went wrong");
-      }
     },
   });
 
   const submitMessage = (data) => {
-    messageMutate(data);
+    if(!auth?.jabberId || !auth?.roles?.[0] || !auth?.userName) {
+        toast.error("User information missing, cannot send message.");
+        return;
+    }
+    const payload = {
+        jabberId: auth.jabberId,
+        role: auth.roles[0],
+        userName: auth.userName,
+        message: data.message
+    };
+    messageMutate(payload);
   };
 
-  useEffect(() => {
-    scroll.current?.scrollIntoView({ behavior: "smooth" });
-  }, [conversationData?.data?.messages?.length]);
-
   return (
-    <div className="bg-dark3 min-h-screen">
-      <div className="max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl font-bold text-light mb-4">
-            Chat with Support
-          </h1>
+    <Container size="md" py="xl" h="90vh">
+        <Paper shadow="sm" radius="md" withBorder h="100%" display="flex" style={{ flexDirection: 'column' }}>
+            {/* Header */}
+            <Box p="md" bg="dark.8" style={{ borderBottom: '1px solid #373A40', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}>
+                <Group>
+                    <IconHeadset size={24} color="#40c057" />
+                    <div>
+                        <Title order={4}>Chat with Support</Title>
+                        <Text size="xs" color="dimmed">Describe your issue here. For deposit issues, send wallet address along.</Text>
+                    </div>
+                </Group>
+            </Box>
 
-          <div className=" max-h-[500px] bg-chatBg border border-gray-400 rounded-md  overflow-y-auto overflow-x-auto ">
-            {conversationData?.data?.messages?.map((message, index) => {
-              return (
-                <div
-                  className={
-                    message.from === auth?.roles[0]
-                      ? "m-2  bg-[#379237] p-1 rounded-br-lg rounded-bl-lg rounded-tl-lg md:round-tr-lg  text-white w-[50%] float-right  "
-                      : "text-white float-left bg-gray-800 w-[50%] m-2  p-1 rounded-br-lg rounded-bl-lg rounded-tr-lg "
-                  }
-                  key={index}
-                  ref={scroll}
-                >
-                  <p className="p-2">
-                    <p>
-                      {message?.message}
-                      <h1 className="text-xs text-left pt-2 text-gray-300">
-                        {message?.createdAt ? format(message?.createdAt) : ""}
-                      </h1>
-                    </p>{" "}
-                  </p>
-                  <h1 className="text-[15px] text-right"> </h1>
-                </div>
-              );
-            })}
-          </div>
+            {/* Chat Area */}
+            <ScrollArea viewportRef={viewport} flex={1} p="md" bg="dark.9">
+                {loadingConversation ? (
+                    <Stack align="center" justify="center" h="100%">
+                        <Loader variant="dots" color="green" />
+                        <Text color="dimmed">Loading conversation...</Text>
+                    </Stack>
+                ) : conversationData?.data?.messages?.length === 0 ? (
+                     <Stack align="center" justify="center" h="100%" spacing="xs">
+                        <IconMessageCircle size={48} color="#adb5bd" />
+                        <Text color="dimmed">No messages yet. Start a conversation below.</Text>
+                    </Stack>
+                ) : (
+                    <Stack spacing="md">
+                        {conversationData?.data?.messages?.map((message, index) => {
+                            const isUser = message.from === auth?.roles[0];
+                            return (
+                                <Group 
+                                    key={index} 
+                                    position={isUser ? "right" : "left"} 
+                                    align="flex-start" 
+                                    noWrap
+                                >
+                                    {!isUser && <Avatar radius="xl" bg="blue" size="md"><IconHeadset size="1rem"/></Avatar>}
+                                    <Stack spacing={4} style={{ maxWidth: '75%' }}>
+                                        <Paper 
+                                            p="xs" 
+                                            radius="md" 
+                                            bg={isUser ? "green.9" : "dark.6"} 
+                                            c={isUser ? "white" : "gray.3"}
+                                            withBorder={!isUser}
+                                            shadow="xs"
+                                        >
+                                            <Text size="sm" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                                                {message.message}
+                                            </Text>
+                                        </Paper>
+                                        <Text size="xs" color="dimmed" align={isUser ? "right" : "left"}>
+                                            {message?.createdAt ? format(message.createdAt) : ""}
+                                        </Text>
+                                    </Stack>
+                                    {isUser && <Avatar radius="xl" src={null} color="green" size="md"><IconUser size="1rem"/></Avatar>}
+                                </Group>
+                            );
+                        })}
+                    </Stack>
+                )}
+            </ScrollArea>
 
-          <form
-            onSubmit={handleSubmit(submitMessage)}
-            className="grid grid-cols-1 gap-6"
-          >
-            <div>
-              <input
-                value={auth?.jabberId}
-                name="email"
-                {...register("jabberId", {
-                  required: true,
-                })}
-                className="mt-1 py-2 px-3 hidden w-full rounded-md bg-white border border-gray-300 shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              />
-              <input
-                value={auth?.roles[0]}
-                name="text"
-                {...register("role", {
-                  required: true,
-                })}
-                className="mt-1 py-2 px-3 w-full hidden rounded-md bg-white border border-gray-300 shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              />
-              <input
-                value={auth?.userName}
-                name="text"
-                {...register("userName", {
-                  required: true,
-                })}
-                className="mt-1 py-2 px-3 w-full hidden rounded-md bg-white border border-gray-300 shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="message"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Message
-              </label>
-              <textarea
-                placeholder="Describe your issue here, you can alaso provide links to screenshots. DEPOSIT ISSUES SEND WALLET ADDRESS ALONG"
-                id="message"
-                name="message"
-                rows="5"
-                {...register("message", {
-                  required: true,
-                })}
-                className="mt-1 py-2 px-3 block w-full rounded-md bg-gray-700 border border-gray-300 shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              ></textarea>
-              {errors.message && (
-                <p className="text-red-500 text-xs">Please select state</p>
-              )}
-            </div>
-            <div>
-              {messageLoading ? (
-                <div className="flex justify-center pr-6 items-center">
-                  <PulseLoader color="#6ba54a" size={10} />
-                </div>
-              ) : (
-                <button className="bg-primary text-light py-1 px-4 rounded-md hover:bg-secondary ">
-                  Send
-                </button>
-              )}
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+            {/* Input Area */}
+            <Box p="md" bg="dark.8" style={{ borderTop: '1px solid #373A40', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px' }}>
+                <form onSubmit={handleSubmit(submitMessage)}>
+                    <Grid align="flex-end">
+                        <Grid.Col span="auto">
+                             <Textarea
+                                placeholder="Type your message..."
+                                autosize
+                                minRows={1}
+                                maxRows={4}
+                                {...register("message", { required: true })}
+                                error={errors.message && "Message is required"}
+                                disabled={messageLoading}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSubmit(submitMessage)();
+                                    }
+                                }}
+                            />
+                        </Grid.Col>
+                        <Grid.Col span="content">
+                            <Button 
+                                type="submit" 
+                                color="green" 
+                                leftIcon={<IconSend size={16} />}
+                                loading={messageLoading}
+                            >
+                                Send
+                            </Button>
+                        </Grid.Col>
+                    </Grid>
+                </form>
+            </Box>
+        </Paper>
+    </Container>
   );
 }
 

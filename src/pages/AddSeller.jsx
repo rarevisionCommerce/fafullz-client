@@ -2,18 +2,16 @@ import React, { useState } from "react";
 import { HiUser } from "react-icons/hi";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { CgLogIn } from "react-icons/cg";
-import { MdEmail, MdArrowBack, MdOutlineCategory } from "react-icons/md";
+import { MdEmail, MdOutlineCategory } from "react-icons/md";
 import { useForm, Controller } from "react-hook-form";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import axios from "../api/axios";
 import { toast } from "react-toastify";
-import PulseLoader from "react-spinners/PulseLoader";
-import { MultiSelect } from "@mantine/core";
+import { TextInput, PasswordInput, Button, Container, Title, Paper, Text, MultiSelect } from "@mantine/core";
 import useAuth from "../hooks/useAuth";
 
 function AddSeller() {
   const [errMsg, setErrMsg] = useState("");
-  const [categories, setCategories] = useState([]);
   const { auth } = useAuth();
 
   const categoriesData = [
@@ -27,11 +25,17 @@ function AddSeller() {
   ];
 
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm();
+    watch,
+    setValue
+  } = useForm({
+    defaultValues: {
+      categories: []
+    }
+  });
 
   // sign......................
   // signup function
@@ -42,22 +46,19 @@ function AddSeller() {
   const {
     mutate: registerMutate,
     isLoading: registerLoading,
-    error,
   } = useMutation(registerUser, {
     onSuccess: (response) => {
       reset();
-      const text = response?.data?.message;
       toast.success("Seller registered successfully");
-      setCategories([]);
     },
     onError: (err) => {
-      const text = err?.response.data.message;
+      const text = err?.response?.data?.message;
       setErrMsg(text);
       setTimeout(() => {
         setErrMsg("");
       }, 10000);
 
-      if (!err.response.data.message) {
+      if (!err?.response?.data?.message) {
         toast.error("something went wrong");
       }
     },
@@ -66,121 +67,135 @@ function AddSeller() {
   const onSubmitting = (data) => {
     data.roles = "Seller";
     data.accountType = "rarevision";
-    if (!categories || categories.length < 1) {
-      return toast.warn("Select atleast one category");
+    if (!data.categories || data.categories.length < 1) {
+      return toast.warn("Select at least one category");
     }
-    data.categories = categories;
-
+    
     registerMutate(data);
   };
 
   return (
-    <div className=" flex flex-col justify-center items-center  ">
-      {/* Login form  */}
-      <div className="min-h-[400px] w-[93%] md:w-[400px]  bg-light bg-opacity-80 text-start rounded-md">
-        <form
-          action=""
-          className="px-2 md:px-4 py-2 text-darktext "
-          onSubmit={handleSubmit(onSubmitting)}
+    <div className="bg-gray-900 min-h-screen flex flex-col justify-center items-center py-10">
+      <Container size={420} my={40}>
+        <Title
+          align="center"
+          sx={(theme) => ({ fontFamily: `Greycliff CF, ${theme.fontFamily}`, fontWeight: 900, color: 'white' })}
         >
-          <h1 className=" text-2xl  font-semibold my-4 ">Register Seller</h1>
-          <h1 className="text-red-500 text-center">{errMsg}</h1>
-          <h1 className="mb-2">Enter Details </h1>
+          Register Seller
+        </Title>
+        <Text color="dimmed" size="sm" align="center" mt={5}>
+           Enter Details to create a new seller
+        </Text>
+        
+        {errMsg && <Text color="red" align="center" mt="md">{errMsg}</Text>}
 
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-3 py-2 border-b-2 border-b-primary">
-              <h1>
-                <HiUser size={22} />
-              </h1>
-              <input
-                type="text"
-                placeholder="Username"
-                className="outline-none w-full bg-light bg-opacity-0 disabled:bg-gray-100 disabled:cursor-not-allowed"
+        <Paper withBorder shadow="md" p={30} mt={30} radius="md" style={{ backgroundColor: '#1f2937', borderColor: '#374151' }}>
+          <form onSubmit={handleSubmit(onSubmitting)}>
+            <Controller
+                name="userName"
+                control={control}
+                rules={{ required: "Username is required" }}
+                render={({ field }) => (
+                    <TextInput 
+                        label="Username" 
+                        placeholder="Username" 
+                        required 
+                        mt="md"
+                        icon={<HiUser size="1rem" />}
+                        error={errors.userName?.message}
+                        disabled={!auth?.roles?.includes("Admin")}
+                        {...field}
+                         styles={{ 
+                            label: { color: "#d1d5db" },
+                            input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' }
+                        }}
+                    />
+                )}
+            />
+            
+            <Controller
+                name="jabberId"
+                control={control}
+                rules={{ required: "Jabber ID is required" }}
+                render={({ field }) => (
+                    <TextInput 
+                        label="Jabber ID" 
+                        placeholder="Jabber ID" 
+                        required 
+                        mt="md"
+                        icon={<MdEmail size="1rem" />}
+                        error={errors.jabberId?.message}
+                        disabled={!auth?.roles?.includes("Admin")}
+                        {...field}
+                        styles={{ 
+                            label: { color: "#d1d5db" },
+                            input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' }
+                        }}
+                    />
+                )}
+            />
+
+            <Controller
+                name="password"
+                control={control}
+                rules={{ required: "Password is required" }}
+                render={({ field }) => (
+                    <PasswordInput 
+                        label="Password" 
+                        placeholder="Password" 
+                        required 
+                        mt="md"
+                        icon={<RiLockPasswordFill size="1rem" />}
+                        error={errors.password?.message}
+                        disabled={!auth?.roles?.includes("Admin")}
+                        {...field}
+                        styles={{ 
+                            label: { color: "#d1d5db" },
+                            input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' },
+                            innerInput: { color: 'white' }
+                        }}
+                    />
+                )}
+            />
+
+            <Controller
+                name="categories"
+                control={control}
+                render={({ field }) => (
+                     <MultiSelect
+                        data={categoriesData}
+                        label="Product Categories"
+                        placeholder="Select categories"
+                        mt="md"
+                        icon={<MdOutlineCategory size="1rem" />}
+                        disabled={!auth?.roles?.includes("Admin")}
+                        searchable
+                        {...field}
+                        onChange={(value) => field.onChange(value)}
+                        styles={{ 
+                            label: { color: "#d1d5db" },
+                            input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' },
+                            item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                            dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
+                            value: { backgroundColor: '#374151', color: 'white' }
+                        }}
+                    />
+                )}
+            />
+
+            <Button 
+                fullWidth 
+                mt="xl" 
+                type="submit" 
+                loading={registerLoading}
                 disabled={!auth?.roles?.includes("Admin")}
-                {...register("userName", {
-                  required: true,
-                })}
-              />
-            </div>
-            <p className="text-red-500">
-              {errors.userName?.type === "required" && "Username is required"}
-            </p>
-
-            <div className="flex gap-3 py-2 border-b-2 border-b-primary">
-              <h1>
-                <MdEmail size={22} />
-              </h1>
-              <input
-                type="text"
-                placeholder="Jabber ID"
-                className="outline-none w-full bg-light bg-opacity-0 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                disabled={!auth?.roles?.includes("Admin")}
-                {...register("jabberId", {
-                  required: true,
-                })}
-              />
-            </div>
-            <p className="text-red-500">
-              {errors.jabberId?.type === "required" && "JabberId is required"}
-            </p>
-
-            <div className="flex gap-3 py-2 border-b-2 border-b-primary">
-              <h1>
-                <RiLockPasswordFill size={20} />
-              </h1>
-              <input
-                type="password"
-                placeholder="Password"
-                className="outline-none w-full bg-light bg-opacity-0 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                disabled={!auth?.roles?.includes("Admin")}
-                {...register("password", {
-                  required: true,
-                })}
-              />
-            </div>
-            <p className="text-red-500">
-              {errors.userName?.type === "required" && "Password is required"}
-            </p>
-            <div className="flex flex-col gap-3 py-2 border-b-2 border-b-primary">
-              <h1>Select Product category.</h1>
-
-              <div className="flex gap-3 ">
-                <h1>
-                  <MdOutlineCategory size={22} />
-                </h1>
-                <MultiSelect
-                  value={categories}
-                  onChange={setCategories}
-                  disabled={!auth?.roles?.includes("Admin")}
-                  data={categoriesData}
-                  className="w-full"
-                />
-              </div>
-            </div>
-          </div>
-
-          {registerLoading ? (
-            <div className="flex justify-center pr-6 items-center">
-              <PulseLoader color="#6ba54a" size={10} />
-            </div>
-          ) : (
-            <div className="my-10 flex justify-end ">
-              <div className="flex items-center gap-2  bg-primary cursor-pointer text-light rounded-sm">
-                <input
-                  type="submit"
-                  value="Register"
-                  className="py-2 px-4 cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed"
-                  disabled={!auth?.roles?.includes("Admin")}
-
-                />
-                <span className="pr-1">
-                  <CgLogIn size={20} />
-                </span>
-              </div>
-            </div>
-          )}
-        </form>
-      </div>
+                leftIcon={<CgLogIn size="1rem" />}
+            >
+              Register
+            </Button>
+          </form>
+        </Paper>
+      </Container>
     </div>
   );
 }

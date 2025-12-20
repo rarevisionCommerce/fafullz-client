@@ -2,21 +2,24 @@ import React, { useState, useEffect } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from "../hooks/useAuth";
-import Select from "react-select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Pagination } from "@mantine/core";
-import { confirmAlert } from "react-confirm-alert";
+import { Pagination, Select, TextInput } from "@mantine/core";
+import { Text, Modal, Button, Group } from "@mantine/core";
+import { useDisclosure } from '@mantine/hooks';
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
 function Buyers() {
     const axios = useAxiosPrivate();
 
-  const [perPage, setPerPage] = useState(30);
+  const [perPage, setPerPage] = useState("30");
   const [activePage, setPage] = useState(1);
   const [jabberId, setJabberId] = useState("");
   const [userName, setUserName] = useState("");
   const [userId, setUserId] = useState("");
+  const [deactivateOpened, { open: openDeactivate, close: closeDeactivate }] = useDisclosure(false);
+  const [activateOpened, { open: openActivate, close: closeActivate }] = useDisclosure(false);
+  const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false);
 
 
   const queryClient = useQueryClient();
@@ -54,7 +57,7 @@ function Buyers() {
     keepPreviousData: true,
   });
 
-  const totalPages = Math.ceil(buyerData?.data?.count / perPage);
+  const totalPages = Math.ceil(buyerData?.data?.count / perPage) || 1;
 
   // pagination refetch
   useEffect(() => {
@@ -67,7 +70,7 @@ function Buyers() {
 
   // reset filters
   const resetFilters = () => {
-    setPerPage(30);
+    setPerPage("30");
     setPage(1);
     setUserName("");
     setJabberId("");
@@ -96,34 +99,9 @@ function Buyers() {
     }
   );
 
-  const deactivateById = () => {
-    confirmAlert({
-      customUI: ({ onClose }) => {
-        return (
-          <div className=" shadow-xl p-[30px] flex flex-col gap-4">
-            <h1 className="font-bold text-xl">Deactivate User!</h1>
-            <p className="pb-1">Are you sure you want to de-activate this user?</p>
-            <div className="flex gap-1">
-              <button
-                className="rounded-md  bg-gray-400 text-white w-[50%]font-bold px-5 py-1 hover:bg-tertiary "
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-md  bg-red-500 text-white font-bold px-5 w-[50%] py-1 hover:bg-tertiary "
-                onClick={() => {
-                  deactivateMutate();
-                  onClose();
-                }}
-              >
-                De-Activate
-              </button>
-            </div>
-          </div>
-        );
-      },
-    });
+  const handleDeactivate = () => {
+    deactivateMutate();
+    closeDeactivate();
   };
   // end of deactivate
   
@@ -152,34 +130,9 @@ function Buyers() {
     }
   );
 
-  const activateById = () => {
-    confirmAlert({
-      customUI: ({ onClose }) => {
-        return (
-          <div className=" shadow-xl p-[30px] flex flex-col gap-4">
-            <h1 className="font-bold text-xl">Activate User!</h1>
-            <p className="pb-1">Are you sure you want to Activate this user?</p>
-            <div className="flex gap-1">
-              <button
-                className="rounded-md  bg-gray-400 text-white w-[50%]font-bold px-5 py-1 hover:bg-tertiary "
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-md  bg-primary text-white font-bold px-5 w-[50%] py-1 hover:bg-tertiary "
-                onClick={() => {
-                  activateMutate();
-                  onClose();
-                }}
-              >
-               Activate
-              </button>
-            </div>
-          </div>
-        );
-      },
-    });
+  const handleActivate = () => {
+    activateMutate();
+    closeActivate();
   };
   // end of deactivate
 
@@ -203,34 +156,9 @@ function Buyers() {
       },
     }
   );
-  const deleteUserById = () => {
-    confirmAlert({
-      customUI: ({ onClose }) => {
-        return (
-          <div className=" shadow-xl p-[30px] flex flex-col gap-4">
-            <h1 className="font-bold text-xl">Delete Buyer!</h1>
-            <p className="pb-1">Are you sure you want to delete this Buyer?</p>
-            <div className="flex gap-1">
-              <button
-                className="rounded-md  bg-gray-400 text-white w-[50%]font-bold px-5 py-1 hover:bg-tertiary "
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-md  bg-red-500 text-white font-bold px-5 w-[50%] py-1 hover:bg-tertiary "
-                onClick={() => {
-                  deleteusermutate();
-                  onClose();
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        );
-      },
-    });
+  const handleDelete = () => {
+    deleteusermutate();
+    closeDelete();
   };
   // end of delete user
 
@@ -238,91 +166,94 @@ function Buyers() {
 
 
   return (
-    <div className="bg-light px-3 py-3">
+    <div className="bg-gray-900 px-3 py-3 min-h-screen text-white">
         <h1 className="font-bold text-lg">All Buyers </h1>
       <div className="my-[20px] ">
         {/* filters */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:px-4 bg-gray-100 px-2 py-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:px-4 bg-gray-800 px-2 py-3 rounded-lg">
            <div className="flex flex-col gap-">
-            <h1>UserName</h1>
-              <input
-                type="text"
+            
+              <TextInput
+                label="UserName"
+                placeholder="Search by username"
                 value={userName}
-                className="border-2 py-1 px-2   focus:border-none "
                 onChange={(e) => {
                   setUserName(e.target.value);
                   setPage(1);
                 }}
+                 styles={{ input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }, label: { color: "#d1d5db" } }}
               />
           </div>
           <div className="flex flex-col w-full  ">
-              <label htmlFor="">Jabber ID:</label>
-              <input
-                type="text"
+               <TextInput
+                label="Jabber ID:"
+                placeholder="Search by Jabber ID"
                 value={jabberId}
-
-                className="border-2 py-1 px-2   focus:border-none "
                 onChange={(e) => {
                   setJabberId(e.target.value);
                   setPage(1);
                 }}
+                 styles={{ input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }, label: { color: "#d1d5db" } }}
               />
             </div>
          <div className="flex flex-col gap-">
-            <h1>Per Page</h1>
             <Select
-              options={perPageOptions}
-              value={perPage && perPage.label}
-              onChange={(selectOption) => {
-                setPerPage(selectOption?.value);
+              label="Per Page"
+              data={perPageOptions}
+              value={perPage}
+              onChange={(value) => {
+                setPerPage(value);
                 setPage(1);
               }}
+               styles={{ input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }, label: { color: "#d1d5db" }, dropdown: { backgroundColor: '#1f2937', borderColor: '#374151', color: 'white' }, item: { '&[data-hovered]': { backgroundColor: '#374151' }, color: 'white' } }}
             />
           </div>
         </div>
         {/* end of filters */}
 
-        <div className="flex justify-between mt-10 px-1 md:px-4 ">
+        <div className="flex justify-between mt-10 px-1 md:px-4 items-center">
           <h1>Total: {buyerData?.data?.count || 0}</h1>
-          <h1
-            className="bg-primary cursor-pointer text-light py-1 px-5 rounded-md hover:bg-[#064919]  "
+          <Button
+            variant="outline"
+            color="green"
+
             onClick={resetFilters}
           >
             Reset filter
-          </h1>
+          </Button>
         </div>
-        <div className="overflow-x-auto mb-3">
+        <div className="overflow-x-auto mb-3 mt-4">
           <div className="my-3">
             <Pagination
               total={totalPages}
-              page={activePage}
+              value={activePage}
               color="green"
               onChange={setPage}
             />
           </div>
-          <table className="w-full text-center table-auto border-collapse border border-slate-500 text-light text-sm">
-            <thead className="bg-primary bg-opacity-90 ">
+          <table className="w-full text-center table-auto border-collapse border border-gray-700 text-gray-200 text-sm">
+            <thead className="bg-gray-800 ">
               <tr>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border-collapse border border-gray-700 py-2 px-3">
                   Id
                 </th>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border-collapse border border-gray-700 py-2 px-3">
                   UserName
                 </th>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border-collapse border border-gray-700 py-2 px-3">
                   Jabber Id
                 </th>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border-collapse border border-gray-700 py-2 px-3">
                   Status
                 </th>
                
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border-collapse border border-gray-700 py-2 px-3">
                   Action
                 </th>
               </tr>
             </thead>
 
-            <tbody className="text-dark">
+            <tbody className="text-gray-200">
               {
                 loadingBuyers || refetchingBuyers ? (
                 <tr className="flex justify-center py-4 pr-6 items-center">
@@ -333,7 +264,7 @@ function Buyers() {
               ) :!buyerData?.data?.users ||
               buyerData?.data?.users?.length < 1 ? 
                 <tr>
-                  <td colSpan={7} className="text-gray-800 text-center py-3">
+                  <td colSpan={7} className="text-gray-400 text-center py-3">
                     No users found!
                   </td>
                 </tr>: (
@@ -341,23 +272,23 @@ function Buyers() {
                   return (
                     <tr
                       key={index}
-                      className="odd:bg-gray-50 hover:bg-gray-100"
+                      className="odd:bg-gray-800 hover:bg-gray-700"
                     >
-                      <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                      <td className="border-collapse border-b border-gray-700 py-2 px-3">
                         {index + 1}
                       </td>
 
-                      <td className="border-collapse border-b  border-slate-500 py-2 px-3">
+                      <td className="border-collapse border-b  border-gray-700 py-2 px-3">
                         {item?.userName}
                       </td>
-                      <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                      <td className="border-collapse border-b border-gray-700 py-2 px-3">
                          {item?.jabberId}
                       </td>
-                      <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                      <p className={item?.status === "Active" ? "text-primary" : "text-red-500" }>{item?.status}</p>
+                      <td className="border-collapse border-b border-gray-700 py-2 px-3">
+                      <p className={item?.status === "Active" ? "text-green-500" : "text-red-500" }>{item?.status}</p>
                       </td>
                       
-                      <td className="border-collapse border-b border-slate-500 py-3 px-3 flex justify-center  gap-3">
+                      <td className="border-collapse border-b border-gray-700 py-3 px-3 flex justify-center  gap-3">
                         
                         {
                           isDeactivating || isactivating ? 
@@ -367,39 +298,41 @@ function Buyers() {
                         </p>
                         : item?.status === "Active" ? 
 
-                        <button
+                        <Button
                          onClick={() => {
-                          setUserId(item?._id);
-                          deactivateById();
+                           setUserId(item?._id);
+                           openDeactivate();
                         }}
-                          className="bg-red-500 text-white rounded-md px-3 py-1 hover:bg-red-400 disabled:cursor-not-allowed disabled:bg-red-300 disabled:text-gray-300"
+                          color="red"
+                          size="xs"
                         >
                           Deactivate 
-                        </button>  :
+                        </Button>  :
 
 
-                        <button
+                        <Button
                          onClick={() => {
-                          setUserId(item?._id);
-                          activateById();
+                           setUserId(item?._id);
+                           openActivate();
                         }}
-                          className="bg-primary text-white rounded-md px-5 py-1 hover:bg-secondary disabled:cursor-not-allowed disabled:bg-red-300 disabled:text-gray-300"
+                           size="xs"
                         >
                           Activate 
-                        </button>
+                        </Button>
 
                         }
-                        <button
+                        <Button
                           onClick={() => {
                             setDeleteUserId(item?._id);
-                            deleteUserById();
+                            openDelete();
                           }}
-                          className="bg-red-500 text-white rounded-md px-3 py-1 hover:bg-red-400 disabled:cursor-not-allowed disabled:bg-red-300 disabled:text-gray-300"
+                          color="red"
+                          size="xs"
                         >
                           Delete
-                        </button>
-                          <Link to= {`/admin-dash/buyer-details/${item._id}`} className="bg-primary text-white rounded-md px-3 py-1 hover:bg-secondary">                                               
-                          View
+                        </Button>
+                          <Link to= {`/admin-dash/buyer-details/${item._id}`}>     
+                            <Button size="xs" variant="filled" color="blue">View</Button>
                        </Link>
                         
                         
@@ -412,6 +345,31 @@ function Buyers() {
           </table>
         </div>
       </div>
+
+      <Modal opened={deactivateOpened} onClose={closeDeactivate} title="Deactivate User" centered overlayProps={{ opacity: 0.55, blur: 3 }}>
+        <Text size="sm">Are you sure you want to de-activate this user?</Text>
+        <Group position="right" mt="md">
+          <Button variant="default" onClick={closeDeactivate}>Cancel</Button>
+          <Button color="red" onClick={handleDeactivate} loading={isDeactivating}>De-Activate</Button>
+        </Group>
+      </Modal>
+
+      <Modal opened={activateOpened} onClose={closeActivate} title="Activate User" centered overlayProps={{ opacity: 0.55, blur: 3 }}>
+        <Text size="sm">Are you sure you want to Activate this user?</Text>
+        <Group position="right" mt="md">
+          <Button variant="default" onClick={closeActivate}>Cancel</Button>
+          <Button color="blue" onClick={handleActivate} loading={isactivating}>Activate</Button>
+        </Group>
+      </Modal>
+
+      <Modal opened={deleteOpened} onClose={closeDelete} title="Delete Buyer" centered overlayProps={{ opacity: 0.55, blur: 3 }}>
+        <Text size="sm">Are you sure you want to delete this Buyer?</Text>
+        <Group position="right" mt="md">
+          <Button variant="default" onClick={closeDelete}>Cancel</Button>
+          <Button color="red" onClick={handleDelete} loading={isDeleting}>Delete</Button>
+        </Group>
+      </Modal>
+
     </div>
   );
 }

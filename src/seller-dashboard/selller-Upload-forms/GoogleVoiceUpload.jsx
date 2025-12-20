@@ -1,11 +1,10 @@
 import React from 'react'
 import filterOptions from '../../pages/filterOptions'
-import Select from 'react-select'
+import { Select, TextInput, Button, Title, Paper, Grid, Loader } from '@mantine/core'
 import { useForm, Controller } from 'react-hook-form'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 import { toast } from 'react-toastify'
-import PulseLoader from 'react-spinners/PulseLoader'
 import useAuth from '../../hooks/useAuth'
 
 function GoogleVoiceUpload() {
@@ -65,143 +64,104 @@ function GoogleVoiceUpload() {
     googleVoiceMutate(data)
   }
   return (
-    <div>
-      <form
-        action=""
-        className="w-full px-2  "
-        onSubmit={handleSubmit(submitGVoice)}
-      >
-        <h1 className="text-center py-4 px-2">Sell GoogleVoice</h1>
+    <div className="max-w-4xl mx-auto">
+      <form onSubmit={handleSubmit(submitGVoice)}>
+        <Title order={3} align="center" mb="lg" color="white">Sell GoogleVoice</Title>
 
-        {/* ALL inputs div */}
-        <div className="flex flex-col md:grid md:grid-cols-3  gap-3 min-h-[200px] ">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="">
-              Email
-              <span className="text-red-500 text-xs">
-                <sup>*</sup>
-              </span>
-            </label>
+        <Paper p="md" shadow="sm" radius="md" style={{ backgroundColor: '#1f2937' }}>
+            <Grid>
+                 <Grid.Col span={12} md={4}>
+                    <TextInput
+                        label={<span className="text-gray-200">Email <span className="text-red-500">*</span></span>}
+                        placeholder="Email"
+                        {...register('email', { required: 'Email is required' })}
+                        error={errors.email?.message}
+                        styles={{
+                            label: { color: "#d1d5db" },
+                            input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' }
+                        }}
+                    />
+                 </Grid.Col>
 
-            <input
-              type="email"
-              className="w-full p-1 outline-none border focus:border-secondary"
-              {...register('email', {
-                required: true,
-              })}
-            />
-            <p className="text-red-500 text-xs">
-              {errors.email?.type === 'required' && 'Email is required'}
-            </p>
-          </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="">Recovery Email</label>
+                 <Grid.Col span={12} md={4}>
+                    <TextInput
+                        label={<span className="text-gray-200">Recovery Email</span>}
+                        placeholder="Recovery Email"
+                        {...register('recoveryMail')}
+                         styles={{
+                            label: { color: "#d1d5db" },
+                            input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' }
+                        }}
+                    />
+                 </Grid.Col>
 
-            <input
-              type="email"
-              className="w-full p-1 outline-none border focus:border-secondary"
-              {...register('recoveryMail')}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="">
-              State
-              <span className="text-red-500">
-                <sup>*</sup>
-              </span>
-            </label>
-            <Controller
-              name="state"
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  id="state"
-                  options={filterOptions?.state}
-                  value={filterOptions?.state?.find(
-                    (option) => option.value === field.value,
-                  )}
-                  onChange={(selectedOption) => {
-                    field.onChange(selectedOption.value)
-                  }}
-                />
-              )}
-            />
-            {errors.state && (
-              <p className="text-red-500 text-xs">Please select state</p>
-            )}
-          </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="">
-              Password
-              <span className="text-red-500 text-xs">
-                <sup>*</sup>
-              </span>
-            </label>
+                 <Grid.Col span={12} md={4}>
+                    <Controller
+                        name="state"
+                        control={control}
+                        rules={{ required: "State is required" }}
+                        render={({ field }) => (
+                            <Select
+                                label={<span className="text-gray-200">State <span className="text-red-500">*</span></span>}
+                                placeholder="Select State"
+                                data={filterOptions?.state || []}
+                                {...field}
+                                error={errors.state?.message}
+                                searchable
+                                styles={{
+                                    label: { color: "#d1d5db" },
+                                    input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' },
+                                    item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                                    dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                                }}
+                            />
+                        )}
+                    />
+                 </Grid.Col>
 
-            <input
-              type="text"
-              className="w-full p-1 outline-none border focus:border-secondary"
-              {...register('password', {
-                required: true,
-              })}
-            />
-            <p className="text-red-500 text-xs">
-              {errors.password?.type === 'required' && 'Password is required'}
-            </p>
-          </div>
+                 <Grid.Col span={12} md={4}>
+                    <TextInput
+                        label={<span className="text-gray-200">Password <span className="text-red-500">*</span></span>}
+                        placeholder="Password"
+                        {...register('password', { required: 'Password is required' })}
+                        error={errors.password?.message}
+                         styles={{
+                            label: { color: "#d1d5db" },
+                            input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' }
+                        }}
+                    />
+                 </Grid.Col>
 
-          <div className="flex flex-col gap-2">
-            <label htmlFor="">
-              Price
-              <span className="text-red-500 text-xs">
-                <sup>*</sup>
-              </span>
-            </label>
+                 <Grid.Col span={12} md={4}>
+                    <TextInput
+                        label={<span className="text-gray-200">Price <span className="text-red-500">*</span></span>}
+                        value={priceData?.data?.price || 0}
+                        disabled
+                        styles={{
+                            label: { color: "#d1d5db" },
+                            input: { backgroundColor: '#374151', color: 'white', borderColor: '#374151', cursor: 'not-allowed' }
+                        }}
+                    />
+                 </Grid.Col>
+            </Grid>
 
-            <input
-              type="text"
-              value={priceData?.data?.price}
-              disabled
-              className="w-full p-1 outline-none border cursor-not-allowed bg-gray-200 focus:border-secondary"
-              
-            />
-           
-          </div>
-          <div className="hidden flex-col gap-2">
-            <label htmlFor="">
-              sellerId
-              <span className="text-red-500 text-xs">
-                <sup>*</sup>
-              </span>
-            </label>
+            {/* Validation for price loading or existence could be handled here showing a loader or message */}
 
-            <input
-              type="text"
-              value={sellerId}
-              className="w-full p-1 outline-none border focus:border-secondary"
-              {...register('sellerId', {
-                required: true,
-              })}
-            />
-            <p className="text-red-500 text-xs">
-              {errors.sellerId?.type === 'required' && 'Seller id is required'}
-            </p>
-          </div>
-        </div>
-        {/* end of inputs div */}
-        <div className="flex justify-center my-6 items-center">
-          {googleVoiceLoading ? (
-            <div className="flex justify-center pr-6 items-center">
-              <PulseLoader color="#6ba54a" size={10} />
+             <div className="flex justify-center my-6 items-center">
+                {googleVoiceLoading ? (
+                    <Loader color="green" size="sm" />
+                ) : (
+                    <Button 
+                        type="submit" 
+                        color="green" 
+                        variant="filled"
+                        disabled={!productTypeId}
+                    >
+                        Upload
+                    </Button>
+                )}
             </div>
-          ) : (
-            <button className={!productTypeId ? "hidden" : "bg-primary text-light py-1 px-4 rounded-md hover:bg-secondary "}>
-              Upload
-            </button>
-          )}
-        </div>
+        </Paper>
       </form>
     </div>
   )

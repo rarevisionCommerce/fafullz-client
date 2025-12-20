@@ -3,9 +3,9 @@ import { useForm, Controller } from 'react-hook-form'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import { toast } from 'react-toastify'
-import PulseLoader from 'react-spinners/PulseLoader'
 import useAuth from '../hooks/useAuth'
-import { Skeleton } from '@mantine/core'
+import { Skeleton, TextInput, Button, Paper, Text, Grid, Group, Stack, Modal, Title } from '@mantine/core'
+import { useDisclosure } from '@mantine/hooks';
 import SalesChart from '../components/SalesChart'
 
 function Dash() {
@@ -14,13 +14,12 @@ function Dash() {
   const { auth } = useAuth()
   const sellerId = auth?.jabberId;
   const userId = auth?.userId;
-  const [withdrawForm, setWithdrawForm] = useState(false)
+  const [opened, { open, close }] = useDisclosure(false);
+
   const {
-    register,
     handleSubmit,
     formState: { errors },
     reset,
-    watch,
     control,
   } = useForm()
 
@@ -32,39 +31,37 @@ function Dash() {
   const {
     isLoading: loadingProduct,
     data: productsData,
-    refetch,
-    isRefetching: refetchingproducts,
   } = useQuery(['products'], fetchInfo, {
     refetchOnWindowFocus: true,
     keepPreviousData: true,
   })
   // computing data
   const totalProducts =
-    productsData?.data?.account?.totalProducts +
-    productsData?.data?.card?.totalProducts +
-    productsData?.data?.dump?.totalProducts +
-    productsData?.data?.ssn?.totalProducts +
-    productsData?.data?.gVoice?.totalProducts +
-    productsData?.data?.mail?.totalProducts +
-    productsData?.data?.file?.totalProducts
+    (productsData?.data?.account?.totalProducts || 0) +
+    (productsData?.data?.card?.totalProducts || 0) +
+    (productsData?.data?.dump?.totalProducts || 0) +
+    (productsData?.data?.ssn?.totalProducts || 0) +
+    (productsData?.data?.gVoice?.totalProducts || 0) +
+    (productsData?.data?.mail?.totalProducts || 0) +
+    (productsData?.data?.file?.totalProducts || 0)
 
   const totalSold =
-    productsData?.data?.account?.soldCount +
-    productsData?.data?.card?.soldCount +
-    productsData?.data?.dump?.soldCount +
-    productsData?.data?.ssn?.soldCount +
-    productsData?.data?.gVoice?.soldCount +
-    productsData?.data?.mail?.soldCount +
-    productsData?.data?.file?.soldCount
+    (productsData?.data?.account?.soldCount || 0) +
+    (productsData?.data?.card?.soldCount || 0) +
+    (productsData?.data?.dump?.soldCount || 0) +
+    (productsData?.data?.ssn?.soldCount || 0) +
+    (productsData?.data?.gVoice?.soldCount || 0) +
+    (productsData?.data?.mail?.soldCount || 0) +
+    (productsData?.data?.file?.soldCount || 0)
 
   const totalPrice =
-    productsData?.data?.account?.totalPrice +
-    productsData?.data?.card?.totalPrice +
-    productsData?.data?.dump?.totalPrice +
-    productsData?.data?.ssn?.totalPrice +
-    productsData?.data?.gVoice?.totalPrice +
-    productsData?.data?.mail?.totalPrice +
-    productsData?.data?.file?.totalPrice
+    (productsData?.data?.account?.totalPrice || 0) +
+    (productsData?.data?.card?.totalPrice || 0) +
+    (productsData?.data?.dump?.totalPrice || 0) +
+    (productsData?.data?.ssn?.totalPrice || 0) +
+    (productsData?.data?.gVoice?.totalPrice || 0) +
+    (productsData?.data?.mail?.totalPrice || 0) +
+    (productsData?.data?.file?.totalPrice || 0)
 
   const sellerEarning = 0.57 * totalPrice
 
@@ -129,11 +126,11 @@ function Dash() {
   const {
     mutate: withdrwalMutate,
     isLoading: requestLoading,
-    error,
   } = useMutation(sendRequest, {
     onSuccess: (response) => {
       toast.success(response?.data?.message);
       reset();
+      close();
     },
     onError: (err) => {
       const text = err?.response?.data?.message;
@@ -158,129 +155,126 @@ function Dash() {
       .toFixed(2)
       .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   }
+
+  const StatCard = ({ title, value }) => (
+    <Paper shadow="md" p="md" radius="md" sx={{ backgroundColor: '#184267', color: 'white', '&:hover': { opacity: 0.9 } }}>
+      <Stack align="center" spacing={5}>
+        <Text size="lg" weight={600} align="center">
+          {title}
+        </Text>
+        <Text size="xl" weight={700} align="center">
+           {value}
+        </Text>
+      </Stack>
+    </Paper>
+  );
+
   return (
-    <div className="bg-light min-h-screen py-4 px-1 md:px-6 shadow-md">
-      <div className="bg-gray-200 px-2">
-        <h1 className="text-lg mb-[40px] mt-[10px] underline">
-          Dashboard/analytics
-        </h1>
-        {loadingProduct ? (
-          <div className="flex flex-col w-[90%] justify-center md:w-full md:grid md:grid-cols-4 gap-4 md:content-center p-[50px] ">
-            <Skeleton height={90} radius="sm" />
-            <Skeleton height={90} radius="sm" />
-            <Skeleton height={90} radius="sm" />
-            <Skeleton height={90} radius="sm" />
-          </div>
-        ) : (
-          <div className="flex flex-col w-[90%] justify-center md:w-full md:grid md:grid-cols-4 gap-4 md:content-center p-[50px] ">
-            <div className="min-h-[100px] bg-secondary bg-opacity-100  text-gray-200 px-1 py-2 shadow-md shadow-[#184267] hover:bg-opacity-90 h ">
-              <h1 className="text-lg font-semibold text-center">
-                Products Uploaded
-              </h1>
-              <div className="text-center text-lg font-semibold my-4  ">
-                {totalProducts || 0}
-              </div>
-            </div>
-            <div className="min-h-[100px] bg-secondary bg-opacity-100  text-gray-200 px-1 py-2 shadow-md shadow-[#184267] hover:bg-opacity-90 ">
-              <h1 className="text-lg font-semibold text-center">
-                Total Sold Products
-              </h1>
-              <div className="text-center text-lg font-semibold my-3 ">
-                {totalSold || 0}
-              </div>
-            </div>
-            <div className="min-h-[100px] bg-secondary bg-opacity-100  text-gray-200 px-1 py-2 shadow-md shadow-[#184267] hover:bg-opacity-90 ">
-              <h1 className="text-lg font-semibold text-center">
-                Total Earnings
-              </h1>
-              <div className="text-center text-lg font-semibold my-3 ">
-                ${formatCurrency(sellerEarning || 0)}
-              </div>
-            </div>
-            <div className="min-h-[100px] bg-secondary bg-opacity-100  text-gray-200 px-1 py-2 shadow-md shadow-[#184267] hover:bg-opacity-90 ">
-              <h1 className="text-lg font-semibold text-center">Withdraw</h1>
-              <div className="text-center text-sm text-primary  font-semibold my-3 ">
-                {dayOfWeek === 7 ? (
-                  <h1
-                    onClick={() => { setWithdrawForm(!withdrawForm) }}
-                    className="underline cursor-pointer">send withdraw Request</h1>
-                ) : (
-                  <h1>Withdrawals are proccessed on saturday</h1>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-      {/* withdrawal form  */}
-      <div id='Wform' className={withdrawForm ? "bg-gray-100 shadow-md my-5 py-4 px-3" : "hidden"} >
-        <form action="" onSubmit={handleSubmit(submitRequest)}>
-          <h1 className='text-center text-lg'>Send withdraw request</h1>
+    <div className="bg-gray-900 min-h-screen py-6 px-4 md:px-6">
+        <Paper p="md" shadow="sm" radius="md" style={{ backgroundColor: '#1f2937', marginBottom: '20px' }}>
+             <Title order={2} color="white" mb="md" style={{ textDecoration: 'underline' }}>Dashboard/Analytics</Title>
+             
+             {loadingProduct ? (
+                <Grid>
+                    <Grid.Col span={12} sm={6} md={3}><Skeleton height={140} radius="md" /></Grid.Col>
+                    <Grid.Col span={12} sm={6} md={3}><Skeleton height={140} radius="md" /></Grid.Col>
+                    <Grid.Col span={12} sm={6} md={3}><Skeleton height={140} radius="md" /></Grid.Col>
+                    <Grid.Col span={12} sm={6} md={3}><Skeleton height={140} radius="md" /></Grid.Col>
+                </Grid>
+             ) : (
+                <Grid>
+                    <Grid.Col span={12} sm={6} md={3}>
+                        <StatCard title="Products Uploaded" value={totalProducts || 0} />
+                    </Grid.Col>
+                    <Grid.Col span={12} sm={6} md={3}>
+                        <StatCard title="Total Sold Products" value={totalSold || 0} />
+                    </Grid.Col>
+                    <Grid.Col span={12} sm={6} md={3}>
+                        <StatCard title="Total Earnings" value={`$${formatCurrency(sellerEarning || 0)}`} />
+                    </Grid.Col>
+                    <Grid.Col span={12} sm={6} md={3}>
+                         <Paper shadow="md" p="md" radius="md" sx={{ backgroundColor: '#184267', color: 'white', '&:hover': { opacity: 0.9 } }}>
+                            <Stack align="center" spacing={5}>
+                                <Text size="lg" weight={600} align="center">Withdraw</Text>
+                                 <div className="text-center text-sm text-green-400 font-semibold my-2">
+                                    {dayOfWeek === 7 ? (
+                                    <Text
+                                        variant="link"
+                                        component="span"
+                                        onClick={open}
+                                        style={{ cursor: 'pointer', color: '#4ade80', textDecoration: 'underline' }}
+                                    >
+                                        Send withdraw Request
+                                    </Text>
+                                    ) : (
+                                        <Text size="sm" color="dimmed" style={{ color: '#9ca3af' }}>Withdrawals are processed on Saturday</Text>
+                                    )}
+                                </div>
+                            </Stack>
+                        </Paper>
+                    </Grid.Col>
+                </Grid>
+             )}
+        </Paper>
 
-          <div className="flex my-3 justify-center items-center  w-full gap-3 min-h-[100px] ">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="">
-                Address (BTC wallet to receive payment)
-                <span className="text-red-500 text-xs">
-                  <sup>*</sup>
-                </span>
-              </label>
+        <Modal 
+            opened={opened} 
+            onClose={close} 
+            title={<Text color="white">Send Withdraw Request</Text>}
+            centered
+            overlayProps={{
+              opacity: 0.55,
+              blur: 3,
+            }}
+            styles={{ 
+                content: { backgroundColor: '#1f2937', color: 'white' },
+                header: { backgroundColor: '#1f2937', color: 'white' },
+                close: { color: 'white', '&:hover': { backgroundColor: '#374151' } }
+            }}
+        >
+            <form onSubmit={handleSubmit(submitRequest)}>
+                <Stack>
+                     <Controller
+                        name="wallet"
+                        control={control}
+                        rules={{ required: "Address is required" }}
+                        render={({ field }) => (
+                            <TextInput
+                                label="Address (BTC wallet to receive payment)"
+                                placeholder="Enter BTC wallet address"
+                                withAsterisk
+                                error={errors.wallet?.message}
+                                {...field}
+                                styles={{ 
+                                    label: { color: "#d1d5db" },
+                                    input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' }
+                                }}
+                            />
+                        )}
+                    />
+                    
+                    <Group position="right" mt="md">
+                        <Button variant="default" onClick={close}>Cancel</Button>
+                        <Button 
+                            type="submit" 
+                            disabled={sellerEarning < 1} 
+                            loading={requestLoading}
+                            color="blue"
+                        >
+                            Send
+                        </Button>
+                    </Group>
+                </Stack>
+            </form>
+        </Modal>
 
-              <input
-                type="text"
-                placeholder='Enter BTC wallet address'
-                className="w-full p-1 outline-none border focus:border-secondary"
-                {...register('wallet', {
-                  required: true,
-                })}
-              />
-              <p className="text-red-500 text-xs">
-                {errors.address?.type === 'required' && 'Address is required'}
-              </p>
-            </div>
-
-          </div>
-          <div className='gap-4 flex justify-center'>
-            {
-              requestLoading ?
-                <div className="flex justify-center mt-[100px] items-center">
-                  <PulseLoader color="#6ba54a" size={10} />
-                </div>
-                :
-                <div className='flex gap-3'>
-
-                  <button
-                    disabled={sellerEarning < 1 ? true : false}
-                    title={sellerEarning < 1 ? "No earnings" : ""}
-                    className="bg-primary text-light py-1 px-4 rounded-md hover:bg-secondary disabled:cursor-not-allowed disabled:bg-green-300 ">
-                    Send
-                  </button>
-                  <p className="bg-secondary text-light py-1 px-4 rounded-md hover:bg-primary "
-                    onClick={() => { setWithdrawForm(!withdrawForm) }}
-                  >
-                    Close
-                  </p>
-                </div>
-            }
-
-
-          </div>
-        </form>
-      </div>
-      {loadingProduct ? (
-        <div className="flex justify-center mt-[100px] items-center">
-          <PulseLoader color="#6ba54a" size={10} />
-        </div>
-      ) : (
-        ''
-      )}
-      <div className="flex flex-col md:grid md:grid-cols-2  gap-6 my-[100px] p-[50px]  ">
-        <div className="w-[96%] ">
-          <SalesChart data={productsChartData} />
-        </div>
-        <div className="  w-[96%] ">
-          <SalesChart data={salesChartData} />
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
+        <Paper p="md" shadow="sm" radius="md" style={{ backgroundColor: '#1f2937' }}>
+             <SalesChart data={productsChartData} />
+        </Paper>
+        <Paper p="md" shadow="sm" radius="md" style={{ backgroundColor: '#1f2937' }}>
+            <SalesChart data={salesChartData} />
+        </Paper>
       </div>
     </div>
   )

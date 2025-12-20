@@ -1,7 +1,6 @@
 import React from "react";
-import Select from "react-select";
-import { Link, useParams } from "react-router-dom";
-import { Loader, Tabs } from "@mantine/core";
+import { Loader, Tabs, Container, Paper, Title, Text, Alert, Center } from "@mantine/core";
+import { IconInfoCircle, IconPackage } from "@tabler/icons-react";
 import SsnOrders from "./orderpages/SsnOrders";
 import GoogleVoiceOrders from "./orderpages/GoogleVoiceOrders";
 import TextNowOrders from "./orderpages/TextNowOrders";
@@ -12,7 +11,6 @@ import DumpsOrders from "./orderpages/DumpsOrders";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useAuth from "../../hooks/useAuth";
-import PulseLoader from "react-spinners/PulseLoader";
 
 function MyOrders(props) {
   const axios = useAxiosPrivate();
@@ -26,8 +24,6 @@ function MyOrders(props) {
   const {
     isLoading: loadingOrders,
     data: orders,
-    refetch,
-    isRefetching: refetchingOrdes,
   } = useQuery([`orders-${userId}`], fetchOrders, {
     keepPreviousData: true,
     retry: 1
@@ -41,76 +37,72 @@ function MyOrders(props) {
   const card = orders?.data?.card || [];
   const dump = orders?.data?.dump || [];
 
-  return (
-    <div className="min-h-screen">
-      <div
-        className={
-          auth?.roles?.includes("Admin") ? "hidden" : "bg-dark3  rounded-t-md "
-        }
-      >
-        <div className="bg-slate-700 w-full rounded-t-md h-10"></div>
-        <h1 className="mb-4 text-light  font-bold text-xl px-3  ">
-          My Orders{" "}
-        </h1>
+  if (auth?.roles?.includes("Admin")) {
+      // Minimal view for Admin embedded use
+      if(loadingOrders) return <Loader size="sm" />;
+      // ... Can expand if needed, but for now focusing on main user view refactor mostly or shared structure
+  }
 
-        <p className="text-light text-sm px-3 ">
-          After you buy stuff in shop do not forget save it in your PC.
-        </p>
-        <div className="flex justify-end mt-8"></div>
-      </div>
+  return (
+    <Container size="xl" py="lg">
+       {!auth?.roles?.includes("Admin") && (
+        <Paper p="md" mb="lg" radius="md" withBorder>
+            <Title order={2} color="white" mb="xs">My Orders</Title>
+            <Alert icon={<IconInfoCircle size="1rem" />} color="blue" variant="light">
+                After you buy stuff in shop do not forget save it in your PC.
+            </Alert>
+        </Paper>
+       )}
 
       {loadingOrders ? (
-        <div className="flex justify-center items-center pt-8">
-          <p className="text-center text-light flex items-center gap-2">
-           <span>Geeting your orders</span> <Loader color="yellow" size={30} />
-          </p>
-        </div>
+        <Center h={200}>
+            <Loader size="xl" variant="dots" color="yellow" />
+            <Text ml="md" color="dimmed">Getting your orders...</Text>
+        </Center>
       ) : (
-        //  tabs start
-        <div className=" overflow-x-auto my-6 mx-1 md:mx-5">
-          <SsnOrders ssn={ssn} />
-          {/* <Tabs defaultValue="ssn">
-            <Tabs.List>
-              <Tabs.Tab value="ssn">SSN/DOB</Tabs.Tab>
-              <Tabs.Tab value="googleVoice">Google Voice</Tabs.Tab>
-              <Tabs.Tab value="textNow">TextNow/Mail</Tabs.Tab>
-              <Tabs.Tab value="cards">Cards</Tabs.Tab>
-              <Tabs.Tab value="files">Files</Tabs.Tab>
-              <Tabs.Tab value="accounts">Accounts</Tabs.Tab>
-              <Tabs.Tab value="dumps">Dumps</Tabs.Tab>
+        <Paper p="md" radius="md" shadow="sm" withBorder>
+            <Tabs defaultValue="ssn" keepMounted={false} color="green" variant="pills">
+            <Tabs.List mb="md">
+              <Tabs.Tab value="ssn" icon={<IconPackage size={14}/>}>SSN/DOB</Tabs.Tab>
+              <Tabs.Tab value="googleVoice" icon={<IconPackage size={14}/>}>Google Voice</Tabs.Tab>
+              <Tabs.Tab value="textNow" icon={<IconPackage size={14}/>}>TextNow/Mail</Tabs.Tab>
+              <Tabs.Tab value="cards" icon={<IconPackage size={14}/>}>Cards</Tabs.Tab>
+              <Tabs.Tab value="files" icon={<IconPackage size={14}/>}>Files</Tabs.Tab>
+              <Tabs.Tab value="accounts" icon={<IconPackage size={14}/>}>Accounts</Tabs.Tab>
+              <Tabs.Tab value="dumps" icon={<IconPackage size={14}/>}>Dumps</Tabs.Tab>
             </Tabs.List>
 
-            <Tabs.Panel value="ssn" pt="xs">
+            <Tabs.Panel value="ssn">
               <SsnOrders ssn={ssn} />
             </Tabs.Panel>
 
-            <Tabs.Panel value="googleVoice" pt="xs">
+            <Tabs.Panel value="googleVoice">
               <GoogleVoiceOrders gVoice={gVoice} />
             </Tabs.Panel>
 
-            <Tabs.Panel value="textNow" pt="xs">
+            <Tabs.Panel value="textNow">
               <TextNowOrders mail={mail} />
             </Tabs.Panel>
 
-            <Tabs.Panel value="cards" pt="xs">
+            <Tabs.Panel value="cards">
               <CardsOrders card={card} />
             </Tabs.Panel>
 
-            <Tabs.Panel value="files" pt="xs">
+            <Tabs.Panel value="files">
               <FileOrders file={file} />
             </Tabs.Panel>
 
-            <Tabs.Panel value="accounts" pt="xs">
+            <Tabs.Panel value="accounts">
               <AccountsOrders account={account} />
             </Tabs.Panel>
 
-            <Tabs.Panel value="dumps" pt="xs">
+            <Tabs.Panel value="dumps">
               <DumpsOrders dump={dump} />
             </Tabs.Panel>
-          </Tabs> */}
-        </div>
+          </Tabs>
+        </Paper>
       )}
-    </div>
+    </Container>
   );
 }
 

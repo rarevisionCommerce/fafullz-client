@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
-import { confirmAlert } from "react-confirm-alert";
-import "react-confirm-alert/src/react-confirm-alert.css";
+import { Text, Modal, Button, Group } from "@mantine/core";
+import { useDisclosure } from '@mantine/hooks';
 import { toast } from "react-toastify";
 
 
@@ -11,6 +11,8 @@ function RefundDetails() {
   const axios = useAxiosPrivate();
   const {refundId} = useParams();
   const [action, setAction] = useState("");
+  const [approveOpened, { open: openApprove, close: closeApprove }] = useDisclosure(false);
+  const [declineOpened, { open: openDecline, close: closeDecline }] = useDisclosure(false);
 
   // get the product
 const fetchRefund = () => {
@@ -66,77 +68,23 @@ const fetchRefund = () => {
   );
 
    // approve refund alert
-    const approveRefundAlert = () => {
-    confirmAlert({
-      customUI: ({ onClose }) => {
-        return (
-          <div className=" shadow-xl p-[30px] flex flex-col gap-4">
-            <h1 className="font-bold text-xl">Process Refund!</h1>
-            <p className="">{`Are you sure you want to approve this request?`}</p>
-            <p className="pb- text-red-500">Note this action is not reversible</p>
-            <div className="flex gap-1">
-              <button
-                className="rounded-md  bg-gray-400 text-white w-[50%]font-bold px-5 py-1 hover:bg-tertiary "
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-md  bg-red-500 text-white font-bold px-5 w-[50%] py-1 hover:bg-tertiary "
-                onClick={() => {
-                  
-                   approveMutate({
-                    action : "Approved",
-                    refundId :refundId,
-                  });
-                  onClose();
-                }}
-              >
-                Approve
-              </button>
-            </div>
-          </div>
-        );
-      },
-    });
-  };
-  // end of approve alert
+    const handleApprove = () => {
+          approveMutate({
+            action : "Approved",
+            refundId :refundId,
+          });
+          closeApprove();
+    };
 
    // deecline refund alert
-    const declineRefundAlert = () => {
-    confirmAlert({
-      customUI: ({ onClose }) => {
-        return (
-          <div className=" shadow-xl p-[30px] flex flex-col gap-4">
-            <h1 className="font-bold text-xl">Process Refund!</h1>
-            <p className="pb-1">Are you sure you want to decline this request?</p>
-            <div className="flex gap-1">
-              <button
-                className="rounded-md  bg-gray-400 text-white w-[50%]font-bold px-5 py-1 hover:bg-tertiary "
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-md  bg-red-500 text-white font-bold px-5 w-[50%] py-1 hover:bg-tertiary "
-                onClick={() => {
-                  const data = {
-                    action : "Decline",
-                    refundId :refundId,
-
-                  }
-                  declineMutate(data);
-                  onClose();
-                }}
-              >
-                Decline
-              </button>
-            </div>
-          </div>
-        );
-      },
-    });
-  };
+    const handleDecline = () => {
+          const data = {
+            action : "Decline",
+            refundId :refundId,
+          }
+          declineMutate(data);
+          closeDecline();
+    };
   // end of approve alert
   return (
     <div className='bg-light px-3 py-2 min-h-screen '>
@@ -196,14 +144,14 @@ const fetchRefund = () => {
         <div className="flex justify-center gap-2 my-4">
             <button className="bg-primary text-light py-1 px-4 rounded-md hover:bg-secondary "
             onClick={()=>{
-              approveRefundAlert();
+              openApprove();
             }}
             >
               Approve
             </button>
             <button className="hover:bg-primary text-light py-1 px-4 rounded-md bg-secondary "
             onClick={()=>{
-              declineRefundAlert();
+              openDecline();
             }}
             >
               Decline
@@ -211,9 +159,30 @@ const fetchRefund = () => {
           </div>
       </div>
       
-        </div>
+       </div>
+      
+       <Modal opened={approveOpened} onClose={closeApprove} title="Process Refund" centered>
+        <Text size="sm">
+            Are you sure you want to approve this request?
+            <br />
+            <span className="text-red-500">Note this action is not reversible</span>
+        </Text>
+        <Group position="right" mt="md">
+          <Button variant="default" onClick={closeApprove}>Cancel</Button>
+          <Button color="red" onClick={handleApprove}>Approve</Button>
+        </Group>
+      </Modal>
+
+      <Modal opened={declineOpened} onClose={closeDecline} title="Process Refund" centered>
+        <Text size="sm">Are you sure you want to decline this request?</Text>
+        <Group position="right" mt="md">
+          <Button variant="default" onClick={closeDecline}>Cancel</Button>
+          <Button color="red" onClick={handleDecline}>Decline</Button>
+        </Group>
+      </Modal>
+
     </div>
-  )
+  );
 }
 
 export default RefundDetails

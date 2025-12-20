@@ -1,18 +1,18 @@
 import React, { useState, useMemo } from 'react'
-import Select from 'react-select'
+import { Select, FileInput, Textarea, NumberInput, Button, Title, Paper, Grid, Loader } from '@mantine/core'
 import countryList from 'react-select-country-list'
 import { useForm, Controller } from 'react-hook-form'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import axios from '../../api/axios';
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 import { toast } from 'react-toastify'
-import PulseLoader from 'react-spinners/PulseLoader'
 import useAuth from '../../hooks/useAuth'
 import filterOptions from '../../pages/filterOptions'
 
 
 function FileUpload() {
+  const axios = useAxiosPrivate();
   // selct country value...........
-  const [singleFile, setSingleFile] = useState('')
+  const [singleFile, setSingleFile] = useState(null)
 
   // seller id from auth
   const { auth } = useAuth()
@@ -31,19 +31,22 @@ function FileUpload() {
       keepPreviousData: true,
     },
   )
-  console.log(categoriesData?.data)
+  // console.log(categoriesData?.data)
 
   //end of fetching categories------------------
 
-  const SingleFileChange = (e) => {
-    const file = e.target.files[0]
-    const fileSizeInMB = file.size / (1024 * 1024) // Convert file size to MB
-    if (fileSizeInMB > 2) {
-      toast.warn('File size exceeds 2MB limit.')
-      e.target.value = null // Reset file input element
-      return
+  const SingleFileChange = (file) => {
+    if (file) {
+        const fileSizeInMB = file.size / (1024 * 1024) // Convert file size to MB
+        if (fileSizeInMB > 2) {
+          toast.warn('File size exceeds 2MB limit.')
+          setSingleFile(null)
+          return
+        }
+        setSingleFile(file)
+    } else {
+        setSingleFile(null);
     }
-    setSingleFile(e.target.files[0])
   }
 
   const options = useMemo(() => countryList().getData(), [])
@@ -58,28 +61,27 @@ function FileUpload() {
     reset,
     watch,
     control,
+    setValue
   } = useForm()
-
-  //   form data........
-  const formData = new FormData()
-  formData.append('file', singleFile)
-  formData.append('country', watch('country'))
-  formData.append('category', watch('category'))
-  formData.append('sellerId', watch('sellerId'))
-  formData.append('state', watch('state'))
-  formData.append('price', watch('price'))
-  formData.append('description', watch('description'))
-  // console.log(formData)
 
   const [sending, setSending] = useState(false)
 
-  const submitFile = () => {
-    setSending(!sending)
-    if (singleFile === '') {
+  const submitFile = (data) => {
+    setSending(true)
+    if (!singleFile) {
       toast.warn('File is required!')
       setSending(false)
-      return 0
+      return
     }
+
+    const formData = new FormData()
+    formData.append('file', singleFile)
+    formData.append('country', data.country)
+    formData.append('category', data.category)
+    formData.append('sellerId', sellerId) // Use sellerId from auth directly, or better yet, remove if backend infers it (but keeping for safety as per original)
+    formData.append('state', data.state)
+    formData.append('price', data.price)
+    formData.append('description', data.description)
    
     axios
       .post('/files', formData)
@@ -87,233 +89,175 @@ function FileUpload() {
         toast.success(response?.data?.message)
         setSending(false)
         reset()
-        setSingleFile('')
+        setSingleFile(null)
       })
       .catch((error) => {
         console.error(error)
-        toast.error(error?.response?.data?.message)
+        toast.error(error?.response?.data?.message || 'Something went wrong')
         setSending(false)
       })
   }
+
   const categoriesOptions = []
-  categoriesData?.data?.categories?.map((item, index) => {
-    categoriesOptions.push({
-      label: item.category,
-      value: item.category,
-    })
-  })
+  if (categoriesData?.data?.categories) {
+      categoriesData.data.categories.forEach((item) => {
+        categoriesOptions.push({
+          label: item.category,
+          value: item.category,
+        })
+      })
+  }
 
   return (
-    <div>
-      <form
-        action=""
-        className="w-full px-2  "
-        onSubmit={handleSubmit(submitFile)}
-      >
-        <h1 className="text-center py-4 px-2">Sell file</h1>
+    <div className="max-w-4xl mx-auto">
+      <form onSubmit={handleSubmit(submitFile)}>
+        <Title order={3} align="center" mb="lg" color="white">Sell File</Title>
 
-        {/* ALL inputs div */}
-        <div className="flex flex-col md:grid md:grid-cols-3  gap-3  ">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="">
-              {' '}
-              Category{' '}
-              <span className="text-red-500 text-xs">
-                <sup>*</sup>
-              </span>{' '}
-            </label>
-            {
-              loadingCategories ?
-              <div className="flex justify-center pr-6 items-center">
-              <PulseLoader color="#6ba54a" size={10} />
-            </div>:
+        <Paper p="md" shadow="sm" radius="md" style={{ backgroundColor: '#1f2937' }}>
+            <Grid>
+                <Grid.Col span={12} md={4}>
+                    {loadingCategories ? (
+                         <div className="flex items-end h-full pb-2">
+                             <Loader size="sm" color="green" />
+                        </div>
+                    ) : (
+                        <Controller
+                            name="category"
+                            control={control}
+                            rules={{ required: "Category is required" }}
+                            render={({ field }) => (
+                                <Select
+                                    label={<span className="text-gray-200">Category <span className="text-red-500">*</span></span>}
+                                    placeholder="Select Category"
+                                    data={categoriesOptions}
+                                    {...field}
+                                    error={errors.category?.message}
+                                    styles={{
+                                        label: { color: "#d1d5db" },
+                                        input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' },
+                                        item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                                        dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                                    }}
+                                />
+                            )}
+                        />
+                    )}
+                </Grid.Col>
 
-             <Controller
-              name="category"
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  id="category"
-                  options={categoriesOptions}
-                  value={categoriesOptions?.find(
-                    (option) => option.value === field.value,
+                <Grid.Col span={12} md={4}>
+                    <Controller
+                        name="state"
+                        control={control}
+                        rules={{ required: "State is required" }}
+                        render={({ field }) => (
+                            <Select
+                                label={<span className="text-gray-200">State <span className="text-red-500">*</span></span>}
+                                placeholder="Select State"
+                                data={filterOptions?.state || []}
+                                {...field}
+                                error={errors.state?.message}
+                                searchable
+                                styles={{
+                                    label: { color: "#d1d5db" },
+                                    input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' },
+                                    item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                                    dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                                }}
+                            />
+                        )}
+                    />
+                </Grid.Col>
+
+                <Grid.Col span={12} md={4}>
+                     <Controller
+                        name="country"
+                        control={control}
+                        rules={{ required: "Country is required" }}
+                        render={({ field }) => (
+                            <Select
+                                label={<span className="text-gray-200">Country <span className="text-red-500">*</span></span>}
+                                placeholder="Select Country"
+                                data={options}
+                                {...field}
+                                onChange={(value) => {
+                                     const opt = options.find(o => o.value === value);
+                                     field.onChange(opt ? opt.label : value);
+                                }}
+                                value={options.find(o => o.label === field.value)?.value || field.value}
+                                error={errors.country?.message}
+                                searchable
+                                styles={{
+                                    label: { color: "#d1d5db" },
+                                    input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' },
+                                    item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                                    dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                                }}
+                            />
+                        )}
+                    />
+                </Grid.Col>
+
+                <Grid.Col span={12} md={4}>
+                    <Controller
+                        name="price"
+                        control={control}
+                        rules={{ required: "Price is required" }}
+                        render={({ field }) => (
+                            <NumberInput
+                                label={<span className="text-gray-200">Price <span className="text-red-500">*</span></span>}
+                                placeholder="Price"
+                                min={0}
+                                {...field}
+                                error={errors.price?.message}
+                                styles={{
+                                    label: { color: "#d1d5db" },
+                                    input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' }
+                                }}
+                            />
+                        )}
+                    />
+                </Grid.Col>
+
+                <Grid.Col span={12} md={4}>
+                     <FileInput
+                        label={<span className="text-gray-200">Upload zip file <span className="text-red-500">*</span></span>}
+                        placeholder="Select file"
+                        accept=".zip"
+                        value={singleFile}
+                        onChange={SingleFileChange}
+                        styles={{
+                            label: { color: "#d1d5db" },
+                            input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' },
+                             placeholder: { color: '#9ca3af' }
+                        }}
+                    />
+                </Grid.Col>
+
+                <Grid.Col span={12}>
+                    <Textarea
+                        label={<span className="text-gray-200">Description <span className="text-red-500">*</span></span>}
+                        placeholder="Enter description"
+                        minRows={3}
+                        {...register('description', { required: 'Description is required' })}
+                        error={errors.description?.message}
+                        styles={{
+                            label: { color: "#d1d5db" },
+                            input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' }
+                        }}
+                    />
+                </Grid.Col>
+            </Grid>
+
+            <div className="flex justify-center mt-6">
+                 {sending ? (
+                    <Loader color="green" size="sm" />
+                  ) : (
+                    <Button type="submit" color="green" variant="filled">
+                      Upload
+                    </Button>
                   )}
-                  onChange={(selectedOption) => {
-                    field.onChange(selectedOption.value)
-                  }}
-                />
-              )}
-            />
-            }
-
-            {errors.category && (
-              <p className="text-red-500 text-xs">Category is required</p>
-            )}
-          </div>
-
-          <div className="hidden flex-col gap-2">
-            <label htmlFor="">
-              {' '}
-              sellerId{' '}
-              <span className="text-red-500 text-xs">
-                <sup>*</sup>
-              </span>{' '}
-            </label>
-
-            <input
-              type="text"
-              value={sellerId}
-              className="w-full p-1 outline-none border focus:border-secondary"
-              {...register('sellerId', {
-                required: true,
-              })}
-            />
-            <p className="text-red-500 text-xs">
-              {errors.sellerId?.type === 'required' && 'Seller is required'}
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label htmlFor="">
-              State
-              <span className="text-red-500 text-xs">
-                <sup>*</sup>
-              </span>
-            </label>
-            <Controller
-              name="state"
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  id="state"
-                  options={filterOptions?.state}
-                  value={filterOptions?.state?.find(
-                    (option) => option.value === field.value,
-                  )}
-                  onChange={(selectedOption) => {
-                    field.onChange(selectedOption.value)
-                    formData.append('state', selectedOption.value)
-                  
-                  }}
-                />
-              )}
-            />
-            {errors.state && (
-              <p className="text-red-500 text-xs">Please select state</p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label htmlFor="">
-              {' '}
-              Country{' '}
-              <span className="text-red-500 text-xs">
-                <sup>*</sup>
-              </span>
-            </label>
-             <Controller
-              name="country"
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  id="country"
-                  options={options}
-                  value={options.find(
-                    (option) => option.value === field.value,
-                  )}
-                  onChange={(selectedOption) => {
-                    field.onChange(selectedOption.label)
-                  }}
-                />
-              )}
-            />
-            {errors.country && (
-              <p className="text-red-500 text-xs">Please select country</p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label htmlFor="">
-              {' '}
-              Price{' '}
-              <span className="text-red-500 text-xs">
-                <sup>*</sup>
-              </span>
-            </label>
-
-            <input
-              type="number"
-              min={0}
-              className="w-full p-1 outline-none border focus:border-secondary"
-              {...register('price', {
-                required: true,
-              })}
-            />
-            <p className="text-red-500 text-xs">
-              {errors.price?.type === 'required' && 'Price is required'}
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label htmlFor="">
-              {' '}
-              Upload zip file.{' '}
-              <span className="text-red-500 text-xs">
-                <sup>*</sup>
-              </span>
-            </label>
-
-            <input
-              type="file"
-              accept=".zip"
-              className="w-full p-1 outline-none border focus:border-secondary"
-              onChange={(event) => {
-                SingleFileChange(event)
-              }}
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label htmlFor="">
-              {' '}
-              Description{' '}
-              <span className="text-red-500 text-xs">
-                <sup>*</sup>
-              </span>
-            </label>
-
-            <textarea
-              placeholder=" Enter description"
-              className="w-full p-1 outline-none border focus:border-secondary"
-              {...register('description', {
-                required: true,
-              })}
-            ></textarea>
-            <p className="text-red-500 text-xs">
-              {errors.description?.type === 'required' &&
-                'Description is required'}
-            </p>
-          </div>
-        </div>
-        {/* end of inputs div */}
-
-        <div className="flex justify-center my-6 items-center">
-          {sending ? (
-            <div className="flex justify-center pr-6 items-center">
-              <PulseLoader color="#6ba54a" size={10} />
             </div>
-          ) : (
-            <button className="bg-primary text-light py-1 px-4 rounded-md hover:bg-secondary ">
-              Upload
-            </button>
-          )}
-        </div>
+        </Paper>
       </form>
     </div>
   )

@@ -1,79 +1,75 @@
-import { useState } from 'react'
-import {  Link, useNavigate } from 'react-router-dom'
+import { Menu, Group, Text, UnstyledButton, rem } from '@mantine/core';
+import { IconLogout, IconKey, IconChevronDown, IconUser } from '@tabler/icons-react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import useLogout from '../hooks/useLogout';
+import useAuth from '../hooks/useAuth';
 
-import {HiOutlineKey} from 'react-icons/hi'
-import {BiLogOut} from 'react-icons/bi'
-import useLogout from '../hooks/useLogout'
-// import drop down items
-
-function SellerProfileDropdown() {
-  const [dropdown, setDropdown] = useState(true);
+export default function SellerProfileDropdown() {
+  const [userMenuOpened, setUserMenuOpened] = useState(false);
   const navigate = useNavigate();
-
   const logOut = useLogout();
+  const { auth } = useAuth();
+  const userName = auth?.userName || "Seller";
 
   const signOut = async () => {
     await logOut();
     navigate('/');
-}
-
-  const dropDownItems = [
-
-    {
-        name: 'Change password',
-        path: '/seller-dash/change-password',
-        icon:<HiOutlineKey />
-    },
-    {
-        name: 'Logout',
-        path: '/',
-        icon:<BiLogOut />
-    },
-  ]
+  };
 
   return (
-    <div
-      className={
-        dropdown
-          ? 'bg-secondary text-light mt-9 right-1 md:right-3 w-[250px] h-[120px] shadow-md   absolute z-20 '
-          : ''
-      }
+    <Menu
+      width={260}
+      position="bottom-end"
+      transitionProps={{ transition: 'pop-top-right' }}
+      onClose={() => setUserMenuOpened(false)}
+      onOpen={() => setUserMenuOpened(true)}
+      withinPortal
+      styles={{
+        dropdown: { backgroundColor: '#1f2937', borderColor: '#374151' },
+      }}
     >
-      <ul className="flex flex-col gap-2  ">
-        {dropDownItems.map((item, index) => {
-            if(item?.name === "Logout"){
-                return(
-                    <div>
-              <li
-                className="  p-1 flex px-2 gap-3 items-center text-sm hover:bg-primary hover:bg-opacity-80 hover:text-gray-100 "
-                onClick={() => {
-                  setDropdown(!dropdown)
-                  signOut();
-                }}
-              >
-                <h1>{item?.icon}</h1>
-                <h1>{item?.name}</h1>
-              </li>
-            </div>
+      <Menu.Target>
+        <UnstyledButton
+          sx={(theme) => ({
+            color: theme.colors.gray[0],
+            padding: `${theme.spacing.xs} ${theme.spacing.sm}`,
+            borderRadius: theme.radius.sm,
+            transition: 'background-color 100ms ease',
+            backgroundColor: userMenuOpened ? theme.colors.dark[6] : 'transparent',
 
-                )
-            }
-          return (
-            <Link to={item.path} key={index}>
-              <li
-                className="  py-2 flex gap-3 items-center px-2 text-[13px] hover:bg-primary hover:bg-opacity-80 hover:text-gray-100 "
-                onClick={() => {
-                  setDropdown(false)
-                }}
-              >
-                <h1>{item?.icon}</h1>
-                <h1>{item.name}</h1>
-              </li>
-            </Link>
-          )
-        })}
-      </ul>
-    </div>
-  )
+            '&:hover': {
+              backgroundColor: theme.colors.dark[6],
+            },
+          })}
+        >
+          <Group spacing={7}>
+             <IconUser size={20} stroke={1.5} />
+            <Text weight={500} size="sm" sx={{ lineHeight: 1, color: "white" }} mr={3}>
+              {userName}
+            </Text>
+            <IconChevronDown size={rem(12)} stroke={1.5} />
+          </Group>
+        </UnstyledButton>
+      </Menu.Target>
+      <Menu.Dropdown>
+         <Menu.Label sx={{ color: '#9ca3af' }}>Seller Settings</Menu.Label>
+        <Menu.Item
+          icon={<IconKey size="0.9rem" stroke={1.5} />}
+          onClick={() => navigate('/seller-dash/change-password')}
+           sx={{ color: '#d1d5db', '&:hover': { backgroundColor: '#374151' } }}
+        >
+          Change Password
+        </Menu.Item>
+        <Menu.Divider sx={{ borderColor: '#374151' }} />
+        <Menu.Item
+          icon={<IconLogout size="0.9rem" stroke={1.5} />}
+          onClick={signOut}
+           sx={{ color: '#d1d5db', '&:hover': { backgroundColor: '#374151' } }}
+        >
+          Logout
+        </Menu.Item>
+      </Menu.Dropdown>
+    </Menu>
+  );
 }
-export default SellerProfileDropdown

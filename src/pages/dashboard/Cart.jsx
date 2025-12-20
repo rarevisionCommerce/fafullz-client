@@ -1,13 +1,26 @@
 import React, { useState } from "react";
-import { CgShoppingCart } from "react-icons/cg";
-import { TiTick } from "react-icons/ti";
-import PulseLoader from "react-spinners/PulseLoader";
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useAuth from "../../hooks/useAuth";
-import { confirmAlert } from "react-confirm-alert";
-import "react-confirm-alert/src/react-confirm-alert.css";
+import { 
+  Text, 
+  Modal, 
+  Button, 
+  Group, 
+  Container, 
+  Paper, 
+  Table, 
+  Title, 
+  ScrollArea, 
+  ActionIcon, 
+  Badge, 
+  Stack, 
+  Divider, 
+  Center,
+  Loader
+} from "@mantine/core";
+import { useDisclosure } from '@mantine/hooks';
+import { IconTrash, IconShoppingCart, IconCheck, IconAlertCircle } from "@tabler/icons-react";
 import { toast } from "react-toastify";
 
 function Cart() {
@@ -15,6 +28,9 @@ function Cart() {
   const { auth } = useAuth();
   const [productId, setDeleteId] = useState("");
   const queryClient = useQueryClient();
+  const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false);
+  const [clearOpened, { open: openClear, close: closeClear }] = useDisclosure(false);
+  const [checkoutOpened, { open: openCheckout, close: closeCheckout }] = useDisclosure(false);
 
   const productMap = {
     gVoice: "GoogleVoice",
@@ -36,12 +52,11 @@ function Cart() {
       {
         keepPreviousData: true,
         refetchInterval: 5000,
-        // 5 seconds in milliseconds
       }
     );
   }
 
-  const { isLoading: loadingCart, error, data: cartData } = useShoppingCart();
+  const { isLoading: loadingCart, data: cartData } = useShoppingCart();
   const totalItems = cartData?.cart?.length || 0;
 
   let totalPrice =
@@ -68,8 +83,6 @@ function Cart() {
         const text = response?.data.message;
         toast.success(text);
         queryClient.invalidateQueries([`shoppingCart-${auth?.userId}`]);
-
-        refetch();
       },
       onError: (err) => {
         const text = err?.response.data.message || "Something went wrong!!";
@@ -77,34 +90,11 @@ function Cart() {
       },
     }
   );
-  const deleteProductById = () => {
-    confirmAlert({
-      customUI: ({ onClose }) => {
-        return (
-          <div className=" shadow-xl p-[30px] flex flex-col gap-4">
-            <h1 className="font-bold text-xl">Remove Item!</h1>
-            <p className="pb-1">Are you sure you want to remove this item?</p>
-            <div className="flex gap-1">
-              <button
-                className="rounded-md  bg-gray-400 text-white w-[50%]font-bold px-5 py-1 hover:bg-tertiary "
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-md  bg-red-500 text-white font-bold px-5 w-[50%] py-1 hover:bg-tertiary "
-                onClick={() => {
-                  deleteProductMutate();
-                  onClose();
-                }}
-              >
-                Remove
-              </button>
-            </div>
-          </div>
-        );
-      },
-    });
+
+
+  const handleDelete = () => {
+    deleteProductMutate();
+    closeDelete();
   };
   // end of delete product
 
@@ -126,36 +116,9 @@ function Cart() {
       },
     }
   );
-  const clearAllProducts = () => {
-    confirmAlert({
-      customUI: ({ onClose }) => {
-        return (
-          <div className=" shadow-xl p-[30px] flex flex-col gap-4">
-            <h1 className="font-bold text-xl">Remove All Items!</h1>
-            <p className="pb-1">
-              Are you sure you want to remove all items in the cart?
-            </p>
-            <div className="flex gap-1">
-              <button
-                className="rounded-md  bg-gray-400 text-white w-[50%]font-bold px-5 py-1 hover:bg-tertiary "
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-md  bg-red-500 text-white font-bold px-5 w-[50%] py-1 hover:bg-tertiary "
-                onClick={() => {
-                  clearCartMutate();
-                  onClose();
-                }}
-              >
-                Remove
-              </button>
-            </div>
-          </div>
-        );
-      },
-    });
+  const handleClear = () => {
+    clearCartMutate();
+    closeClear();
   };
   // end of clear cart
 
@@ -177,155 +140,150 @@ function Cart() {
       },
     }
   );
-  const checkOutProducts = () => {
-    confirmAlert({
-      customUI: ({ onClose,  }) => {
-        return (
-          <div className=" shadow-xl p-[30px] flex flex-col gap-4">
-            <h1 className="font-bold text-xl">Confirm Checkout!</h1>
-            <p className="pb-1">
-              ${formatCurrency(totalPrice)} will be deducted from your account
-            </p>
-            <div className="flex gap-1">
-              <button
-                className="rounded-md  bg-gray-400 text-white w-[50%]font-bold px-5 py-1 hover:bg-tertiary "
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button
-                className="rounded-md  bg-primary text-white font-bold px-5 w-[50%] py-1 hover:bg-secondary "
-                onClick={() => {
-                  checkoutMutate();
-                  onClose();
-                }}
-              >
-                Checkout
-              </button>
-            </div>
-          </div>
-        );
-      },
-    });
+  const handleCheckout = () => {
+    checkoutMutate();
+    closeCheckout();
   };
   // end of checkout
 
   return (
-    <div className="bg-dark3 min-h-screen">
-      <div className="p-2">
-        <h1 className="mt-4 text-center font-bold text-3xl text-gray-100 ">
-          Cart
-        </h1>
+    <Container size="lg" py="xl">
+        <Paper shadow="sm" radius="md" withBorder p="md">
+            <Group position="apart" mb="lg">
+                <Title order={2}>Shopping Cart</Title>
+                <Badge size="lg" variant="dot" color="blue">{totalItems} Items</Badge>
+            </Group>
 
-        <div className="pt-8 overflow-x-auto">
-          <table className="w-full table-auto border-collapse border border-slate-500 text-light text-sm">
-            <thead className="bg-primary/70 bg-opacity-90 ">
-              <tr>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
-                  Id
-                </th>
+            <ScrollArea>
+                <Table striped highlightOnHover verticalSpacing="sm">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Product Category</th>
+                            <th>Price</th>
+                            <th style={{ textAlign: 'center' }}>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                         {loadingCart ? (
+                            <tr>
+                                <td colSpan={4}>
+                                    <Center py="xl">
+                                        <Loader color="blue" />
+                                    </Center>
+                                </td>
+                            </tr>
+                        ) : !cartData?.cart || cartData?.cart?.length < 1 ? (
+                            <tr>
+                                <td colSpan={4}>
+                                    <Stack align="center" spacing="xs" py="xl">
+                                        <IconShoppingCart size={40} color="gray" opacity={0.5} />
+                                        <Text color="dimmed" size="lg">Your cart is empty</Text>
+                                    </Stack>
+                                </td>
+                            </tr>
+                        ) : (
+                            cartData?.cart?.map((cart, index) => (
+                                <tr key={index}>
+                                    <td>{index + 1}</td>
+                                    <td>
+                                        <Badge size="md" variant="outline">{productMap[cart?.category] || cart?.category}</Badge>
+                                    </td>
+                                    <td style={{ fontWeight: 600 }}>${formatCurrency(cart?.price)}</td>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <ActionIcon 
+                                            color="red" 
+                                            variant="light" 
+                                            onClick={() => {
+                                                setDeleteId(cart?.productId);
+                                                openDelete();
+                                            }}
+                                            loading={isDeleting && productId === cart?.productId}
+                                        >
+                                            <IconTrash size={18} />
+                                        </ActionIcon>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </Table>
+            </ScrollArea>
 
-                <th className="border-collapse border border-slate-500 py-2 px-3">
-                  Product
-                </th>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
-                  Price
-                </th>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
-                  Action
-                </th>
-              </tr>
-            </thead>
-
-            <tbody className="text-dark">
-              {!cartData?.cart || cartData?.cart?.length < 1 ? (
-                <tr>
-                  <td colSpan={7} className="text-gray-100 text-center py-3">
-                    Cart is empty
-                  </td>
-                </tr>
-              ) : (
-                cartData?.cart?.map((cart, index) => {
-                  return (
-                    <tr
-                      className="odd:bg-[#595a59] hover:bg-gray-600 text-light text-center"
-                      key={index}
+            {cartData?.cart?.length > 0 && (
+                <>
+                <Divider my="lg" />
+                <Group position="apart" align="flex-end">
+                     <Button 
+                        leftIcon={<IconTrash size={16} />} 
+                        variant="subtle" 
+                        color="red"
+                        onClick={openClear}
+                        loading={clearCartLoading}
                     >
-                      <td className="border-collapse border-b border-slate-500 py-2 px-3 text-center">
-                        {index + 1}
-                      </td>
+                        Clear Cart
+                    </Button>
+                    
+                    <Paper withBorder p="md" bg="dark.8" radius="md" w={300}>
+                        <Stack spacing="sm">
+                            <Group position="apart">
+                                <Text color="dimmed">Total Items:</Text>
+                                <Text weight={500}>{totalItems}</Text>
+                            </Group>
+                            <Group position="apart">
+                                <Text size="lg" weight={700}>Total Price:</Text>
+                                <Text size="lg" weight={700} color="green">${formatCurrency(totalPrice)}</Text>
+                            </Group>
+                            <Button 
+                                fullWidth 
+                                size="md" 
+                                color="green" 
+                                leftIcon={<IconCheck size={18} />}
+                                onClick={openCheckout}
+                                loading={checkoutLoading}
+                                mt="sm"
+                            >
+                                Checkout
+                            </Button>
+                        </Stack>
+                    </Paper>
+                </Group>
+                </>
+            )}
+        </Paper>
 
-                      <td className="border-collapse border-b border-slate-500 py-2 px-3 text-center">
-                        {productMap[cart?.category] || ""}
-                      </td>
-                      <td className="border-collapse border-b border-slate-500 py-2 px-3 text-center">
-                        ${formatCurrency(cart?.price)}
-                      </td>
-                      <td className="border-collapse border-b border-slate-500 py-2 px-3 text-center">
-                        <button
-                          disabled={isDeleting}
-                          onClick={() => {
-                            setDeleteId(cart?.productId);
-                            deleteProductById();
-                          }}
-                          className="bg-red-500 py-1 px-3 text-center rounded-md text-light hover:bg-secondary"
-                        >
-                          Remove
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+      <Modal opened={deleteOpened} onClose={closeDelete} title="Remove Item" centered>
+        <Text size="sm">Are you sure you want to remove this item from your cart?</Text>
+        <Group position="right" mt="md">
+          <Button variant="default" onClick={closeDelete}>Cancel</Button>
+          <Button color="red" onClick={handleDelete} loading={isDeleting}>Remove</Button>
+        </Group>
+      </Modal>
 
-        <div
-          className={
-            !cartData?.cart || cartData?.cart?.length < 1
-              ? "hidden"
-              : "flex pt-8 flex-col items-end "
-          }
-        >
-          <div className="bg-dark2 text-light px-10 py-4 ">
-            <p className="text-xl">Total Items: {totalItems}</p>
-            <p className="text-xl pt-4">
-              Total Price: ${formatCurrency(totalPrice)}
-            </p>
-            <hr className="w-full border-1 my-4  border-primary" />
-            <div className="flex gap-6 pt-2 items-end">
-              <div
-                disabled={isDeleting}
-                onClick={() => {
-                  clearAllProducts();
-                }}
-                className="flex gap-1 cursor-pointer items-center bg-red-500 py-2 px-4 text-center rounded-md text-light hover:bg-red-400"
-              >
-                <p>Clear </p>
-                <CgShoppingCart />
-              </div>
+      <Modal opened={clearOpened} onClose={closeClear} title="Clear Cart" centered>
+        <Stack align="center" spacing="sm">
+            <IconAlertCircle size={40} color="orange" />
+            <Text size="sm" align="center">Are you sure you want to remove <b>ALL</b> items ( {totalItems} ) from your cart? This action cannot be undone.</Text>
+        </Stack>
+        <Group position="center" mt="md" grow w="100%">
+          <Button variant="default" onClick={closeClear}>Cancel</Button>
+          <Button color="red" onClick={handleClear} loading={clearCartLoading}>Clear All</Button>
+        </Group>
+      </Modal>
 
-              {checkoutLoading ? (
-                <p className="text-center">
-                  <PulseLoader color="#6ba54a" size={9} />
-                </p>
-              ) : (
-                <div
-                  onClick={() => {
-                    checkOutProducts();
-                  }}
-                  className="flex items-center gap-1 cursor-pointer bg-primary py-2 px-4 text-center rounded-md text-light hover:bg-secondary"
-                >
-                  <p>Buy </p>
-                  <TiTick size={19} />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      <Modal opened={checkoutOpened} onClose={closeCheckout} title="Confirm Checkout" centered>
+         <Stack spacing="md">
+            <Text size="sm">
+                You are about to purchase <b>{totalItems}</b> items for a total of <Text span weight={700} color="green">${formatCurrency(totalPrice)}</Text>.
+            </Text>
+            <Text size="xs" color="dimmed">The amount will be deducted from your account balance immediately.</Text>
+         </Stack>
+        <Group position="right" mt="md">
+          <Button variant="default" onClick={closeCheckout}>Cancel</Button>
+          <Button color="blue" onClick={handleCheckout} loading={checkoutLoading}>Confirm Purchase</Button>
+        </Group>
+      </Modal>
+    </Container>
   );
 }
 

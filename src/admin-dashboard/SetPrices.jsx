@@ -10,19 +10,18 @@ function SetPrices() {
   const { auth } = useAuth();
 
   return (
-    <div className="border bg-light rounded-md min-h-screen  shadow-md  ">
-      <div className="bg-gray-100  my-6 mx-1 md:mx-5 ">
-        <div className="bg-gray-300 w-full rounded-t-md h-10"></div>
-        <h1 className="mb-4 text-center font-semibold text-xl h-14 ">
+    <div className="bg-gray-900 min-h-screen shadow-md p-4">
+      <div className="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+        <h1 className="text-center font-bold text-xl text-white">
           Set Product Prices{" "}
         </h1>
       </div>
       {auth?.status === "Active" ? (
         //selling tabs
-        <div className=" overflow-x-auto my-6 mx-1 md:mx-5">
-          <Tabs defaultValue="ssn">
+        <div className="w-full">
+          <Tabs defaultValue="ssn" styles={{ tab: { color: "#d1d5db", '&[data-active]': { borderColor: '#3b82f6', color: '#3b82f6' }, '&:hover': { backgroundColor: '#374151' } } }}>
             <Tabs.List>
-              <Tabs.Tab value="ssn" className=" border">
+              <Tabs.Tab value="ssn">
                 SSN/DOB
               </Tabs.Tab>
               <Tabs.Tab value="googleVoice">Set Other Product Prices</Tabs.Tab>

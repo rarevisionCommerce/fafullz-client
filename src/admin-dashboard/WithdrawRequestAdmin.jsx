@@ -2,15 +2,14 @@ import React, { useState, useEffect } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from "../hooks/useAuth";
-import Select from "react-select";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pagination } from "@mantine/core";
+import { Pagination, Select, TextInput, Button, Loader, Text } from "@mantine/core";
 import { Link } from "react-router-dom";
 
 function WithdrawRequestAdmin() {
     const axios = useAxiosPrivate();
 
-  const [perPage, setPerPage] = useState(30);
+  const [perPage, setPerPage] = useState("30");
   const [activePage, setPage] = useState(1);
     const [status, setStatus] = useState("");
   const [userName, setUserName] = useState("");
@@ -32,6 +31,10 @@ function WithdrawRequestAdmin() {
     },
   ];
   const statusOptions = [
+     {
+      label: "All",
+      value: ""
+     },
      {
       label: "Pending",
       value: "Pending",
@@ -58,7 +61,7 @@ function WithdrawRequestAdmin() {
     keepPreviousData: true,
   });
 
-  const totalPages = Math.ceil(requestsData?.data?.count / perPage);
+  const totalPages = Math.ceil(requestsData?.data?.count / Number(perPage));
 
   // pagination refetch
   useEffect(() => {
@@ -68,7 +71,7 @@ function WithdrawRequestAdmin() {
   //end of fetching requests------------------
    // reset filters
   const resetFilters = () => {
-    setPerPage(30);
+    setPerPage("30");
     setPage(1);
     setUserName("");
     setStatus("");
@@ -79,82 +82,91 @@ function WithdrawRequestAdmin() {
 
 
   return (
-    <div className="bg-light px-3 py-3">
-        <h1 className="font-bold text-lg">All withdraw Requests </h1>
+    <div className="bg-gray-900 min-h-screen px-4 py-4">
+        <h1 className="font-bold text-xl text-white mb-4">All Withdraw Requests </h1>
       <div className="my-[20px] ">
          {/* filters */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:px-4 bg-gray-100 px-2 py-3">
-          <div className="flex flex-col gap-">
-            <h1>UserName</h1>
-              <input
-                type="text"
-                className="border-2 py-1 px-2   focus:border-none "
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-800 rounded-lg px-4 py-4 border border-gray-700">
+          <div className="flex flex-col gap-1">
+              <TextInput
+                label="UserName"
+                labelProps={{ style: { color: "#d1d5db" } }}
+                placeholder="Search username"
                 value={userName}
                 onChange={(e) => {
                   setUserName(e.target.value);
                   setPage(1);
                 }}
+                styles={{ 
+                    input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                }}
               />
           </div>
-          <div className="flex flex-col w-full  ">
-              <label htmlFor="">Status:</label>
+          <div className="flex flex-col w-full gap-1">
                <Select
-              options={statusOptions}
-              value={status && status.label}
-              onChange={(selectOption) => {
-                setStatus(selectOption?.value);
-                setPage(1);
-              }}
+                label="Status"
+                labelProps={{ style: { color: "#d1d5db" } }}
+                placeholder="Filter by Status"
+                data={statusOptions}
+                value={status}
+                onChange={(value) => {
+                    setStatus(value);
+                    setPage(1);
+                }}
+                styles={{ 
+                    input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
+                    item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                    dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                }}
             />
             </div>
-          <div className="flex flex-col gap-">
-            <h1>Per Page</h1>
+          <div className="flex flex-col gap-1">
             <Select
-              options={perPageOptions}
-              value={perPage && perPage.label}
-              onChange={(selectOption) => {
-                setPerPage(selectOption?.value);
+              label="Per Page"
+              labelProps={{ style: { color: "#d1d5db" } }}
+              placeholder="Per Page"
+              data={perPageOptions}
+              value={perPage}
+              onChange={(value) => {
+                setPerPage(value);
                 setPage(1);
               }}
+               styles={{ 
+                    input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
+                    item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                    dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                }}
             />
           </div>
         </div>
         {/* end of filters */}
      
 
-        <div className="flex justify-between mt-10 px-1 md:px-4 ">
-          <h1>Total: {requestsData?.data?.count || 0}</h1>
+        <div className="flex justify-between mt-6 px-1 ">
+          <h1 className="text-gray-300">Total: {requestsData?.data?.count || 0}</h1>
           
         </div>
-        <div className="overflow-x-auto mb-3">
-          <div className="my-3 ">
-            <Pagination
-              total={totalPages}
-              page={activePage}
-              color="green"
-              onChange={setPage}
-            />
-        
-          </div>
-          <table className="w-full text-center table-auto border-collapse border border-slate-500 text-light text-sm">
-            <thead className="bg-primary bg-opacity-90 ">
+        <div className="overflow-x-auto mb-3 mt-2 rounded-lg border border-gray-700">
+          
+          <table className="w-full text-center table-auto border-collapse border border-gray-700 text-gray-300 text-sm">
+            <thead className="bg-gray-800 text-gray-200">
               <tr>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border border-gray-700 py-3 px-3">
                   Id
                 </th>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border border-gray-700 py-3 px-3">
                   Username
                 </th>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border border-gray-700 py-3 px-3">
                   Wallet
                 </th>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border border-gray-700 py-3 px-3">
                   Amount
                 </th>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border border-gray-700 py-3 px-3">
                   Status
                 </th>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border border-gray-700 py-3 px-3">
                   Action
                 </th>
                
@@ -162,11 +174,11 @@ function WithdrawRequestAdmin() {
               </tr>
             </thead>
 
-            <tbody className="text-dark">
+            <tbody className="text-gray-300">
               {
                  loadingRequests ? (
-                <tr className="flex justify-center py-4 pr-6 items-center">
-                  <td colSpan={17} className="text-center ">
+                 <tr>
+                  <td colSpan={6} className="text-center py-10">
                     <PulseLoader color="#6ba54a" size={10} />
                   </td>
                 </tr>
@@ -175,7 +187,7 @@ function WithdrawRequestAdmin() {
               !requestsData?.data?.withdrawRequests ||
              requestsData?.data?.withdrawRequests?.length < 1 ? (
                 <tr>
-                  <td colSpan={7} className="text-gray-800 text-center py-3">
+                  <td colSpan={6} className="text-gray-400 text-center py-6">
                     No requests found!
                   </td>
                 </tr>
@@ -184,34 +196,40 @@ function WithdrawRequestAdmin() {
                   return (
                     <tr
                       key={index}
-                      className="odd:bg-gray-50 hover:bg-gray-100"
+                      className="odd:bg-gray-800 hover:bg-gray-700 transition-colors"
                     >
-                      <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                      <td className="border border-gray-700 py-2 px-3">
                         {index + 1}
                       </td>
 
-                      <td className="border-collapse border-b  border-slate-500 py-2 px-3">
+                      <td className="border border-gray-700 py-2 px-3 font-medium text-white">
                         {item?.userName}
                       </td>
-                      <td className="border-collapse border-b  border-slate-500 py-2 px-3">
+                      <td className="border border-gray-700 py-2 px-3 break-all max-w-xs">
                         {item?.wallet}
                       </td>
-                      <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                      <td className="border border-gray-700 py-2 px-3">
                          ${item?.amount || '...'}
                       </td>
-                      <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                       <p className={item?.status === "Pending" ? "text-red-500" : "text-primary"}>{item?.status}</p>  
+                      <td className="border border-gray-700 py-2 px-3">
+                       <p className={item?.status === "Pending" ? "text-red-400 font-semibold" : "text-green-400 font-semibold"}>{item?.status}</p>  
                       </td>
                        
-                      <td className="border-collapse border-b border-slate-500 py-3 px-3">
+                      <td className="border border-gray-700 py-3 px-3">
                        {
                         item.status === "Processed" ?
-                        <h1>Processed</h1>
+                        <span className="text-green-500 font-medium">Processed</span>
                         :
 
-                       <Link to= {`/admin-dash/seller-details/${item.userId}`} className="bg-primary text-white rounded-md px-3 py-1 hover:bg-secondary">                                               
+                       <Button 
+                            component={Link} 
+                            to={`/admin-dash/seller-details/${item.userId}`} // Assuming seller-details is the right place to process. The original link was to seller-details/${item.userId}.
+                            variant="filled" 
+                            color="blue"
+                            size="xs"
+                        >                                               
                           Process
-                       </Link>
+                       </Button>
                        }
                       </td>
                      
@@ -223,6 +241,18 @@ function WithdrawRequestAdmin() {
               )}
             </tbody>
           </table>
+          <div className="my-4 flex justify-center">
+            <Pagination
+              total={totalPages || 0}
+              value={activePage}
+              color="blue"
+              onChange={setPage}
+               styles={{ 
+                control: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151', '&[data-active]': { backgroundColor: '#2563eb' } } 
+              }}
+            />
+        
+          </div>
         </div>
       </div>
     </div>

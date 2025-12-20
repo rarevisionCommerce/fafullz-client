@@ -4,6 +4,20 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import useAuth from "../../../hooks/useAuth";
+import {
+  Table,
+  Checkbox,
+  Button,
+  Group,
+  Text,
+  Paper,
+  Title,
+  ScrollArea,
+  Badge,
+  ActionIcon,
+  Tooltip,
+} from "@mantine/core";
+import { IconTrash, IconDownload } from "@tabler/icons-react";
 
 function SsnOrders(props) {
   const [todaysOrders, setTodaysOrders] = useState([]);
@@ -281,160 +295,127 @@ function SsnOrders(props) {
     URL.revokeObjectURL(url);
   };
 
+  // Helper for truncated cells
+  const TruncatedCell = ({ text, maxWidth = 150 }) => {
+    if (!text) return null;
+    return (
+        <Tooltip label={text} multiline width={300} withinPortal>
+            <Text truncate style={{ maxWidth, cursor: "help" }} color="inherit">
+                {text}
+            </Text>
+        </Tooltip>
+    );
+  };
+
   // Render table with delete functionality
   const renderOrderTable = (orders, title) => {
     if (orders.length === 0) return null;
 
     return (
-      <div className="overflow-x-auto mb-3">
-        <div className="flex items-center gap-3 justify-between">
-          <h2 className="my-2 text-light pb-2">{title}</h2>
-          <div className="flex gap-2 items-center">
-            <button
-              className="text-sm bg-gray-200 px-2 py-1 rounded-md"
+      <Paper p="md" shadow="sm" radius="md" mb="xl" style={{ backgroundColor: '#1f2937' }}>
+        <Group position="apart" mb="md">
+          <Title order={4} color="gray.2">{title}</Title>
+          <Group spacing="xs">
+            <Button
+              size="xs"
+              variant="light"
+              color="blue"
+              leftIcon={<IconDownload size={16} />}
               onClick={() => downloadOrders(orders)}
             >
               Download
-            </button>
-            <button
-              className="text-sm bg-gray-200 px-2 py-1 rounded-md"
+            </Button>
+            <Button
+              size="xs"
+              variant="light"
+              color="cyan"
+              leftIcon={<IconDownload size={16} />}
               onClick={() => downloadOrdersAsCSV(orders)}
             >
-              Download CSV
-            </button>
-          </div>
-        </div>
+              CSV
+            </Button>
+          </Group>
+        </Group>
 
-        <table className="w-full text-center table-auto border-collapse border border-slate-500 text-light text-sm">
-          <thead className="bg-primary/70 text-light">
-            <tr>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
-                <input
-                  type="checkbox"
-                  checked={selectAll}
-                  onChange={(e) => handleSelectAll(e.target.checked)}
-                />
-              </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
-                Base
-              </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
-                Name
-              </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
-                DOB
-              </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
-                Description
-              </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
-                State
-              </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
-                City
-              </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
-                Zip
-              </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
-                SSN
-              </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
-                Address
-              </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
-                Email
-              </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
-                Email_Pass
-              </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
-                FAUname
-              </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
-                FAPass
-              </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
-                Backup_Code
-              </th>
-              <th className="border-collapse border border-slate-500 py-2 px-3">
-                Security_Q&A
-              </th>
-            </tr>
-          </thead>
-          <tbody className="text-dark">
-            {orders.map((item, index) => {
-              const orderId = item._id;
-              const isSelected = selectedOrders.has(orderId);
+        <ScrollArea>
+           <Table striped highlightOnHover withBorder withColumnBorders style={{ minWidth: "1500px" }}>
+            <thead style={{ backgroundColor: '#111827' }}>
+              <tr>
+                <th style={{ width: 40 }}>
+                  <Checkbox
+                    checked={selectAll}
+                    onChange={(e) => handleSelectAll(e.currentTarget.checked)}
+                  />
+                </th>
+                <th style={{ color: '#d1d5db' }}>Base</th>
+                <th style={{ color: '#d1d5db' }}>Name</th>
+                <th style={{ color: '#d1d5db' }}>DOB</th>
+                <th style={{ color: '#d1d5db' }}>Description</th>
+                <th style={{ color: '#d1d5db' }}>State</th>
+                <th style={{ color: '#d1d5db' }}>City</th>
+                <th style={{ color: '#d1d5db' }}>Zip</th>
+                <th style={{ color: '#d1d5db' }}>SSN</th>
+                <th style={{ color: '#d1d5db' }}>Address</th>
+                <th style={{ color: '#d1d5db' }}>Email</th>
+                <th style={{ color: '#d1d5db' }}>Email Pass</th>
+                <th style={{ color: '#d1d5db' }}>FA Uname</th>
+                <th style={{ color: '#d1d5db' }}>FA Pass</th>
+                <th style={{ color: '#d1d5db' }}>Backup Code</th>
+                <th style={{ color: '#d1d5db', minWidth: 200 }}>Security Q&A</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((item, index) => {
+                const orderId = item._id;
+                const isSelected = selectedOrders.has(orderId);
 
-              return (
-                <tr
-                  key={orderId || index}
-                  className={`odd:bg-[#595a59] hover:bg-gray-600 text-light text-center ${
-                    isSelected ? "bg-blue-600" : ""
-                  }`}
-                >
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={(e) =>
-                        handleOrderSelect(orderId, e.target.checked)
-                      }
-                    />
-                  </td>
-
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {item?.base}
-                  </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {item?.firstName || ""} {item?.lastName || ""}
-                  </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {item?.dob?.split("-")[0]}
-                  </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {item?.description}
-                  </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {item?.state}
-                  </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {item.city}
-                  </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {item?.zip}
-                  </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {item?.ssn}
-                  </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {item?.address}
-                  </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {item?.email}
-                  </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {item?.emailPass}
-                  </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {item?.faUname}
-                  </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {item?.faPass}
-                  </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {item?.backupCode}
-                  </td>
-                  <td className="border-collapse border-b border-slate-500 py-2 px-3">
-                    {item?.securityQa}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                return (
+                  <tr
+                    key={orderId || index}
+                    style={{ backgroundColor: isSelected ? 'rgba(37, 99, 235, 0.2)' : undefined }}
+                  >
+                    <td>
+                      <Checkbox
+                        checked={isSelected}
+                        onChange={(e) =>
+                          handleOrderSelect(orderId, e.currentTarget.checked)
+                        }
+                      />
+                    </td>
+                    <td style={{ color: '#e5e7eb' }}>{item?.base}</td>
+                    <td style={{ color: '#e5e7eb' }}>
+                      <Text style={{ whiteSpace: 'nowrap' }}>
+                        {item?.firstName || ""} {item?.lastName || ""}
+                      </Text>
+                    </td>
+                    <td style={{ color: '#e5e7eb' }}>{item?.dob?.split("-")[0]}</td>
+                    <td style={{ color: '#e5e7eb' }}>
+                        <TruncatedCell text={item?.description} maxWidth={200} />
+                    </td>
+                    <td style={{ color: '#e5e7eb' }}>{item?.state}</td>
+                    <td style={{ color: '#e5e7eb' }}>{item.city}</td>
+                    <td style={{ color: '#e5e7eb' }}>{item?.zip}</td>
+                     <td style={{ color: '#e5e7eb' }}>{item?.ssn}</td>
+                    <td style={{ color: '#e5e7eb' }}>
+                        <TruncatedCell text={item?.address} maxWidth={200} />
+                    </td>
+                    <td style={{ color: '#e5e7eb' }}>
+                         <TruncatedCell text={item?.email} maxWidth={150} />
+                    </td>
+                    <td style={{ color: '#e5e7eb' }}>{item?.emailPass}</td>
+                    <td style={{ color: '#e5e7eb' }}>{item?.faUname}</td>
+                    <td style={{ color: '#e5e7eb' }}>{item?.faPass}</td>
+                    <td style={{ color: '#e5e7eb' }}>{item?.backupCode}</td>
+                    <td style={{ color: '#e5e7eb' }}>
+                        <TruncatedCell text={item?.securityQa} maxWidth={250} />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        </ScrollArea>
+      </Paper>
     );
   };
 
@@ -446,44 +427,48 @@ function SsnOrders(props) {
       <div className="mb-[30px]">
         {/* Bulk Actions */}
         {selectedOrders.size > 0 && (
-          <div className="mb-4 p-4 bg-gray-100 rounded-md">
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-700">
+          <Paper p="md" shadow="sm" radius="md" mb="md" style={{ backgroundColor: '#f3f4f6' }}>
+            <Group position="apart">
+              <Text size="sm" color="dark">
                 {selectedOrders.size} order(s) selected
-              </span>
-              <button
-                className="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                onClick={() => bulkDeleteOrders(false)}
-                disabled={loadingMutate}
-              >
-                Delete Selected
-              </button>
-
-              <button
-                className="text-sm bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
-                onClick={() => {
-                  setSelectedOrders(new Set());
-                  setSelectAll(false);
-                }}
-              >
-                Clear Selection
-              </button>
-            </div>
-          </div>
+              </Text>
+              <Group spacing="xs">
+                 <Button
+                    color="red"
+                    size="xs"
+                    onClick={() => bulkDeleteOrders(false)}
+                    loading={loadingMutate}
+                    leftIcon={<IconTrash size={16} />}
+                 >
+                    Delete Selected
+                 </Button>
+                 <Button
+                    variant="default"
+                    size="xs"
+                    onClick={() => {
+                        setSelectedOrders(new Set());
+                        setSelectAll(false);
+                    }}
+                 >
+                    Clear Selection
+                 </Button>
+              </Group>
+            </Group>
+          </Paper>
         )}
 
         <div className="overflow-x-auto mb-3">
-          <div>
-            <h1 className="text-light text-center my-2">
+          <div style={{ marginBottom: 20 }}>
+            <Title order={2} align="center" color="gray.2">
               {totalOrders === 0
                 ? "No Orders!"
                 : `Total Orders: ${totalOrders}`}
-            </h1>
+            </Title>
           </div>
 
           {loadingMutate && (
-            <div className="text-center py-4">
-              <span className="text-light">Processing...</span>
+             <div className="text-center py-4">
+              <Text color="dimmed">Processing...</Text>
             </div>
           )}
 

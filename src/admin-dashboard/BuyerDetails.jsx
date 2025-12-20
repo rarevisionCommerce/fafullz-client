@@ -4,8 +4,8 @@ import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import { toast } from "react-toastify";
 import PulseLoader from "react-spinners/PulseLoader";
 import { useParams } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { Modal, Skeleton } from "@mantine/core";
+import { useForm, Controller } from "react-hook-form";
+import { Modal, Skeleton, TextInput, NumberInput, Button, Text } from "@mantine/core";
 import { MdAccountBalanceWallet } from "react-icons/md";
 import MyOrders from "../pages/dashboard/MyOrders";
 import { Tabs } from "@mantine/core";
@@ -20,7 +20,7 @@ function BuyerDetails() {
   const [opened, { open, close }] = useDisclosure(false);
 
   // seller id from auth
-  const { register, handleSubmit, reset, formState } = useForm();
+  const { register, handleSubmit, reset, formState, control } = useForm();
   const { errors } = formState;
   const qaueryClient = useQueryClient();
   const { userId } = useParams();
@@ -124,12 +124,13 @@ function BuyerDetails() {
   };
 
   return (
-    <div>
+    <div className="bg-gray-900 min-h-screen text-white p-4">
       <Modal
         opened={opened}
         onClose={close}
         title="Deduct user Balance"
         centered
+        overlayProps={{ opacity: 0.55, blur: 3 }}
       >
         {auth?.roles?.includes("Admin") && (
           <DeductBuyerBalance
@@ -140,31 +141,31 @@ function BuyerDetails() {
         )}
       </Modal>
       {/* buyer info */}
-      <h1 className="font-bold text-lg mb-2 ">Buyer Details</h1>
+      <h1 className="font-bold text-lg mb-4 ">Buyer Details</h1>
       {loadingBuyer ? (
-        <div className="flex flex-col w-[90%] justify-center md:w-full md:grid md:grid-cols-3 gap-4 md:content-center p-[50px] ">
-          <Skeleton height={90} radius="sm" />
-          <Skeleton height={90} radius="sm" />
-          <Skeleton height={90} radius="sm" />
+        <div className="flex flex-col md:grid md:grid-cols-3 gap-6">
+          <Skeleton height={120} radius="md" />
+          <Skeleton height={120} radius="md" />
+          <Skeleton height={120} radius="md" />
         </div>
       ) : (
-        <div className="flex flex-col md:grid md:grid-cols-3 bg-light drop-shadow-md min-h-[150px] py-3 px-2">
-          <div className="flex flex-col gap-4  ">
-            <div className="flex  gap-4 my-[12]">
-              <h1 className="text-gray-600">User Name: </h1>
-              <h1>{buyerData?.data?.userName}</h1>
+        <div className="flex flex-col md:grid md:grid-cols-3 bg-gray-800 drop-shadow-md rounded-lg border border-gray-700 p-6 gap-6">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col">
+              <h1 className="text-gray-400 text-sm font-medium">User Name</h1>
+              <h1 className="text-white text-lg">{buyerData?.data?.userName}</h1>
             </div>
-            <div className="flex  gap-4  ">
-              <h1 className="text-gray-600">Seller Id: </h1>
-              <h1>{buyerData?.data?.jabberId}</h1>
+            <div className="flex flex-col">
+              <h1 className="text-gray-400 text-sm font-medium">Seller Id</h1>
+              <h1 className="text-white font-mono text-sm">{buyerData?.data?.jabberId}</h1>
             </div>
-            <div className="flex  gap-4  ">
-              <h1 className="text-gray-600">Buyer Status: </h1>
+            <div className="flex flex-col">
+              <h1 className="text-gray-400 text-sm font-medium">Buyer Status</h1>
               <p
                 className={
                   buyerData?.data?.status === "Active"
-                    ? "text-green-500   text-start  text-lg"
-                    : "text-red-500   text-start  text-lg"
+                    ? "text-green-400 w-fit px-2 py-0.5 rounded-full bg-green-900/30 text-sm font-medium mt-1"
+                    : "text-red-400 w-fit px-2 py-0.5 rounded-full bg-red-900/30 text-sm font-medium mt-1"
                 }
               >
                 {buyerData?.data?.status}
@@ -172,65 +173,57 @@ function BuyerDetails() {
             </div>
           </div>
 
-          <div className="border-l pl-3 ">
-            <h1 className="font-bold ">User Balance</h1>
-            <div className="flex gap-2 justify-between pr-4 items-center py-3  ">
-              <div>
-                <MdAccountBalanceWallet size={25} />
-                <h1>
-                  {paymentsData?.data?.balance?.toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                  })}
-                </h1>
-              </div>
-              <div className={`${!auth?.roles?.includes("Admin") && "hidden"}`}>
-                <h1
-                  className="text-sm text-blue-500 underline cursor-pointer "
-                  onClick={() => {
-                    open();
-                  }}
-                >
-                  Deduct balance
-                </h1>
-              </div>
-            </div>
+          <div className="border-l border-gray-700 pl-6 flex flex-col justify-between">
             <div>
-              {/* send message */}
-              <form action="">
-                <div className="flex flex-col justify-center gap- w-full pr-3 ">
-                  <h1 className="py-2">Message Buyer</h1>
-                  <input
-                    type="text"
-                    min={0}
-                    step="any"
-                    className="border-2 w-full rounded-md py-[6px]  px-2 outline-none  focus:border-gray-700 focus:border-[1px] "
-                    onChange={(e) => {
-                      setMessage(e.target.value);
-                    }}
-                  />
-                  <p className="text-red-500 text-xs">
-                    {errors.message?.type === "required" &&
-                      "Message is required"}
-                  </p>
+                 <h1 className="font-bold text-gray-200 mb-2">User Balance</h1>
+                <div className="flex gap-2 justify-between items-center mb-4">
+                <div className="flex items-center gap-2 text-2xl font-bold text-green-400">
+                    <MdAccountBalanceWallet size={28} />
+                    <h1>
+                    {paymentsData?.data?.balance?.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                    })}
+                    </h1>
                 </div>
-                <div>
-                  {loadingMessage ? (
-                    <div className="flex justify-center  items-center">
-                      <PulseLoader color="#6ba54a" size={10} />
-                    </div>
-                  ) : (
-                    <button
-                      className="bg-primary  ml-7 mt-2 text-white rounded-md px-5 py-1 hover:bg-secondary  "
-                      onClick={(e) => {
+                <div className={`${!auth?.roles?.includes("Admin") && "hidden"}`}>
+                    <Button
+                    variant="subtle"
+                    compact
+                    color="blue"
+                    onClick={() => {
+                        open();
+                    }}
+                    >
+                    Deduct balance
+                    </Button>
+                </div>
+                </div>
+            </div>
+            
+            <div className="mt-4">
+              {/* send message */}
+              <form action="" className="flex flex-col gap-2">
+                  <TextInput
+                    label="Message Buyer"
+                    placeholder="Type message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    error={errors.message?.type === "required" && "Message is required"}
+                     styles={{ input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }, label: { color: "#d1d5db" } }}
+                  />
+                  
+                  <Button
+                    onClick={(e) => {
                         e.preventDefault();
                         submitMessage();
-                      }}
-                    >
-                      Send
-                    </button>
-                  )}
-                </div>
+                    }}
+                    loading={loadingMessage}
+                    fullWidth
+                    mt="xs"
+                  >
+                    Send
+                  </Button>
               </form>
             </div>
           </div>
@@ -239,36 +232,35 @@ function BuyerDetails() {
           <div
             className={`${
               !auth?.roles?.includes("Admin") && "hidden"
-            } border-l pl-1 `}
+            } border-l border-gray-700 pl-6 `}
           >
-            <h1 className="font-semibold">Deposit to this user</h1>
-            <form action="" onSubmit={handleSubmit(submitDeposit)}>
-              <div className="flex gap-2 mt-2">
-                <h1>Amount:</h1>
-                <input
-                  type="number"
-                  min={0}
-                  step="any"
-                  className="border w-full rounded-md px-2 outline-none py-1  focus:border-gray-700 focus:border-[1px] "
-                  {...register("amount", {
-                    required: true,
-                  })}
+            <h1 className="font-semibold text-gray-200 mb-2">Deposit to this user</h1>
+            <form onSubmit={handleSubmit(submitDeposit)} className="flex flex-col gap-2">
+                <Controller
+                    name="amount"
+                    control={control}
+                    rules={{ required: "Amount is required" }}
+                    render={({ field }) => (
+                     <TextInput
+                        label="Amount"
+                        type="number"
+                        placeholder="0.00"
+                        error={errors.amount?.message}
+                        {...field}
+                         styles={{ input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }, label: { color: "#d1d5db" } }}
+                     />
+                    )}
                 />
-              </div>
-              <p className="text-red-500 text-xs py-1">
-                {errors.amount?.type === "required" && "Amount is required"}
-              </p>
-              <div className=" flex justify-center item-center">
-                {loadingDeposit ? (
-                  <div className="flex justify-center  items-center ">
-                    <PulseLoader color="#6ba54a" size={10} />
-                  </div>
-                ) : (
-                  <button className="bg-primary  text-white rounded-md px-5 py-1 hover:bg-secondary">
-                    Deposit
-                  </button>
-                )}
-              </div>
+              
+              <Button
+                type="submit"
+                loading={loadingDeposit}
+                fullWidth
+                mt="xs"
+                color="green"
+              >
+                Deposit
+              </Button>
             </form>
           </div>
         </div>
@@ -276,13 +268,13 @@ function BuyerDetails() {
       {/* end user details  */}
 
       {/* user transactions */}
-      <h1 className="font-bold text-lg mt-3 ">
+      <h1 className="font-bold text-lg mt-8 mb-4">
         Buyer Transactions and Orders{" "}
       </h1>
 
       {/*  tabs start */}
-      <div className=" overflow-x-auto my-6 mx-1 md:mx-5 bg-light">
-        <Tabs defaultValue="transactions">
+      <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 overflow-hidden">
+        <Tabs defaultValue="transactions" styles={{ tab: { color: "#d1d5db", '&[data-active]': { borderColor: '#3b82f6', color: '#3b82f6' }, '&:hover': { backgroundColor: '#374151' } } }}>
           <Tabs.List>
             <Tabs.Tab value="transactions">Transactions</Tabs.Tab>
             <Tabs.Tab value="orders">Orders</Tabs.Tab>
@@ -290,49 +282,51 @@ function BuyerDetails() {
 
           <Tabs.Panel value="transactions" pt="xs">
             {/* payment History  */}
-            <div className="bg-light my-3 py-2  ">
-              <h1 className="my-2 mx-2 text-dark ">
-                Payments History <span className="text-xs">btc</span>
+            <div className="py-2">
+              <h1 className="my-2 text-gray-300">
+                Payments History <span className="text-xs text-gray-500">btc</span>
               </h1>
 
               {/* Table */}
-              <div className="flex flex-col w-full justify-center my-2 px-2 overflow-x-auto">
-                <table className="w-full    table-auto border-collapse border border-slate-500 text-sm">
-                  <thead>
-                    <tr className="bg-slate-200">
-                      <th className="border-collapse border border-slate-500 py-2 px-3">
+              <div className="overflow-x-auto">
+                <table className="w-full table-auto border-collapse border border-gray-700 text-sm text-gray-300">
+                  <thead className="bg-gray-900 text-gray-200">
+                    <tr>
+                      <th className="border border-gray-700 py-2 px-3">
                         SNo
                       </th>
-                      <th className="border-collapse border border-slate-500 py-2 px-3">
+                      <th className="border border-gray-700 py-2 px-3">
                         ID/CODE
                       </th>
-                      <th className="border-collapse border border-slate-500 py-2 px-3">
+                      <th className="border border-gray-700 py-2 px-3">
                         Status
                       </th>
-                      <th className="border-collapse border border-slate-500 py-2 px-3">
+                      <th className="border border-gray-700 py-2 px-3">
                         Date
                       </th>
-                      <th className="border-collapse border border-slate-500 py-2 px-3">
+                      <th className="border border-gray-700 py-2 px-3">
                         OneTime wallet
                       </th>
-                      <th className="border-collapse border border-slate-500 py-2 px-3">
+                      <th className="border border-gray-700 py-2 px-3">
                         Coin
                       </th>
-                      <th className="border-collapse border border-slate-500 py-2 px-3">
+                      <th className="border border-gray-700 py-2 px-3">
                         Added to Bal.
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {loadingPayments ? (
-                      <div className="flex justify-center  pr-10 py-3 items-center">
-                        <PulseLoader color="#6ba54a" size={10} />
-                      </div>
+                      <tr>
+                        <td colSpan={7} className="text-center py-4">
+                           <PulseLoader color="#6ba54a" size={10} />
+                        </td>
+                      </tr>
                     ) : paymentsData?.data?.message ? (
-                      <tr className="hover:bg-slate-100">
+                      <tr className="hover:bg-gray-700">
                         <td
                           colSpan={7}
-                          className="border border-slate-500 text-center py-2 px-1 "
+                          className="border border-gray-700 text-center py-2 px-1 "
                         >
                           {" "}
                           {paymentsData?.data?.message}{" "}
@@ -341,36 +335,36 @@ function BuyerDetails() {
                     ) : (
                       paymentsData?.data?.transaction?.map((item, index) => {
                         return (
-                          <tr key={index} className="hover:bg-slate-100">
-                            <td className="border border-slate-500 py-2 px-1 ">
+                          <tr key={index} className="hover:bg-gray-700 odd:bg-gray-800">
+                            <td className="border border-gray-700 py-2 px-1 text-center">
                               {" "}
                               {index + 1}{" "}
                             </td>
-                            <td className="border border-slate-500 py-2 px-1 ">
+                            <td className="border border-gray-700 py-2 px-1 font-mono text-xs">
                               {" "}
                               {item?.id}{" "}
                             </td>
                             <td
-                              className={
+                              className={`border border-gray-700 py-2 px-1 text-center ${
                                 item?.status?.toLowerCase() === "confirmed" ||
                                 item?.status === "Approved"
-                                  ? "border border-slate-500 py-2 px-1 text-green-500"
-                                  : "border border-slate-500 py-2 px-1 text-red-500"
-                              }
+                                  ? "text-green-400"
+                                  : "text-red-400"
+                              }`}
                             >
                               {" "}
                               {item?.status}{" "}
                             </td>
-                            <td className="border border-slate-500 py-2 px-1 ">
+                            <td className="border border-gray-700 py-2 px-1 text-center">
                               {item?.date?.substr(0, 10)}
                             </td>
-                            <td className="border border-slate-500 py-2 px-1 ">
+                            <td className="border border-gray-700 py-2 px-1 font-mono text-xs max-w-[150px] truncate">
                               {item?.wallet}
                             </td>
-                            <td className="border border-slate-500 py-2 px-1 ">
+                            <td className="border border-gray-700 py-2 px-1 text-center">
                               {item?.coin}{" "}
                             </td>
-                            <td className="border border-slate-500 py-2 px-1 ">
+                            <td className="border border-gray-700 py-2 px-1 text-center font-bold text-green-400">
                               {item?.amount}
                             </td>
                           </tr>
@@ -386,8 +380,7 @@ function BuyerDetails() {
           <Tabs.Panel value="orders" pt="xs">
             {/* orders */}
             <div>
-              <h1 className="font-bold text-lg mt-3 ">Buyer Orders</h1>
-
+              <h1 className="font-bold text-lg mt-3 text-white mb-4">Buyer Orders</h1>
               <MyOrders buyerId={userId} />
             </div>
           </Tabs.Panel>

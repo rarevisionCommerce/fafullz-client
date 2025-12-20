@@ -1,90 +1,107 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import {FaRegUserCircle} from 'react-icons/fa'
-import {MdOutlineAccountBalanceWallet} from 'react-icons/md'
-import {HiOutlineKey} from 'react-icons/hi'
-import {BiLogOut} from 'react-icons/bi'
-import useLogout from '../hooks/useLogout'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { 
+    Menu, 
+    Group, 
+    Text, 
+    Avatar, 
+    UnstyledButton, 
+    Box, 
+    rem,
+    Badge
+} from '@mantine/core';
+import { 
+    IconLogout, 
+    IconUser, 
+    IconWallet, 
+    IconKey, 
+    IconChevronDown 
+} from '@tabler/icons-react';
+import useLogout from '../hooks/useLogout';
 // import drop down items
 
-function ProfileDropDown() {
-  const [dropdown, setDropdown] = useState(true);
+function ProfileDropDown({ userName, balance }) {
   const navigate = useNavigate();
-
   const logOut = useLogout();
+  const [userMenuOpened, setUserMenuOpened] = useState(false);
 
   const signOut = async () => {
     await logOut();
     navigate('/');
-}
+  };
 
-  const dropDownItems = [
-    {
-      name: 'My Orders',
-      path: '/dash/my-orders',
-      icon:<FaRegUserCircle />
-    },
-    {
-        name: 'Add Balance',
-        path: '/dash/addfunds',
-        icon:<MdOutlineAccountBalanceWallet />
-    },
-    {
-        name: 'Change password',
-        path: '/dash/change-password',
-        icon:<HiOutlineKey />
-    },
-    {
-        name: 'Logout',
-        path: '/',
-        icon:<BiLogOut />
-    },
-  ]
+  const formatCurrency = (number) => {
+    return Number.parseFloat(number || 0)
+      .toFixed(2)
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
 
   return (
-    <div
-      className={
-        dropdown
-          ? 'bg-secondary text-light mt-9 right-1 md:right-3 w-[250px] h-[200px] shadow-md   absolute z-20 '
-          : ''
-      }
+    <Menu
+      width={260}
+      position="bottom-end"
+      transitionProps={{ transition: 'pop-top-right' }}
+      onClose={() => setUserMenuOpened(false)}
+      onOpen={() => setUserMenuOpened(true)}
+      withinPortal
     >
-      <ul className="flex flex-col gap-2  ">
-        {dropDownItems.map((item, index) => {
-            if(item?.name === "Logout"){
-                return(
-                    <div >
-                      
-              <li
-                className="  p-1 flex px-2 gap-3 items-center text-sm hover:bg-primary hover:bg-opacity-80 hover:text-gray-100 "
-                onClick={() => {
-                  setDropdown(!dropdown)
-                  signOut();
-                }}
-              >
-                <h1>{item?.icon}</h1>
-                <h1>{item?.name}</h1>
-              </li>
-            </div>
+      <Menu.Target>
+        <UnstyledButton
+          className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors duration-200 ${
+            userMenuOpened ? 'bg-dark.6' : 'hover:bg-dark.6'
+          }`}
+        >
+          <Group spacing="xs">
+             <Badge 
+                size="lg" 
+                variant="gradient" 
+                gradient={{ from: 'green', to: 'teal', deg: 105 }}
+                styles={{ root: { textTransform: 'none', fontSize: rem(14) } }}
+             >
+                ${formatCurrency(balance)}
+             </Badge>
+            
+            <Text weight={500} size="sm" sx={{ display: 'none', '@media (min-width: 640px)': { display: 'block' } }} color='white'>
+              {userName}
+            </Text>
+             <IconChevronDown size={rem(16)} stroke={1.5} color='white' />
+          </Group>
+        </UnstyledButton>
+      </Menu.Target>
+      <Menu.Dropdown>
+        <Menu.Label>Application</Menu.Label>
+        <Menu.Item
+            icon={<IconUser size="0.9rem" stroke={1.5} />}
+            onClick={() => navigate('/dash/my-orders')}
+        >
+            My Orders
+        </Menu.Item>
+        <Menu.Item
+            icon={<IconWallet size="0.9rem" stroke={1.5} />}
+            onClick={() => navigate('/dash/addfunds')}
+        >
+            Add Balance
+        </Menu.Item>
+        <Menu.Item
+            icon={<IconKey size="0.9rem" stroke={1.5} />}
+            onClick={() => navigate('/dash/change-password')}
+        >
+            Change Password
+        </Menu.Item>
 
-                )
-            }
-          return (
-            <Link to={item.path} key={index}>
-              <li
-                className="  py-2 flex gap-3 items-center px-2 text-[13px] hover:bg-primary hover:bg-opacity-80 hover:text-gray-100 "
-                onClick={() => {
-                  setDropdown(false)
-                }}
-              >
-                <h1>{item?.icon}</h1>
-                <h1>{item.name}</h1>
-              </li>
-            </Link>
-          )
-        })}
-      </ul>
-    </div>
-  )
+        <Menu.Divider />
+        <Menu.Label>System</Menu.Label>
+
+        <Menu.Item
+          icon={<IconLogout size="0.9rem" stroke={1.5} />}
+          onClick={signOut}
+          color="red"
+        >
+          Logout
+        </Menu.Item>
+      </Menu.Dropdown>
+    </Menu>
+  );
 }
-export default ProfileDropDown
+
+export default ProfileDropDown;

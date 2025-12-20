@@ -1,91 +1,98 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { HiUser } from "react-icons/hi";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { 
+    Menu, 
+    Group, 
+    Text, 
+    UnstyledButton, 
+    rem,
+    Badge
+} from '@mantine/core';
+import { 
+    IconLogout, 
+    IconUserPlus, 
+    IconKey, 
+    IconChevronDown,
+    IconUserShield
+} from '@tabler/icons-react';
+import useLogout from '../hooks/useLogout';
 
-import { HiOutlineKey } from "react-icons/hi";
-import { BiLogOut } from "react-icons/bi";
-import useLogout from "../hooks/useLogout";
-import useAuth from "../hooks/useAuth";
-// import drop down items
-
-function AdminProfile() {
-  const [dropdown, setDropdown] = useState(true);
+function AdminProfile({ userName }) {
   const navigate = useNavigate();
-  const {auth} = useAuth();
-
   const logOut = useLogout();
+  const [userMenuOpened, setUserMenuOpened] = useState(false);
 
   const signOut = async () => {
     await logOut();
-    navigate("/");
+    navigate('/');
   };
 
-  const dropDownItems = [
-    {
-      name: "Change password",
-      path: "/admin-dash/change-pass",
-      icon: <HiOutlineKey />,
-    },
-    {
-      name: "Add Seller",
-      path: "/admin-dash/add-seller",
-      icon: <HiUser />,
-    },
-    {
-      name: "Add Manager",
-      path: "/admin-dash/add-manager",
-      icon: <HiUser />,
-    },
-
-    {
-      name: "Logout",
-      path: "/",
-      icon: <BiLogOut />,
-    },
-  ];
-
   return (
-    <div
-      className={
-        dropdown
-          ? "bg-secondary text-light mt-9 right-1 md:right-3 w-[250px] h-[170px] shadow-md   absolute z-20 "
-          : ""
-      }
+    <Menu
+      width={260}
+      position="bottom-end"
+      transitionProps={{ transition: 'pop-top-right' }}
+      onClose={() => setUserMenuOpened(false)}
+      onOpen={() => setUserMenuOpened(true)}
+      withinPortal
     >
-      <ul className="flex flex-col gap-2  ">
-        {dropDownItems.map((item, index) => {
-       if (item?.name === "Logout") {
-            return (
-              <div key={index}>
-                <li
-                  className="  p-1 flex px-2 gap-3 items-center text-sm hover:bg-primary hover:bg-opacity-80 hover:text-gray-100 "
-                  onClick={() => {
-                    setDropdown(!dropdown);
-                    signOut();
-                  }}
-                >
-                  <h1>{item?.icon}</h1>
-                  <h1>{item?.name}</h1>
-                </li>
-              </div>
-            );
-          }
-          return (
-            <Link to={item.path} key={index}>
-              <li
-                className="  py-2 flex gap-3 items-center px-2 text-[13px] hover:bg-primary hover:bg-opacity-80 hover:text-gray-100 "
-                onClick={() => {
-                  setDropdown(false);
-                }}
-              >
-                <h1>{item?.icon}</h1>
-                <h1>{item.name}</h1>
-              </li>
-            </Link>
-          );
-        })}
-      </ul>
-    </div>
+      <Menu.Target>
+        <UnstyledButton
+          className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors duration-200 ${
+            userMenuOpened ? 'bg-dark.6' : 'hover:bg-dark.6'
+          }`}
+        >
+          <Group spacing="xs">
+            <Badge 
+                size="lg" 
+                variant="gradient" 
+                gradient={{ from: 'indigo', to: 'cyan' }}
+                leftSection={<IconUserShield size={14} style={{ marginTop: 5 }}/>}
+                styles={{ root: { textTransform: 'none', fontSize: rem(14) } }}
+             >
+                Admin
+             </Badge>
+            
+            <Text weight={500} size="sm" sx={{ display: 'none', '@media (min-width: 640px)': { display: 'block' } }} color='white'>
+              {userName}
+            </Text>
+             <IconChevronDown size={rem(16)} stroke={1.5} color='white' />
+          </Group>
+        </UnstyledButton>
+      </Menu.Target>
+      <Menu.Dropdown>
+        <Menu.Label>Admin Actions</Menu.Label>
+        <Menu.Item
+            icon={<IconKey size="0.9rem" stroke={1.5} />}
+            onClick={() => navigate('/admin-dash/change-pass')}
+        >
+            Change Password
+        </Menu.Item>
+        <Menu.Item
+            icon={<IconUserPlus size="0.9rem" stroke={1.5} />}
+            onClick={() => navigate('/admin-dash/add-seller')}
+        >
+            Add Seller
+        </Menu.Item>
+        <Menu.Item
+            icon={<IconUserPlus size="0.9rem" stroke={1.5} />}
+            onClick={() => navigate('/admin-dash/add-manager')}
+        >
+            Add Manager
+        </Menu.Item>
+
+        <Menu.Divider />
+
+        <Menu.Item
+          icon={<IconLogout size="0.9rem" stroke={1.5} />}
+          onClick={signOut}
+          color="red"
+        >
+          Logout
+        </Menu.Item>
+      </Menu.Dropdown>
+    </Menu>
   );
 }
+
 export default AdminProfile;

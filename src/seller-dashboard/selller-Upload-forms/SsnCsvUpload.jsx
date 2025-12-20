@@ -1,24 +1,23 @@
-import React, { useState, useEffect } from 'react'
-import PulseLoader from 'react-spinners/PulseLoader'
-import axios from '../../api/axios';
-import useAuth from '../../hooks/useAuth'
-import Select from 'react-select'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import React, { useState, useMemo } from 'react'
+import { Select, FileInput, Button, Title, Paper, Grid, Loader, Alert, Text, Anchor } from '@mantine/core'
+import { IconInfoCircle } from '@tabler/icons-react'
+import { useQuery } from '@tanstack/react-query'
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 import { toast } from 'react-toastify'
 import { useForm, Controller } from 'react-hook-form'
-import { useNavigate, useParams } from 'react-router-dom'
-// import ssnSample from '../../assets/Downloads/sample-ssncsv.csv';
+import useAuth from '../../hooks/useAuth'
 
 function SsnCsvUpload() {
-const {auth} = useAuth()
-  const [singleFile, setSingleFile] = useState('')
+  const {auth} = useAuth()
   const sellerId = auth?.jabberId;
+  const axios = useAxiosPrivate();
+  const [singleFile, setSingleFile] = useState(null)
+  
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-    watch,
     control,
   } = useForm()
 
@@ -35,62 +34,72 @@ const {auth} = useAuth()
       keepPreviousData: true,
     },
   )
+  
   // making base optopns
   const baseOptions = []
-
-  basesData?.data?.bases?.map((base, index) => {
-    baseOptions.push({
-      label: base.base,
-      value: base._id,
+  if(basesData?.data?.bases){
+    basesData.data.bases.forEach((base) => {
+        baseOptions.push({
+        label: base.base,
+        value: base.base, // Using base name as value to match logic in other components or original if needed? 
+        // Original code used base._id as value but appended base.label as 'base' and base.value (id) as 'price'.
+        // Let's keep original logic: label=base.name, value=base._id
+        original: base
+        })
     })
-  })
-  //end...........
 
-  const SingleFileChange = (e) => {
-    const file = e.target.files[0]
-    const fileSizeInMB = file.size / (1024 * 1024) // Convert file size to MB
-    if (fileSizeInMB > 2) {
-      toast.warn('File size exceeds 2MB limit.')
-      e.target.value = null // Reset file input element
-      return
-    }
-    setSingleFile(e.target.files[0])
+    // To make Mantine Select work well, 'value' should be string. _id is string.
   }
-  console.log(singleFile);
 
-  const base = watch("base");
-
-  //   form data........
-  const formData = new FormData()
-  formData.append('file', singleFile);
-  formData.append('base', base?.label);
-  formData.append('price', base?.value);
-  formData.append('sellerId', sellerId);
-
+  const SingleFileChange = (file) => {
+    if (file) {
+        const fileSizeInMB = file.size / (1024 * 1024) // Convert file size to MB
+        if (fileSizeInMB > 2) {
+          toast.warn('File size exceeds 2MB limit.')
+          setSingleFile(null)
+          return
+        }
+        setSingleFile(file)
+    } else {
+        setSingleFile(null)
+    }
+  }
 
   const [sending, setSending] = useState(false)
 
-  const submitFile = () => {
-    setSending(!sending)
-    if (singleFile === '') {
-      toast.warn('Please apload csv file!')
+  const submitFile = (data) => {
+    setSending(true)
+    if (!singleFile) {
+      toast.warn('Please upload csv file!')
       setSending(false)
-      return 0
+      return
     }
+
+    // Find selected base object to get price/id
+    const selectedBase = basesData?.data?.bases?.find(b => b._id === data.base);
+    
+    const formData = new FormData()
+    formData.append('file', singleFile);
+    formData.append('base', selectedBase ? selectedBase.base : '');
+    formData.append('price', selectedBase ? selectedBase._id : ''); // appeding ID as price per original logic? 
+    // Original: formData.append('price', base?.value); where base was the select option object {label, value:_id}
+    formData.append('sellerId', sellerId);
+
     axios
       .post('csv/ssn', formData)
       .then((response) => {
         toast.success(response?.data?.message)
         setSending(false)
         reset()
-        setSingleFile('')
+        setSingleFile(null)
       })
       .catch((error) => {
         console.error(error)
-        toast.error(error?.response?.data?.message)
+        toast.error(error?.response?.data?.message || 'Something went wrong')
         setSending(false)
       })
   }
+
 const handleDownload = async () => {
     const response = await fetch('https://api.fafullz.com/uploads/ssnCsv.csv');
     const blob = await response.blob();
@@ -103,75 +112,86 @@ const handleDownload = async () => {
     document.body.removeChild(a);
   };
 
-  return (
-    <div className="bg-light py-5 px-5 h-[100%]">
-      <form
-        action=""
-        className={
-          ' bg-gray-100 md:px-4 px-2 py-3 min-h-[150px] shadow-md mb-2'
-        }
-        onSubmit={handleSubmit(submitFile)}
-      >
-        <h1 className="font-bold text-md text-center">Upload CSV file.</h1>
-        <div className='bg-[#ffcc99] px-2 py-3'>
+  const mantineBaseOptions = baseOptions.map(b => ({ label: b.label, value: b.original._id }));
 
-        <h1 className='text-lg'>Upload instructions!</h1>
-        <p>Ensure your, columns includes the following fields  and are named as follows:</p>
-        <p className='mb-2'>
-             firstName,lastName,country,state,zip,dob,address,ssn,cs,city,description
-        </p>
-        <a className='text-light py-1 px-3  cursor-pointer hover:bg-secondary bg-green-600'  onClick={handleDownload}>Download sample </a>
-        </div>
-        <div className="grid  grid-cols-3 place-items-center  gap-3 my-4 ">
-          <div className="flex flex-col gap-2 w-full ">
-            <h1>Base</h1>
-            <Controller
-              name="base"
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  id=""
-                  options={baseOptions}
-                  value={baseOptions?.find(
-                    (option) => option.value === field.value,
+  return (
+    <div className="max-w-4xl mx-auto">
+      <form onSubmit={handleSubmit(submitFile)}>
+        <Title order={3} align="center" mb="lg" color="white">Upload SSN CSV</Title>
+        
+        <Paper p="md" shadow="sm" radius="md" style={{ backgroundColor: '#1f2937' }} mb="lg">
+             <Alert icon={<IconInfoCircle size="1rem" />} title="Upload instructions!" color="orange" variant="filled" mb="md">
+                <Text size="sm">Ensure your columns include the following fields and are named as follows:</Text>
+                <Text size="sm" weight={700} my="xs">firstName,lastName,country,state,zip,dob,address,ssn,cs,city,description</Text>
+                <Button 
+                    variant="white" 
+                    color="dark" 
+                    size="xs" 
+                    onClick={handleDownload} 
+                    mt="xs"
+                    compact
+                >
+                    Download sample
+                </Button>
+            </Alert>
+
+             <Grid>
+                 <Grid.Col span={12} md={6}>
+                    {loadingBases ? (
+                        <div className="flex items-end h-full pb-2">
+                             <Loader size="sm" color="green" />
+                        </div>
+                    ) : (
+                         <Controller
+                            name="base"
+                            control={control}
+                            rules={{ required: "Base is required" }}
+                            render={({ field }) => (
+                                <Select
+                                    label={<span className="text-gray-200">Base <span className="text-red-500">*</span></span>}
+                                    placeholder="Select Base"
+                                    data={mantineBaseOptions}
+                                    {...field}
+                                    error={errors.base?.message}
+                                    styles={{
+                                        label: { color: "#d1d5db" },
+                                        input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' },
+                                        item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                                        dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                                    }}
+                                />
+                            )}
+                        />
+                    )}
+                 </Grid.Col>
+
+                 <Grid.Col span={12} md={6}>
+                     <FileInput
+                        label={<span className="text-gray-200">CSV file <span className="text-red-500">*</span></span>}
+                        placeholder="Select CSV file"
+                        accept=".csv"
+                        value={singleFile}
+                        onChange={SingleFileChange}
+                        required
+                        styles={{
+                            label: { color: "#d1d5db" },
+                            input: { backgroundColor: '#111827', color: 'white', borderColor: '#374151' },
+                            placeholder: { color: '#9ca3af' }
+                        }}
+                    />
+                 </Grid.Col>
+             </Grid>
+
+            <div className="flex justify-center mt-6">
+                 {sending ? (
+                    <Loader color="green" size="sm" />
+                  ) : (
+                    <Button type="submit" color="green" variant="filled">
+                      Upload
+                    </Button>
                   )}
-                  onChange={(selectedOption) => {
-                    field.onChange(selectedOption)
-                  }}
-                />
-              )}
-            />
-            <p className="text-red-500 text-xs">
-              {errors.base?.type === 'required' && 'Base is required'}
-            </p>
-          </div>
-          <div className="flex flex-col gap-2 w-full ">
-            <h1>CSV file </h1>
-            <input
-              type="file"
-              accept=".csv"
-              className="w-full py-1 outline-none border  bg-light focus:border-secondary"
-              onChange={(event) => {
-                SingleFileChange(event)
-              }}
-            />
-          </div>
-          <div>
-             <div className="flex justify-center my-6 items-center">
-          {sending ? (
-            <div className="flex justify-center pr-6 items-center">
-              <PulseLoader color="#6ba54a" size={10} />
             </div>
-          ) : (
-            <button className="bg-primary text-light py-1 px-4 rounded-md hover:bg-secondary ">
-              Upload
-            </button>
-          )}
-        </div>
-          </div>
-        </div>
+        </Paper>
       </form>
     </div>
   )

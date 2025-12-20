@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import { toast } from "react-toastify";
 import PulseLoader from "react-spinners/PulseLoader";
 import { useParams } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { MdDeleteForever } from "react-icons/md";
-import { Loader, Modal, Skeleton } from "@mantine/core";
+import { Loader, Modal, Skeleton, Textarea, Button, Text, Group } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { format } from "timeago.js";
 
@@ -27,6 +27,7 @@ function Messages() {
     handleSubmit,
     formState: { errors },
     reset,
+    control
   } = useForm();
 
   //get conversation......................
@@ -110,139 +111,118 @@ function Messages() {
   }, [sent, conversationData?.data?.messages?.length]);
 
   return (
-    <div className="bg-light ">
-      <Modal opened={opened} onClose={close} title="Delete message!" centered>
-        <h1>Are you sure you want to delete this message?</h1>
-        <div>
-          {deleteLoading ? (
-            <div className="flex justify-center pr-6 items-center">
-              <PulseLoader color="#6ba54a" size={10} />
-            </div>
-          ) : (
-            <div className="flex justify-center py-3">
-              <button
-                className="bg-red-500 text-light py-1 px-4 rounded-md hover:bg-secondary "
-                onClick={() => {
-                  onDelete();
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
+    <div className="bg-gray-900 min-h-screen">
+      <Modal opened={opened} onClose={close} title="Delete message!" centered overlayProps={{ opacity: 0.55, blur: 3 }}>
+        <Text size="sm">Are you sure you want to delete this message?</Text>
+        <Group position="right" mt="md">
+            <Button variant="default" onClick={close}>Cancel</Button>
+            <Button color="red" onClick={onDelete} loading={deleteLoading}>Delete</Button>
+        </Group>
       </Modal>
+
       <div className="max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">
+          <h1 className="text-3xl font-bold text-white mb-4">
             {conversationData?.data?.userName}
           </h1>
 
-          <div className=" max-h-[500px] bg-chatBg border  overflow-y-auto overflow-x-auto ">
+          <div className=" max-h-[500px] bg-gray-800 border border-gray-700 rounded-lg overflow-y-auto overflow-x-hidden mb-6 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
             {loadingConversation ? (
-              <div className="px-2 bg-light py-3">
+              <div className="px-4 py-3">
                 <Skeleton height={50} circle mb="xl" />
                 <Skeleton height={8} radius="xl" />
                 <Skeleton height={8} mt={6} radius="xl" />
                 <Skeleton height={8} mt={6} width="70%" radius="xl" />
               </div>
             ) : (
-              conversationData?.data?.messages?.map((message, index) => {
+                <div className="flex flex-col p-4 w-full">
+               { conversationData?.data?.messages?.map((message, index) => {
                 return (
                   <div
                     className={
                       message.from === "Admin"
-                        ? "m-2 py-1 bg-[#379237] px-2 rounded-md  text-white w-[70%] float-right  "
-                        : "text-white float-left bg-gray-800 w-[70%] m-2  px-2 py-1 rounded-md "
+                        ? "self-end max-w-[70%] m-2 py-2 px-3 bg-green-700 rounded-lg text-white"
+                        : "self-start max-w-[70%] m-2 px-3 py-2 bg-gray-700 rounded-lg text-white"
                     }
                     key={index}
                     ref={scroll}
                   >
-                    <div className="p-2 group flex justify-between">
-                      <p>
+                    <div className="group relative pr-6">
+                      <p className="whitespace-pre-wrap break-words">
                         {message?.message}
-                        <h1 className="text-xs text-left pt-2 text-gray-300">
+                      </p>
+                         <h1 className="text-xs text-right pt-1 text-gray-300 opacity-70">
                           {message?.createdAt ? format(message?.createdAt) : ""}
                         </h1>
-                      </p>
+                     
                       {message?.from === "Admin" && (
-                        <h1
-                          className=" hidden peer group-hover:inline-block p-1 cursor-pointer text-[15px] text-right"
+                        <div
+                          className="absolute -right-2 top-0 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer p-1 text-red-300 hover:text-red-100"
                           onClick={() => {
                             setMessageId(message?._id);
                             open();
                           }}
                         >
-                          <MdDeleteForever size={20} />
-                        </h1>
+                          <MdDeleteForever size={18} />
+                        </div>
                       )}
                     </div>
                   </div>
                 );
-              })
+              })}
+              </div>
             )}
           </div>
 
           <form
             onSubmit={handleSubmit(submitMessage)}
-            className="grid grid-cols-1 gap-6"
+            className="grid grid-cols-1 gap-4"
           >
             <div>
               <input
                 value={jabberId}
-                {...register("jabberId", {
-                  required: true,
-                })}
-                className="mt-1 py-2 px-3 hidden w-full rounded-md bg-white border border-gray-300 shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                {...register("jabberId", { required: true })}
+                type="hidden"
               />
               <input
                 value={auth?.roles[0]}
-                name="text"
-                {...register("role", {
-                  required: true,
-                })}
-                className="mt-1 py-2 px-3 w-full hidden rounded-md bg-white border border-gray-300 shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                {...register("role", { required: true })}
+                type="hidden"
               />
               <input
                 value={auth?.userName}
-                name="text"
-                {...register("userName", {
-                  required: true,
-                })}
-                className="mt-1 py-2 px-3 w-full hidden rounded-md bg-white border border-gray-300 shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                {...register("userName", { required: true })}
+                type="hidden"
               />
             </div>
             <div>
-              <label
-                htmlFor="message"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Message
-              </label>
-              <textarea
-                placeholder="Describe your issue here, you can alaso provide links to screenshots. DEPOSIT ISSUES SEND WALLET ADDRESS ALONG"
-                id="message"
-                name="message"
-                rows="5"
-                {...register("message", {
-                  required: true,
-                })}
-                className="mt-1 py-2 px-3 block w-full rounded-md bg-white border border-gray-300 shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              ></textarea>
-              {errors.message && (
-                <p className="text-red-500 text-xs">Please select state</p>
-              )}
+                 <Controller
+                    name="message"
+                    control={control}
+                    rules={{ required: "Message is required" }}
+                    render={({ field }) => (
+                     <Textarea
+                        label="Message"
+                        labelProps={{ style: { color: '#d1d5db' } }}
+                        placeholder="Describe your issue here, you can also provide links to screenshots. DEPOSIT ISSUES SEND WALLET ADDRESS ALONG"
+                        minRows={4}
+                        error={errors.message && "Message is required"}
+                        {...field}
+                         styles={{ input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' } }}
+                     />
+                    )}
+                />
             </div>
             <div>
-              {messageLoading ? (
-                <div className="flex justify-center pr-6 items-center">
-                  <PulseLoader color="#6ba54a" size={10} />
-                </div>
-              ) : (
-                <button className="bg-primary text-light py-1 px-4 rounded-md hover:bg-secondary ">
-                  Send
-                </button>
-              )}
+                <Button
+                    type="submit"
+                    loading={messageLoading}
+                    color="green"
+                    size="md"
+                    className="w-full sm:w-auto"
+                >
+                    Send
+                </Button>
             </div>
           </form>
         </div>

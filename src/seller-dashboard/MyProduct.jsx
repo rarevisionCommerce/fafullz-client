@@ -1,5 +1,5 @@
 import React from "react";
-import { Tabs } from "@mantine/core";
+import { Tabs, Paper, Title } from "@mantine/core";
 import AccountProducts from "./Productpages/AccountProducts";
 import CardProducts from "./Productpages/CardProducts";
 import DumpProducts from "./Productpages/DumpProducts";
@@ -10,29 +10,26 @@ import TextNowProducts from "./Productpages/TextNowProducts";
 
 function MyProduct() {
   return (
-    <div className="border bg-light rounded-md min-h-screen  shadow-md  ">
-      <div className="bg-gray-100  my-6 mx-1 md:mx-5 ">
-        <div className="bg-gray-300 w-full rounded-t-md h-10"></div>
-        <h1 className="mb-4 text-center font-bold text-xl ">My Products </h1>
+    <div className="bg-gray-900 min-h-screen py-6 px-4">
+      <Paper p="md" shadow="sm" radius="md" style={{ backgroundColor: '#1f2937', marginBottom: '20px' }}>
+         <Title order={2} color="white" align="center" mb="md">My Products</Title>
+      </Paper>
 
-        <div className="flex justify-end mt-8">
-          {/* <div className="flex flex-col gap-1 mb-6 min-w-[250px] ">
-          <h1>OnPage</h1>
-          <Select options={onPage} />
-        </div> */}
-        </div>
-      </div>
-
-      <div className=" overflow-x-auto my-6 mx-1 md:mx-5">
-        <Tabs defaultValue="ssn">
+      <Paper p="md" shadow="sm" radius="md" style={{ backgroundColor: '#1f2937' }}>
+        <Tabs 
+            defaultValue="ssn"
+            styles={{ 
+                tab: { color: "#d1d5db", '&[data-active]': { borderColor: '#3b82f6', color: '#3b82f6' }, '&:hover': { backgroundColor: '#374151' } } 
+            }}
+        >
           <Tabs.List>
             <Tabs.Tab value="ssn">SSN/DOB</Tabs.Tab>
-            {/* <Tabs.Tab value="googleVoice">Google Voice</Tabs.Tab>
+            <Tabs.Tab value="googleVoice">Google Voice</Tabs.Tab>
             <Tabs.Tab value="textNow">TextNow/Mail</Tabs.Tab>
             <Tabs.Tab value="cards">Cards</Tabs.Tab>
             <Tabs.Tab value="files">Files</Tabs.Tab>
             <Tabs.Tab value="accounts">Accounts</Tabs.Tab>
-            <Tabs.Tab value="dumps">Dumps</Tabs.Tab> */}
+            <Tabs.Tab value="dumps">Dumps</Tabs.Tab>
           </Tabs.List>
 
           <Tabs.Panel value="ssn" pt="xs">
@@ -63,7 +60,7 @@ function MyProduct() {
             <DumpProducts />
           </Tabs.Panel>
         </Tabs>
-      </div>
+      </Paper>
     </div>
   );
 }

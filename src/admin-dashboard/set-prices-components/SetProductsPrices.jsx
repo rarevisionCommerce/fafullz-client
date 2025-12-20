@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react'
 import PulseLoader from 'react-spinners/PulseLoader'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 import useAuth from '../../hooks/useAuth'
-import Select from 'react-select'
+import { Select, TextInput, NumberInput, Button } from '@mantine/core'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Pagination } from '@mantine/core'
-import { confirmAlert } from 'react-confirm-alert'
+
 import { toast } from 'react-toastify'
 import { useForm, Controller } from 'react-hook-form'
 import { Link } from 'react-router-dom'
@@ -42,13 +41,13 @@ function SetProductsPrices() {
     addBase,
     {
       onSuccess: (response) => {
-        toast.success(response?.data?.message)
-        queryClient.invalidateQueries([`prices-`])
-        reset()
+        toast.success(response?.data?.message);
+        queryClient.invalidateQueries([`prices-`]);
+        reset();
       },
       onError: (err) => {
-        const text = err?.response?.data?.message
-        toast.error(text)
+        const text = err?.response?.data?.message;
+        toast.error(text);
 
         if (!err.response.data.message) {
           toast.error('something went wrong')
@@ -85,109 +84,112 @@ function SetProductsPrices() {
   }
 
   return (
-    <div className="bg-light px-3 py-3">
+    <div className="bg-gray-900 px-3 py-3 rounded-lg text-white">
       <div className="my-[20px] ">
         {/* Add base form */}
         <form
           action=""
           className={
-            'bg-gray-100 md:px-4 px-2 py-3 min-h-[150px] shadow-md mb-2'
+            'bg-gray-800 md:px-6 px-4 py-8 rounded-lg shadow-md mb-6 border border-gray-700'
           }
           onSubmit={handleSubmit(submitBase)}
         >
-          <h1 className="font-bold text-md">Select product and set price</h1>
+          <h1 className="font-bold text-lg text-white mb-6">Select product and set price</h1>
 
-          <div className="md:grid  md:grid-cols-3  gap-3 my-3 ">
+          <div className="md:grid md:grid-cols-3 gap-6 items-end">
             <div className="flex flex-col gap- w-full">
-            <label htmlFor="">              
-              Product Type
-              <span className="text-red-500">
-                <sup>*</sup>
-              </span>
-            </label>
             <Controller
               name="productType"
               control={control}
-              rules={{ required: true }}
+              rules={{ required: "Please select product" }}
               render={({ field }) => (
                 <Select
+                  label="Product Type"
+                  placeholder="Pick product"
+                  labelProps={{ style: { color: "#d1d5db" } }}
+                  data={productsOption}
+                  error={errors.productType?.message}
                   {...field}
-                  options={productsOption}
-                  value={productsOption.find(
-                    (option) => option.value === field.value
-                  )}
-                  onChange={(selectedOption) => {
-                    field.onChange(selectedOption.value);
-                  }}
+                  styles={{ 
+                    input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
+                    item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
+                    dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                   }}
                 />
               )}
             />
-            {errors.productType && (
-              <p className="text-red-500 text-xs">Please select product</p>
-            )}
           </div>
             <div className="flex flex-col justify-center gap- w-full ">
-              <h1>Price</h1>
-              <input
-                type="number"
-                min={0}
-                step="any"
-                className="border-2 w-full rounded-md py-[6px]  px-2 outline-none  focus:border-gray-700 focus:border-[1px] "
-                {...register('price', {
-                  required: true,
-                })}
-              />
-              <p className="text-red-500 text-xs">
-                {errors.price?.type === 'required' && 'Price is required'}
-              </p>
+                <Controller
+                    name="price"
+                    control={control}
+                    rules={{ required: "Price is required" }}
+                    render={({ field }) => (
+                     <NumberInput
+                        label="Price"
+                        labelProps={{ style: { color: "#d1d5db" } }}
+                        placeholder="Enter price"
+                        min={0}
+                        precision={2}
+                        error={errors.price?.message}
+                        {...field}
+                         styles={{ input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' } }}
+                     />
+                    )}
+                />
             </div>
             <div>
               {loadingBase ? (
-                <div className="flex justify-center  items-center">
+                <div className="flex justify-center  items-center mb-1">
                   <PulseLoader color="#6ba54a" size={10} />
                 </div>
               ) : (
-                <button className="bg-primary  ml-7 mt-7 text-white rounded-md px-5 py-1 hover:bg-secondary disabled:cursor-not-allowed disabled:bg-red-300 disabled:text-gray-300">
+                <Button
+                    type="submit"
+                    fullWidth
+                    color="blue"
+                    className="mb-1"
+                >
                   Set Price
-                </button>
+                </Button>
               )}
             </div>
           </div>
         </form>
         {/* end of add base form */}
 
-        <div className="flex  justify-start items-center gap-5  my-6 px-1 md:px-4 ">
+        <div className="flex  justify-start items-center gap-5  my-6 px-1 md:px-4 text-white">
           <h1 className="text-lg font-semibold">All product prices</h1>
          
         </div>
-        <div className="overflow-x-auto mb-3">
-          <table className="w-full text-center table-auto border-collapse border border-slate-500 text-light text-sm">
-            <thead className="bg-primary bg-opacity-90 ">
+        <div className="overflow-x-auto mb-3 rounded-lg border border-gray-700">
+          <table className="w-full text-center table-auto border-collapse border border-gray-700 text-gray-300 text-sm">
+            <thead className="bg-gray-800 text-gray-200">
               <tr>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border border-gray-700 py-3 px-3">
                   Id
                 </th>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border border-gray-700 py-3 px-3">
                   Product Type
                 </th>
-                <th className="border-collapse border border-slate-500 py-2 px-3">
+                <th className="border border-gray-700 py-3 px-3">
                   Price
                 </th>
                 
               </tr>
             </thead>
 
-            <tbody className="text-dark">
+            <tbody className="text-gray-300">
               {loadingPrices ? (
-                <tr className="flex justify-center py-4 pr-6 items-center">
-                  <td colSpan={17} className="text-center ">
-                    <PulseLoader color="#6ba54a" size={10} />
-                  </td>
+                <tr>
+                    <td colSpan={3} className="text-center py-6">
+                         <PulseLoader color="#6ba54a" size={10} />
+                    </td>
                 </tr>
               ) : !pricesData?.data || pricesData?.data?.message ||
                 pricesData?.data?.length < 1 ? (
                 <tr>
-                  <td colSpan={7} className="text-gray-800 text-center py-3">
+                  <td colSpan={3} className="text-gray-400 text-center py-6">
                     No prices found!
                   </td>
                 </tr>
@@ -196,20 +198,18 @@ function SetProductsPrices() {
                   return (
                     <tr
                       key={index}
-                      className="odd:bg-gray-50 hover:bg-gray-100"
+                      className="odd:bg-gray-800 hover:bg-gray-700 transition-colors"
                     >
-                      <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                      <td className="border border-gray-700 py-2 px-3">
                         {index + 1}
                       </td>
 
-                      <td className="border-collapse border-b  border-slate-500 py-2 px-3">
+                      <td className="border border-gray-700 py-2 px-3 font-medium text-white">
                         {productMap[item?.productType] || ""}
                       </td>
-                      <td className="border-collapse border-b border-slate-500 py-2 px-3">
+                      <td className="border border-gray-700 py-2 px-3 font-bold text-green-400">
                         ${item?.price}
                       </td>
-
-                     
                     </tr>
                   )
                 })

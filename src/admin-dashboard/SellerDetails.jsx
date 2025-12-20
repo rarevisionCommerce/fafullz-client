@@ -4,7 +4,7 @@ import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import { toast } from "react-toastify";
 import PulseLoader from "react-spinners/PulseLoader";
 import useAuth from "../hooks/useAuth";
-import { Skeleton } from "@mantine/core";
+import { Skeleton, Textarea } from "@mantine/core";
 import { Tabs } from "@mantine/core";
 import AccountProducts from "./Productpages/AccountProducts";
 import CardProducts from "./Productpages/CardProducts";
@@ -15,18 +15,23 @@ import SsnProducts from "./Productpages/SsnProducts";
 import TextNowProducts from "./Productpages/TextNowProducts";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { confirmAlert } from "react-confirm-alert";
-import "react-confirm-alert/src/react-confirm-alert.css";
+import { useForm, Controller } from "react-hook-form";
+import { Text, Modal, Button, Group } from "@mantine/core";
+import { useDisclosure } from '@mantine/hooks';
 import { MultiSelect } from "@mantine/core";
 
 function SellerDetails() {
   const axios = useAxiosPrivate();
-  const { register, handleSubmit, reset, formState } = useForm();
+  const { register, handleSubmit, reset, formState, control } = useForm();
   const { errors } = formState;
   const qaueryClient = useQueryClient();
   const { userId } = useParams();
   const { auth } = useAuth();
+  
+  const [activeOpened, { open: openActivate, close: closeActivate }] = useDisclosure(false);
+  const [deactivateOpened, { open: openDeactivate, close: closeDeactivate }] = useDisclosure(false);
+  const [suspendOpened, { open: openSuspend, close: closeSuspend }] = useDisclosure(false);
+  const [payAllOpened, { open: openPayAll, close: closePayAll }] = useDisclosure(false);
 
   // Fetching seller info
   const getSeller = () => {
@@ -157,43 +162,22 @@ function SellerDetails() {
   );
 
   // Confirmation dialogs
-  const showConfirmDialog = (
-    title,
-    message,
-    onConfirm,
-    confirmText,
-    confirmClass = "bg-blue-600 hover:bg-blue-700"
-  ) => {
-    confirmAlert({
-      customUI: ({ onClose }) => {
-        return (
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md mx-auto">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              {title}
-            </h2>
-            <p className="text-gray-600 mb-6">{message}</p>
-            <div className="flex gap-3 justify-end">
-              <button
-                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200"
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button
-                className={`px-4 py-2 text-white rounded-md transition-colors duration-200 ${confirmClass}`}
-                onClick={() => {
-                  onConfirm();
-                  onClose();
-                }}
-              >
-                {confirmText}
-              </button>
-            </div>
-          </div>
-        );
-      },
-    });
-  };
+  const handleActivate = () => {
+    activateMutate();
+    closeActivate();
+  }
+  const handleDeactivate = () => {
+    deactivateMutate();
+    closeDeactivate();
+  }
+  const handleSuspend = () => {
+    suspendMutate();
+    closeSuspend();
+  }
+  const handlePayAll = () => {
+    payAllProductsMutate();
+    closePayAll();
+  }
 
   // Pay all user products
   const payAll = (data) => {
@@ -355,22 +339,22 @@ function SellerDetails() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-900 text-gray-200">
       <div className=" px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-white">
             Seller Management
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-400 mt-1">
             Manage seller information and products
           </p>
         </div>
 
         {/* Seller Information Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">
+        <div className="bg-gray-800 rounded-lg shadow-sm border border-gray-700 mb-8">
+          <div className="px-6 py-4 border-b border-gray-700">
+            <h2 className="text-lg font-semibold text-white">
               Seller Information
             </h2>
           </div>
@@ -386,31 +370,31 @@ function SellerDetails() {
               {/* Basic Info */}
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-sm font-medium text-gray-400">
                     Username
                   </label>
-                  <p className="mt-1 text-gray-900">
+                  <p className="mt-1 text-white">
                     {sellerData?.data?.userName}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-sm font-medium text-gray-400">
                     Seller ID
                   </label>
-                  <p className="mt-1 text-gray-900 font-mono text-sm">
+                  <p className="mt-1 text-white font-mono text-sm">
                     {sellerData?.data?.jabberId}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-sm font-medium text-gray-400">
                     Status
                   </label>
                   <div className="mt-1">
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         sellerData?.data?.status === "Active"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
+                          ? "bg-green-900 text-green-200"
+                          : "bg-red-900 text-red-200"
                       }`}
                     >
                       {sellerData?.data?.status}
@@ -418,15 +402,15 @@ function SellerDetails() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-sm font-medium text-gray-400">
                    Product Status
                   </label>
                   <div className="mt-1">
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         sellerData?.data?.productStatus === "Available"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
+                          ? "bg-green-900 text-green-200"
+                          : "bg-red-900 text-red-200"
                       }`}
                     >
                       {sellerData?.data?.productStatus}
@@ -435,32 +419,35 @@ function SellerDetails() {
                 </div>
 
                 <div className="space-y-2 pt-4">
-                  <button
+                  <Button
                     onClick={handlePasswordChange}
                     disabled={loadingChangePass}
-                    className="w-full px-4 py-2 text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 rounded-md transition-colors duration-200"
+                    loading={loadingChangePass}
+                    variant="filled"
+                    color="gray"
+                    fullWidth
                   >
-                    {loadingChangePass ? "Resetting..." : "Reset Password"}
-                  </button>
+                     Reset Password
+                  </Button>
 
-                  <button
+                  <Button
                     onClick={handleUpdateSellerProductStatus}
                     disabled={loadingProductStatus}
-                    className={`${sellerData?.data?.productStatus == "Available" ? "bg-red-600 hover:bg-red-700" :"bg-blue-600 hover:bg-blue-700"}  w-full px-4 py-2 text-sm font-medium text-white  hover:bg-blue-700 disabled:bg-blue-400 rounded-md transition-colors duration-200`}
+                    loading={loadingProductStatus}
+                    color={sellerData?.data?.productStatus == "Available" ? "red" : "blue"}
+                    fullWidth
                   >
-                    {loadingProductStatus
-                      ? "Updating..."
-                      : sellerData?.data?.productStatus == "Available"
+                    {sellerData?.data?.productStatus == "Available"
                       ? "Suspend Products"
                       : "Activate Products"}
-                  </button>
+                  </Button>
                 </div>
               </div>
 
               {/* Status Management */}
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-sm font-medium text-gray-400">
                     Status Management
                   </label>
                 </div>
@@ -468,59 +455,38 @@ function SellerDetails() {
                 {loadingActivating || loadingDeactivate || loadingSuspend ? (
                   <div className="flex items-center justify-center py-8">
                     <PulseLoader color="#6B7280" size={8} />
-                    <span className="ml-2 text-gray-600">
+                    <span className="ml-2 text-gray-400">
                       Updating status...
                     </span>
                   </div>
                 ) : (
                   <div className="space-y-2">
                     {sellerData?.data?.status === "Active" ? (
-                      <button
-                        className="w-full px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors duration-200"
-                        onClick={() =>
-                          showConfirmDialog(
-                            "Deactivate User",
-                            "Are you sure you want to deactivate this user?",
-                            deactivateMutate,
-                            "Deactivate",
-                            "bg-red-600 hover:bg-red-700"
-                          )
-                        }
+                      <Button
+                        color="red"
+                        fullWidth
+                        onClick={openDeactivate}
                       >
                         Deactivate
-                      </button>
+                      </Button>
                     ) : (
-                      <button
-                        onClick={() =>
-                          showConfirmDialog(
-                            "Activate User",
-                            "Are you sure you want to activate this user?",
-                            activateMutate,
-                            "Activate",
-                            "bg-green-600 hover:bg-green-700"
-                          )
-                        }
-                        className="w-full px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors duration-200"
+                      <Button
+                        onClick={openActivate}
+                        color="green"
+                        fullWidth
                       >
                         Activate
-                      </button>
+                      </Button>
                     )}
 
                     {sellerData?.data?.status !== "Suspended" && (
-                      <button
-                        className="w-full px-4 py-2 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 rounded-md transition-colors duration-200"
-                        onClick={() =>
-                          showConfirmDialog(
-                            "Suspend User",
-                            "Are you sure you want to suspend this user?",
-                            suspendMutate,
-                            "Suspend",
-                            "bg-yellow-600 hover:bg-yellow-700"
-                          )
-                        }
+                      <Button
+                        color="yellow"
+                        fullWidth
+                        onClick={openSuspend}
                       >
                         Suspend
-                      </button>
+                      </Button>
                     )}
                   </div>
                 )}
@@ -532,35 +498,31 @@ function SellerDetails() {
                     className="space-y-3"
                   >
                     <div>
-                      <label className="text-sm font-medium text-gray-500">
-                        Send Message
-                      </label>
-                      <textarea
-                        rows={3}
-                        className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                        placeholder="Type your message..."
-                        {...register("message", { required: true })}
+                      <Controller
+                        name="message"
+                        control={control}
+                        rules={{ required: "Message is required" }}
+                        render={({ field }) => (
+                          <Textarea
+                            label="Send Message"
+                            placeholder="Type your message..."
+                            minRows={3}
+                            error={errors.message?.message}
+                            {...field}
+                             styles={{ input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }, label: { color: "#d1d5db" } }}
+                          />
+                        )}
                       />
-                      {errors.message?.type === "required" && (
-                        <p className="text-red-500 text-xs mt-1">
-                          Message is required
-                        </p>
-                      )}
                     </div>
 
-                    <button
+                    <Button
                       type="submit"
                       disabled={loadingMessage}
-                      className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-md transition-colors duration-200"
+                      loading={loadingMessage}
+                      fullWidth
                     >
-                      {loadingMessage ? (
-                        <div className="flex items-center justify-center">
-                          <PulseLoader color="#FFFFFF" size={6} />
-                        </div>
-                      ) : (
-                        "Send Message"
-                      )}
-                    </button>
+                      Send Message
+                    </Button>
                   </form>
                 </div>
               </div>
@@ -568,7 +530,7 @@ function SellerDetails() {
               {/* Categories */}
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-sm font-medium text-gray-400">
                     Product Categories
                   </label>
                 </div>
@@ -583,17 +545,18 @@ function SellerDetails() {
                       data={categoriesData}
                       placeholder="Select categories"
                       className="w-full"
+                      styles={{ input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }, label: { color: "#d1d5db" }, dropdown: { backgroundColor: '#1f2937', borderColor: '#374151', color: 'white' }, item: { '&[data-hovered]': { backgroundColor: '#374151' }, color: 'white' } }}
                     />
 
-                    <button
+                    <Button
                       onClick={updateCategoriesFunction}
                       disabled={loadingUpdateCategories}
-                      className="w-full px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400 rounded-md transition-colors duration-200"
+                      loading={loadingUpdateCategories}
+                      color="green"
+                      fullWidth
                     >
-                      {loadingUpdateCategories
-                        ? "Updating..."
-                        : "Update Categories"}
-                    </button>
+                      Update Categories
+                    </Button>
                   </div>
                 )}
               </div>
@@ -603,9 +566,9 @@ function SellerDetails() {
 
         {/* Analytics Cards */}
         <div className="mb-8">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">
+          <div className="bg-gray-800 rounded-lg shadow-sm border border-gray-700">
+            <div className="px-6 py-4 border-b border-gray-700">
+              <h2 className="text-lg font-semibold text-white">
                 Sales Analytics
               </h2>
             </div>
@@ -618,63 +581,53 @@ function SellerDetails() {
               </div>
             ) : (
               <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div className="bg-gray-50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-gray-900">
+                <div className="bg-gray-700 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-white">
                     {productsData.data ? totalProducts : "0"}
                   </div>
-                  <div className="text-sm text-gray-600 mt-1">
+                  <div className="text-sm text-gray-300 mt-1">
                     Products Uploaded
                   </div>
                 </div>
 
-                <div className="bg-gray-50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-gray-900">
+                <div className="bg-gray-700 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-white">
                     {productsData.data ? totalSold : "0"}
                   </div>
-                  <div className="text-sm text-gray-600 mt-1">Total Sold</div>
+                  <div className="text-sm text-gray-300 mt-1">Total Sold</div>
                 </div>
 
-                <div className="bg-gray-50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-green-600">
+                <div className="bg-gray-700 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-green-400">
                     ${productsData.data ? formatCurrency(sellerEarning) : "0"}
                   </div>
-                  <div className="text-sm text-gray-600 mt-1">
+                  <div className="text-sm text-gray-300 mt-1">
                     Seller Earnings
                   </div>
                 </div>
 
-                <div className="bg-gray-50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-600">
+                <div className="bg-gray-700 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-blue-400">
                     ${productsData.data ? formatCurrency(pullzEarning) : "0"}
                   </div>
-                  <div className="text-sm text-gray-600 mt-1">
+                  <div className="text-sm text-gray-300 mt-1">
                     Platform Earnings
                   </div>
                 </div>
 
-                <div className="bg-gray-50 rounded-lg p-4 text-center">
-                  <button
+                <div className="bg-gray-700 rounded-lg p-4 text-center">
+                  <Button
                     disabled={
                       sellerEarning === 0 || !auth?.roles?.includes("Admin")
                     }
-                    onClick={() =>
-                      showConfirmDialog(
-                        "Pay Seller",
-                        "Are you sure you want to pay all seller earnings?",
-                        payAllProductsMutate,
-                        "Pay All",
-                        "bg-green-600 hover:bg-green-700"
-                      )
-                    }
+                    onClick={openPayAll}
                     title={sellerEarning === 0 ? "Seller has no earnings" : ""}
-                    className="w-full px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-md transition-colors duration-200"
+                    loading={loadingPayAll}
+                    color="green"
+                    fullWidth
                   >
-                    {loadingPayAll ? (
-                      <PulseLoader color="#FFFFFF" size={6} />
-                    ) : (
-                      "Pay All"
-                    )}
-                  </button>
+                      Pay All
+                  </Button>
                 </div>
               </div>
             )}
@@ -682,15 +635,15 @@ function SellerDetails() {
         </div>
 
         {/* Products Breakdown */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">
+        <div className="bg-gray-800 rounded-lg shadow-sm border border-gray-700">
+          <div className="px-6 py-4 border-b border-gray-700">
+            <h2 className="text-lg font-semibold text-white">
               Product Categories
             </h2>
           </div>
 
           <div className="p-6">
-            <Tabs defaultValue="ssn">
+            <Tabs defaultValue="ssn" styles={{ tab: { color: "#d1d5db", '&[data-active]': { borderColor: '#3b82f6', color: '#3b82f6' }, '&:hover': { backgroundColor: '#374151' } } }}>
               <Tabs.List>
                 <Tabs.Tab value="ssn">SSN/DOB</Tabs.Tab>
                 <Tabs.Tab value="googleVoice">Google Voice</Tabs.Tab>
@@ -732,6 +685,39 @@ function SellerDetails() {
           </div>
         </div>
       </div>
+      
+      <Modal opened={deactivateOpened} onClose={closeDeactivate} title="Deactivate User" centered overlayProps={{ opacity: 0.55, blur: 3 }}>
+        <Text size="sm">Are you sure you want to deactivate this user?</Text>
+        <Group position="right" mt="md">
+          <Button variant="default" onClick={closeDeactivate}>Cancel</Button>
+          <Button color="red" onClick={handleDeactivate}>Deactivate</Button>
+        </Group>
+      </Modal>
+
+      <Modal opened={activeOpened} onClose={closeActivate} title="Activate User" centered overlayProps={{ opacity: 0.55, blur: 3 }}>
+        <Text size="sm">Are you sure you want to activate this user?</Text>
+        <Group position="right" mt="md">
+          <Button variant="default" onClick={closeActivate}>Cancel</Button>
+          <Button color="green" onClick={handleActivate}>Activate</Button>
+        </Group>
+      </Modal>
+
+      <Modal opened={suspendOpened} onClose={closeSuspend} title="Suspend User" centered overlayProps={{ opacity: 0.55, blur: 3 }}>
+        <Text size="sm">Are you sure you want to suspend this user?</Text>
+        <Group position="right" mt="md">
+           <Button variant="default" onClick={closeSuspend}>Cancel</Button>
+           <Button color="yellow" onClick={handleSuspend}>Suspend</Button>
+        </Group>
+      </Modal>
+
+      <Modal opened={payAllOpened} onClose={closePayAll} title="Pay Seller" centered overlayProps={{ opacity: 0.55, blur: 3 }}>
+        <Text size="sm">Are you sure you want to pay all seller earnings?</Text>
+        <Group position="right" mt="md">
+          <Button variant="default" onClick={closePayAll}>Cancel</Button>
+          <Button color="green" onClick={handlePayAll}>Pay All</Button>
+        </Group>
+      </Modal>
+
     </div>
   );
 }

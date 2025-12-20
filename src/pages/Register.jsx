@@ -1,23 +1,35 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { HiUser } from "react-icons/hi";
-import { RiLockPasswordFill } from "react-icons/ri";
-import { CgLogIn } from "react-icons/cg";
-import { MdEmail, MdArrowBack } from "react-icons/md";
-import { useForm, Controller } from "react-hook-form";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
 import axios from "../api/axios";
 import { toast } from "react-toastify";
-import PulseLoader from "react-spinners/PulseLoader";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { FaTelegramPlane } from "react-icons/fa";
+import {
+  TextInput,
+  PasswordInput,
+  Button,
+  Paper,
+  Title,
+  Text,
+  Container,
+  Group,
+  Anchor,
+  Stack,
+  Alert,
+  Grid,
+  BackgroundImage,
+  Center,
+  Box,
+  Image,
+} from "@mantine/core";
+import { IconUser, IconLock, IconMail } from "@tabler/icons-react";
+
 import hacker from "../assets/graphics/fafullz.jpg";
 import logo from "../assets/graphics/fafullz-logo.jpg";
 
 function Register() {
   const navigate = useNavigate();
   const [errMsg, setErrMsg] = useState("");
-  const [visiblePassword, setVisiblePassword] = useState(false);
 
   const {
     register,
@@ -35,7 +47,6 @@ function Register() {
   const {
     mutate: registerMutate,
     isLoading: registerLoading,
-    error,
   } = useMutation(registerUser, {
     onSuccess: (response) => {
       reset();
@@ -64,143 +75,107 @@ function Register() {
   };
 
   return (
-    <div className="bg-black flex flex-col justify-center items-center min-h-[100vh]   ">
-      {/* <h1 className="text-5xl font-bold text-light p-3 mb-2">⭐ FaFullz</h1> */}
-      <div className="flex gap-1 items-center mb-3">
-        <img src={logo} alt="" className=" w-[] h-[50px]  " />
-        <h1 className="text-5xl font-bold text-light p-3 ">Fafullz</h1>
-      </div>
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+      <Paper shadow="xl" radius="md" className="overflow-hidden w-full max-w-[1000px] bg-[#1A1B1E]">
+        <Grid gutter={0}>
+          {/* Image Column - Keep consistent with Login */}
+          <Grid.Col span={12} md={6} className="hidden md:block">
+            <BackgroundImage
+              src={hacker}
+              h="100%"
+              className="min-h-[500px] flex items-end p-8"
+            >
+              <Box className="bg-black/60 p-4 rounded text-white">
+                <Title order={2} className="text-white mb-2">Join the Community</Title>
+                <Text size="sm" className="text-gray-300">
+                  Create your account to start buying and selling on Fafullz.
+                </Text>
+              </Box>
+            </BackgroundImage>
+          </Grid.Col>
 
-      {/* Login form  */}
-      <div className="flex flex-col lg:flex-row border w-full md:w-[50%] ">
-        <div className="w-full bg-yellow-600 p-2 ">
-          <img src={hacker} alt="" className="h-[500px] w-full" />
-        </div>
-        <div className="min-h-[400px] w-full  bg-dark bg-opacity-80 text-start rounded-md">
-          <form
-            action=""
-            className="px-2 md:px-4 py-2 text-darktext "
-            onSubmit={handleSubmit(onSubmitting)}
-          >
-            <div className="flex items-center  border-b">
-              <h1 className=" text-xl text-light font-semibold my-1 ">
-                Create Account
-              </h1>
-            </div>
+          {/* Form Column */}
+          <Grid.Col span={12} md={6}>
+            <Container p={30} size="xs" py={50}>
+               <Stack spacing="lg">
+                 <Center>
+                    <Group spacing="xs">
+                        <Image src={logo} width={40} height={40} />
+                        <Title className="text-white">Fafullz</Title>
+                    </Group>
+                </Center>
+                
+                <Title order={2} align="center" className="text-white" mt="md" mb="md">
+                  Create Account
+                </Title>
 
-            <div className="flex flex-col gap-4 mt-4">
-              <div className="flex gap-3 py-2 border border-light rounded-md text-light px-2">
-                <h1>
-                  <HiUser size={22} />
-                </h1>
-                <input
-                  type="text"
-                  placeholder="Username"
-                  className="outline-none w-full bg-light bg-opacity-0"
-                  {...register("userName", {
-                    required: true,
-                  })}
-                />
-              </div>
-              <p className="text-red-500 text-sm">
-                {errors.userName?.type === "required" && "Username is required"}
-              </p>
+                 {errMsg && (
+                   <Alert color="red" variant="light">
+                       {errMsg}
+                   </Alert>
+                )}
 
-              <div className="flex gap-3 py-2 border border-light rounded-md text-light px-2">
-                <h1>
-                  <MdEmail size={22} />
-                </h1>
-                <input
-                  type="text"
-                  placeholder="Email/Jabber ID"
-                  className="outline-none w-full bg-light bg-opacity-0"
-                  {...register("jabberId", {
-                    required: true,
-                  })}
-                />
-              </div>
-              <p className="text-red-500 text-sm">
-                {errors.jabberId?.type === "required" && "JabberId is required"}
-              </p>
+                <form onSubmit={handleSubmit(onSubmitting)}>
+                  <Stack spacing="md">
+                    <TextInput
+                      label="Username"
+                      placeholder="Choose a username"
+                      icon={<IconUser size="0.8rem" />}
+                      size="md"
+                      {...register("userName", { required: "Username is required" })}
+                      error={errors.userName?.message}
+                      variant="filled"
+                      styles={{ input: { backgroundColor: '#2C2E33', color: 'white' }, label: {color: '#C1C2C5'} }}
+                    />
 
-              <div className="flex gap-3 py-2 border border-light rounded-md text-light px-2">
-                <h1>
-                  <RiLockPasswordFill size={20} />
-                </h1>
-                <input
-                  type={visiblePassword ? "text" : "password"}
-                  placeholder="Password"
-                  className="outline-none w-full bg-light bg-opacity-0 "
-                  {...register("password", {
-                    required: true,
-                  })}
-                />
-                <h1>
-                  {visiblePassword ? (
-                    <div
-                      className="px-2 cursor-pointer"
-                      onClick={() => {
-                        setVisiblePassword(!visiblePassword);
-                      }}
+                    <TextInput
+                      label="Email / Jabber ID"
+                      placeholder="Enter your contact info"
+                      icon={<IconMail size="0.8rem" />}
+                      size="md"
+                      {...register("jabberId", { required: "JabberId is required" })}
+                      error={errors.jabberId?.message}
+                      variant="filled"
+                      styles={{ input: { backgroundColor: '#2C2E33', color: 'white' }, label: {color: '#C1C2C5'} }}
+                    />
+
+                    <PasswordInput
+                      label="Password"
+                      placeholder="Create a password"
+                      icon={<IconLock size="0.8rem" />}
+                      size="md"
+                      {...register("password", { required: "Password is required" })}
+                      error={errors.password?.message}
+                      variant="filled"
+                      styles={{ input: { backgroundColor: '#2C2E33', color: 'white' }, innerInput: {color: 'white'}, label: {color: '#C1C2C5'} }}
+                    />
+
+                    <Button 
+                        fullWidth 
+                        mt="xl" 
+                        size="md" 
+                        type="submit" 
+                        loading={registerLoading}
+                        color="green"
                     >
-                      <AiOutlineEyeInvisible />
-                    </div>
-                  ) : (
-                    <div
-                      className="px-2 cursor-pointer"
-                      onClick={() => {
-                        setVisiblePassword(!visiblePassword);
-                      }}
-                    >
-                      <AiOutlineEye />
-                    </div>
-                  )}
-                </h1>
-              </div>
-              <p className="text-red-500 text-sm">
-                {errors.userName?.type === "required" && "Password is required"}
-              </p>
-            </div>
-            {/* <div className="flex gap-2 my-6">
-              <input type="radio" {...register("terms", { required: true })} />
-              <h1>I agree to the Terms of Service and Privacy Policy</h1>
-            </div>
-            <p className="text-red-500 text-sm">
-              {errors.terms?.type === "required" && "Agree to terms of service"}
-            </p> */}
-            {registerLoading ? (
-              <div className="flex justify-center pt-6 items-center">
-                <PulseLoader color="white" size={10} />
-              </div>
-            ) : (
-              <div className="flex justify-center items-center mt-4  ">
-                <button className="rounded-md w-full bg-primary text-white text-center py-[6px] px-[30px] hover:bg-secondary  cursor-pointer">
-                  Register
-                </button>
-              </div>
-            )}
-            <div className="my-3">
-              <h1>
-                <p className="text-primary underline underline-offset-4 text-center hover:underline cursor-pointer ">
-                  <Link to="/">Back To Login</Link>{" "}
-                </p>
-              </h1>
-            </div>
+                      Register
+                    </Button>
+                  </Stack>
+                </form>
 
-            {/* <div className="my-6 text-center">
-              <h1>
-                To be a seller
-                <span className="text-blue-500 hover:underline cursor-pointer ">
-                  <Link to="/registerSeller">
-                    {" "}
-                    Create a seller Account here
-                  </Link>{" "}
-                </span>
-              </h1>
-            </div> */}
-          </form>
-        </div>
-      </div>
+                 <Group position="center" mt="md">
+                  <Text color="dimmed" size="sm">
+                    Already have an account?{' '}
+                    <Anchor component={Link} to="/" weight={700} color="green">
+                      Back to Login
+                    </Anchor>
+                  </Text>
+                </Group>
+               </Stack>
+            </Container>
+          </Grid.Col>
+        </Grid>
+      </Paper>
     </div>
   );
 }
