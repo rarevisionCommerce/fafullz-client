@@ -20,6 +20,7 @@ import {
   Collapse,
   Stack,
   ScrollArea,
+  Modal,
   Divider,
   Title,
   Checkbox,
@@ -40,7 +41,7 @@ const StatusBadge = ({ value }) => (
 );
 
 // Memoized Row Component to prevent re-renders of all rows when one is selected
-const SsnRow = React.memo(({ account, isSelected, toggleRow, inCart, onAddCart, showDescription }) => {
+const SsnRow = React.memo(({ account, isSelected, toggleRow, inCart, onAddCart, showDescription, onViewDescription }) => {
     return (
         <tr>
             <td>
@@ -60,23 +61,26 @@ const SsnRow = React.memo(({ account, isSelected, toggleRow, inCart, onAddCart, 
             <td>{account?.city}</td>
             <td>{account?.zip}</td>
             
-            <td><StatusBadge value={account?.ssn} /></td>
+            {/* <td><StatusBadge value={account?.ssn} /></td>
             <td><StatusBadge value={account?.address} /></td>
             <td><StatusBadge value={account?.email} /></td>
             <td><StatusBadge value={account?.emailPass} /></td>
             <td><StatusBadge value={account?.faUname} /></td>
             <td><StatusBadge value={account?.faPass} /></td>
             <td><StatusBadge value={account?.backupCode} /></td>
-            <td><StatusBadge value={account?.securityQa} /></td>
+            <td><StatusBadge value={account?.securityQa} /></td> */}
             
             {showDescription && (
-                <td><Tooltip label={account?.description}><Text truncate w={100}>{account?.description}</Text></Tooltip></td>
+                <td style={{ maxWidth: rem(340), whiteSpace: 'normal', wordBreak: 'break-word', verticalAlign: 'top', paddingTop: 8 }}>
+                    <Text style={{ whiteSpace: 'normal' }}>{account?.description}</Text>
+                    {/* <Button variant="subtle" size="xs" style={{ marginTop: 6 }} onClick={() => onViewDescription(account?.description)}>View</Button> */}
+                </td>
             )}
             
             <td>
             <Badge variant="filled" color="green" size="md">${account?.price?.price}</Badge>
             </td>
-            <td><StatusBadge value={account?.enrollment} /></td>
+            <td>{account?.enrollment || "N/A"}</td>
             
             <td>
                 {inCart ? (
@@ -99,7 +103,8 @@ const SsnRow = React.memo(({ account, isSelected, toggleRow, inCart, onAddCart, 
     return (
         prevProps.isSelected === nextProps.isSelected && 
         prevProps.inCart === nextProps.inCart && 
-        prevProps.showDescription === nextProps.showDescription
+        prevProps.showDescription === nextProps.showDescription &&
+        prevProps.onViewDescription === nextProps.onViewDescription
     );
 });
 
@@ -127,6 +132,13 @@ function SSNDOB() {
   const queryClient = useQueryClient();
   const [dobRange, setDobRange] = useState([1910, currentYear]);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [enrollment, setEnrollment] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState("");
+  const handleViewDescription = useCallback((desc) => {
+      setModalContent(desc || "");
+      setModalOpen(true);
+  }, []);
   
   const minValue = dobRange[0];
   const maxValue = dobRange[1];
@@ -135,7 +147,7 @@ function SSNDOB() {
     return axios.get(
       `/ssn?page=${activePage}&perPage=${perPage}&base=${
         base || ""
-      }&city=${city}&zip=${zip}&country=${country1}&dob=${minValue}&dobMax=${maxValue}&cs=${cs}&name=${name}&state=${state}`
+      }&city=${city}&zip=${zip}&country=${country1}&dob=${minValue}&dobMax=${maxValue}&cs=${cs}&name=${name}&state=${state}&enrollment=${enrollment}`
     );
   };
 
@@ -144,7 +156,7 @@ function SSNDOB() {
     data: ssnData,
     refetch,
     isRefetching: refetchinSsn,
-  } = useQuery(["ssns", activePage, perPage, base, state, city, zip, country1, name, minValue, maxValue], fetchFiles, {
+  } = useQuery(["ssns", activePage, perPage, base, state, city, zip, country1, name, minValue, maxValue, enrollment], fetchFiles, {
     keepPreviousData: true,
     refetchOnWindowFocus: false // optimization
   });
@@ -162,6 +174,7 @@ function SSNDOB() {
     setDob("");
     setCs("");
     setName("");
+    setEnrollment("");
     setDobRange([1910, currentYear]);
   };
   
@@ -320,6 +333,9 @@ function SSNDOB() {
                         <Grid.Col span={12} sm={6} md={3}>
                              <TextInput label="Name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name Search" />
                         </Grid.Col>
+                        <Grid.Col span={12} sm={6} md={3}>
+                             <Select label="Enrollment" data={['Enrolled', 'Graduated', 'Withdrawn']} value={enrollment} onChange={setEnrollment} placeholder="Select Enrollment" clearable />
+                        </Grid.Col>
                          <Grid.Col span={12} sm={12} md={6}>
                             <Text size="sm" weight={500} mb={5}>DOB Range: {dobRange[0]} - {dobRange[1]}</Text>
                              <RangeSlider 
@@ -382,15 +398,15 @@ function SSNDOB() {
                             <th>State</th>
                             <th>City</th>
                             <th>Zip</th>
-                            <th>SSN</th>
+                            {/* <th>SSN</th>
                             <th>Address</th>
                             <th>Email</th>
                             <th>Email Pass</th>
                             <th>FA Uname</th>
                             <th>FA Pass</th>
                             <th>Backup</th>
-                            <th>Sec Q&A</th>
-                            {showDescription && <th>Description</th>}
+                            <th>Sec Q&A</th> */}
+                            {showDescription && <th style={{ width: rem(360) }}>Description</th>}
                             <th>Price</th>
                             <th>Enrollment</th>
                             <th>Action</th>
@@ -421,6 +437,7 @@ function SSNDOB() {
                                     inCart={cartProductIds.has(account._id)}
                                     onAddCart={onSubmitting}
                                     showDescription={showDescription}
+                                    onViewDescription={handleViewDescription}
                                  />
                              ))
                          )}
@@ -464,6 +481,12 @@ function SSNDOB() {
             )}
             </Transition>
         </Affix>
+
+        <Modal opened={modalOpen} onClose={() => setModalOpen(false)} title="Full Description" size="lg" centered>
+            <ScrollArea style={{ maxHeight: 420 }}>
+                <Text style={{ whiteSpace: 'pre-wrap' }}>{modalContent}</Text>
+            </ScrollArea>
+        </Modal>
     </Container>
   );
 }
