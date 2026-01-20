@@ -1,5 +1,5 @@
  const config  = {
-    API:'https://api.fafullz.com',
+    API:'https://api.fafullz.org',
     // API:'http://localhost:3501'
 
 }
