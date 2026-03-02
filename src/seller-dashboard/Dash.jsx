@@ -63,7 +63,7 @@ function Dash() {
     (productsData?.data?.mail?.totalPrice || 0) +
     (productsData?.data?.file?.totalPrice || 0)
 
-  const sellerEarning = 0.57 * totalPrice
+  const sellerEarning = 0.50 * totalPrice
 
   // chart data for total products
   const productsChartData = {
