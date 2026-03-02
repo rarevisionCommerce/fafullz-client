@@ -91,8 +91,8 @@ function SellerDetails() {
     productsData?.data?.mail?.totalPrice +
     productsData?.data?.file?.totalPrice;
 
-  const sellerEarning = 0.57 * totalPrice;
-  const pullzEarning = 0.43 * totalPrice;
+  const sellerEarning = 0.50 * totalPrice;
+  const pullzEarning = 0.50 * totalPrice;
 
   function formatCurrency(number) {
     return Number.parseFloat(number)
