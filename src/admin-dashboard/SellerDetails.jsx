@@ -606,7 +606,7 @@ function SellerDetails() {
                   </div>
                 </div>
 
-                <div className="bg-gray-700 rounded-lg p-4 text-center">
+                <div className="bg-gray-700 hidden rounded-lg p-4 text-center">
                   <div className="text-2xl font-bold text-blue-400">
                     ${productsData.data ? formatCurrency(pullzEarning) : "0"}
                   </div>
