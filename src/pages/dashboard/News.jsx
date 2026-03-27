@@ -4,7 +4,7 @@ function News() {
   return (
     <div className="max-w-2xl mx-auto  pt-[50px] rounded-lg shadow-md">
       <h2 className="text-xl font-bold text-light mb-4">
-        Instructions on How to Use fafullz.com Matched Fullz
+        Instructions on How to Use fafullz Matched Fullz
       </h2>
 
       <section className="mb-6">
@@ -16,19 +16,37 @@ function News() {
             Go to the <span className="font-medium">FSAID</span> website.
           </li>
           <li>
-            Enter the <span className="font-medium">"Email"</span> as the
-            username on the login screen.
+            Enter the <span className="font-medium">"Username/Email"</span> on the login screen.
           </li>
           <li>
-            Enter <span className="font-medium">"FA Pass"</span> as the
-            password.
+            Enter <span className="font-medium">"FA Pass"</span> as the password.
           </li>
         </ul>
       </section>
 
       <section className="mb-6">
         <h3 className="text-lg font-semibold text-light">
-          Option 1: Login Using Email Verification Code
+          Option 1 (Recommended): Login Using 2FA
+        </h3>
+        <ul className="list-disc list-inside ml-4 text-light">
+          <li>
+            Click on{" "}
+            <span className="font-medium">"Enter Code"</span>{" "}
+           - Authenticator App option.
+          </li>
+          <li>
+            Click <a href="https://fafullz.org/2fa" className="text-blue-500">here</a> to generate the 2FA code.
+          </li>
+          <li>
+            Paste 2FA secret and copy the code.
+          </li>
+          <li>Proceed to access the account.</li>
+        </ul>
+      </section>
+
+      <section className="mb-6">
+        <h3 className="text-lg font-semibold text-light">
+          Option 2: Login Using Email Verification Code
         </h3>
         <ul className="list-disc list-inside ml-4 text-light">
           <li>
@@ -48,7 +66,7 @@ function News() {
 
       <section className="mb-6">
         <h3 className="text-lg font-semibold text-light">
-          Option 2 (Recommended): Login Using Backup Code
+          Option 3: Login Using Backup Code
         </h3>
         <ul className="list-disc list-inside ml-4 text-light">
           <li>

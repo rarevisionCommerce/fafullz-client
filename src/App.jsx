@@ -58,6 +58,8 @@ import AddManager from './pages/AddManager'
 import Admins from './admin-dashboard/Admins'
 import AdminDetails from './admin-dashboard/AdminDetails'
 import DOB from './admin-dashboard/DOB'
+import TwoFaAuthPage from './pages/dashboard/TwoFaAuthPage'
+import TwoFaPage from './pages/dashboard/TwoFaPage'
 
 function App() {
   // Create a client
@@ -84,6 +86,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/registerSeller" element={<RegisterSeller />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/2fa" element={<TwoFaPage />} />
           <Route path="/*" element={<Missing />} />
 
           {/* persist login */}
@@ -97,6 +100,7 @@ function App() {
               >
                 <Route index element={<News />} />
                 <Route path="addfunds" element={<AddFunds />} />
+                <Route path="2fa" element={<TwoFaAuthPage />} />
                 <Route path="news" element={<News />} />
                 <Route path="ssn" element={<SSNDOB />} />
                 <Route path="accounts" element={<Accounts />} />

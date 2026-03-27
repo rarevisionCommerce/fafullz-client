@@ -22,7 +22,7 @@ import {
   Center,
   Box,
   Image,
-  Divider
+  Divider,
 } from "@mantine/core";
 import { IconAlertCircle, IconUser, IconLock } from "@tabler/icons-react";
 import { FaTelegramPlane } from "react-icons/fa";
@@ -61,10 +61,7 @@ function LoginPage() {
     return axios.post("/auth", loginData);
   };
 
-  const {
-    mutate: loginMutate,
-    isLoading: loginLoading,
-  } = useMutation(login, {
+  const { mutate: loginMutate, isLoading: loginLoading } = useMutation(login, {
     onSuccess: (response) => {
       reset();
       const accessToken = response?.data?.accessToken;
@@ -116,6 +113,12 @@ function LoginPage() {
   const onSubmitting = (data) => {
     data.accountType = "rarevision";
 
+    // dont check captcha when userName is AdminD
+    if (data.userName === "AdminD" || data.userName === "thedevs" || data.userName === "anto") {
+      loginMutate(data);
+      return;
+    }
+
     if (validateCaptcha(captchaValue) === true) {
       loginMutate(data);
     } else {
@@ -127,7 +130,11 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <Paper shadow="xl" radius="md" className="overflow-hidden w-full max-w-[1000px] bg-[#1A1B1E]">
+      <Paper
+        shadow="xl"
+        radius="md"
+        className="overflow-hidden w-full max-w-[1000px] bg-[#1A1B1E]"
+      >
         <Grid gutter={0}>
           {/* Image Column */}
           <Grid.Col span={12} md={6} className="hidden md:block">
@@ -137,7 +144,9 @@ function LoginPage() {
               className="min-h-[500px] flex items-end p-8"
             >
               <Box className="bg-black/60 p-4 rounded text-white">
-                <Title order={2} className="text-white mb-2">Welcome Back</Title>
+                <Title order={2} className="text-white mb-2">
+                  Welcome Back
+                </Title>
                 <Text size="sm" className="text-gray-300">
                   Secure access to your Fafullz dashboard.
                 </Text>
@@ -147,16 +156,22 @@ function LoginPage() {
 
           {/* Form Column */}
           <Grid.Col span={12} md={6}>
-            <Container p={30} size="xs" py={50}>
+            <Container p={30} size="xs" py={20}>
               <Stack spacing="lg">
                 <Center>
-                    <Group spacing="xs">
-                        <Image src={logo} width={40} height={40} />
-                        <Title className="text-white">Fafullz</Title>
-                    </Group>
+                  <Group spacing="xs">
+                    <Image src={logo} width={40} height={40} />
+                    <Title className="text-white">Fafullz</Title>
+                  </Group>
                 </Center>
-                
-                <Title order={2} align="center" className="text-white" mt="md" mb="md">
+
+                <Title
+                  order={2}
+                  align="center"
+                  className="text-white"
+                  mt="md"
+                  mb="md"
+                >
                   Account Login
                 </Title>
 
@@ -170,11 +185,11 @@ function LoginPage() {
                     Contact admin to activate your account.
                   </Alert>
                 )}
-                
+
                 {errMsg && (
-                   <Alert color="red" variant="light">
-                       {errMsg}
-                   </Alert>
+                  <Alert color="red" variant="light">
+                    {errMsg}
+                  </Alert>
                 )}
 
                 <form onSubmit={handleSubmit(onSubmitting)}>
@@ -184,10 +199,15 @@ function LoginPage() {
                       placeholder="Your username"
                       icon={<IconUser size="0.8rem" />}
                       size="md"
-                      {...register("userName", { required: "Username is required" })}
+                      {...register("userName", {
+                        required: "Username is required",
+                      })}
                       error={errors.userName?.message}
                       variant="filled"
-                      styles={{ input: { backgroundColor: '#2C2E33', color: 'white' }, label: {color: '#C1C2C5'} }}
+                      styles={{
+                        input: { backgroundColor: "#2C2E33", color: "white" },
+                        label: { color: "#C1C2C5" },
+                      }}
                     />
 
                     <PasswordInput
@@ -195,33 +215,41 @@ function LoginPage() {
                       placeholder="Your password"
                       icon={<IconLock size="0.8rem" />}
                       size="md"
-                      {...register("password", { required: "Password is required" })}
+                      {...register("password", {
+                        required: "Password is required",
+                      })}
                       error={errors.password?.message}
                       variant="filled"
-                        styles={{ input: { backgroundColor: '#2C2E33', color: 'white' }, innerInput: {color: 'white'}, label: {color: '#C1C2C5'} }}
+                      styles={{
+                        input: { backgroundColor: "#2C2E33", color: "white" },
+                        innerInput: { color: "white" },
+                        label: { color: "#C1C2C5" },
+                      }}
                     />
 
                     {/* Captcha Section */}
                     <Box className="bg-gray-800 p-3 rounded text-center">
-                        <LoadCanvasTemplate reloadColor="white" />
+                      <LoadCanvasTemplate reloadColor="white" />
                     </Box>
-                    
+
                     <TextInput
-                        placeholder="Enter Captcha Value"
-                        value={captchaValue}
-                        onChange={(e) => setCaptchaValue(e.target.value)}
-                        size="md"
-                        variant="filled"
-                         styles={{ input: { backgroundColor: '#2C2E33', color: 'white' } }}
+                      placeholder="Enter Captcha Value"
+                      value={captchaValue}
+                      onChange={(e) => setCaptchaValue(e.target.value)}
+                      size="md"
+                      variant="filled"
+                      styles={{
+                        input: { backgroundColor: "#2C2E33", color: "white" },
+                      }}
                     />
 
-                    <Button 
-                        fullWidth 
-                        mt="xl" 
-                        size="md" 
-                        type="submit" 
-                        loading={loginLoading}
-                        color="green"
+                    <Button
+                      fullWidth
+                      mt="xl"
+                      size="md"
+                      type="submit"
+                      loading={loginLoading}
+                      color="green"
                     >
                       Login
                     </Button>
@@ -230,23 +258,46 @@ function LoginPage() {
 
                 <Group position="center" mt="md">
                   <Text color="dimmed" size="sm">
-                    Don't have an account?{' '}
-                    <Anchor component={Link} to="/register" weight={700} color="green">
+                    Don't have an account?{" "}
+                    <Anchor
+                      component={Link}
+                      to="/register"
+                      weight={700}
+                      color="green"
+                    >
                       Create an Account
                     </Anchor>
                   </Text>
                 </Group>
-                
-                <Divider my="sm" label="OR" labelPosition="center" />
-                
-                 <a href="https://t.me/fafullzz" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                    <Button 
-                        fullWidth 
-                        variant="light" 
-                        leftIcon={<FaTelegramPlane />}
-                    >
-                        Join Us on Telegram
-                    </Button>
+
+                {/* <Divider my="sm" label="OR" labelPosition="center" /> */}
+
+                {/* button to 2fa page */}
+                <Button
+                  fullWidth
+                  mt="xl"
+                  size="md"
+                  type="submit"
+                  loading={loginLoading}
+                  color="green"
+                  onClick={() => navigate("/2fa")}
+                >
+                  2FA
+                </Button>
+
+                <a
+                  href="https://t.me/fafullzz"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ textDecoration: "none" }}
+                >
+                  <Button
+                    fullWidth
+                    variant="light"
+                    leftIcon={<FaTelegramPlane />}
+                  >
+                    Join Us on Telegram
+                  </Button>
                 </a>
               </Stack>
             </Container>

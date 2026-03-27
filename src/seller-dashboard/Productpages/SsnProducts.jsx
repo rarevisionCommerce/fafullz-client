@@ -189,6 +189,9 @@ function SsnProducts(props) {
                 <th>CS</th>
                 <th>City</th>
                 <th>Description</th>
+                <th>Enrollment</th>
+                <th>Enrollment Details</th>
+                <th>Two Fa</th>
                 <th>Price</th>
                 <th>Action</th>
               </tr>
@@ -221,6 +224,9 @@ function SsnProducts(props) {
                       <td>{item?.cs}</td>
                       <td>{item?.city}</td>
                       <td>{item?.description}</td>
+                      <td>{item?.enrollment || "N/A"}</td>
+                      <td>{item?.enrollmentDetails || "N/A"}</td>
+                      <td>{item?.twoFa || "N/A"}</td>
                       <td>${formatCurrency(parseFloat(item?.price?.price))}</td>
                       <td>
                         <ActionIcon 

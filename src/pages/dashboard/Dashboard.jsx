@@ -150,16 +150,16 @@ function Dashboard() {
              <Navbar.Section>
                  <Divider my="sm" />
                  <Stack spacing="xs">
+                  {/* use Link to navigate to /dash/2fa */}
                      <Button 
                         variant="light" 
                         color="blue" 
-                        leftIcon={<IconSearch size={16} />} 
+                        // leftIcon={<IconSearch size={16} />} 
                         fullWidth 
-                        component="a" 
-                        href="https://rarevision.net" 
-                        target="_blank"
+                        component={Link} 
+                        to="/dash/2fa" 
                      >
-                        SSN Lookup
+                        2FA
                      </Button>
                      <Button 
                         variant="light" 

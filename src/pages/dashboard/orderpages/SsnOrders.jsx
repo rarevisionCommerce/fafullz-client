@@ -157,15 +157,20 @@ function SsnOrders(props) {
   const instructions =
     "INSTRUCTIONS on how to use fafullz.com Matched Fullz.\n\n" +
     "- Go to FSAID Website\n" +
-    '- Enter the "Email" as username on the login screen\n' +
+    '- Enter the "Email/Username" on the login screen\n' +
     '- Enter "FA Pass" as Password on the login screen\n\n' +
-    "Option 1:\n" +
+    "Option 1 (Recommended):\n" +
+    "Login using 2FA security code if provided:\n" +
+    '- Proceed with Authenticator App option and click on "Enter Code"\n' +
+    "- Enter the 2FA secret to https://fafullz.org/2fa  to get the code and submit it\n" +
+    "- Then proceed.\n\n" +
+    "Option 2:\n" +
     "Login using Email Verification Code:\n" +
     "- Go to mail.tm website\n" +
     "- Head over to the top right corner and click on profile then login\n" +
     "- Enter the Email and Email Pass and login\n" +
     "You will receive your code there then proceed.\n\n" +
-    "Option 2 (Recommended):\n" +
+    "Option 3 (Recommended):\n" +
     "Login using Backup Code:\n" +
     '- Instead of proceeding with "Send Code"; proceed with "Help me access my account"\n' +
     '- Select the "Backup Code & Challenge Questions" and click "Enter Code"\n' +
@@ -194,11 +199,12 @@ function SsnOrders(props) {
             order?.faUname || ""
           }\nfa Pass:${order?.faPass || ""}\nBackup code:${
             order?.backupCode || ""
-          }\n Security Q&A:${order?.securityQa || ""}\nDescription:  ${
+          }\nSecurity Q&A:${order?.securityQa || ""}\nDescription:  ${
             order.description || ""
           }\nCS:  ${order.cs || ""}\nPurchase Date:  ${
             order.purchaseDate || ""
-          }\nEnrollment:  ${order.enrollment || ""}  \n\n_______________________________________ \n`;
+          }\nEnrollment:  ${order.enrollment || ""}\nEnrollment Details:  ${order.enrollmentDetails || ""}\n2FA:  ${order.twoFa || ""}          
+          \n\n_______________________________________ \n`;
         })
         .join("\n");
 
@@ -244,8 +250,12 @@ function SsnOrders(props) {
       return orderCopy;
     });
 
-    // Create CSV header from the keys of the first filtered order object
-    const headers = Object.keys(filteredOrders[0]);
+    // Gather all unique keys from all filtered orders to ensure no fields are missed
+    const headersSet = new Set();
+    filteredOrders.forEach((order) => {
+      Object.keys(order).forEach((key) => headersSet.add(key));
+    });
+    const headers = Array.from(headersSet);
 
     // Create CSV content
     let csvContent = headers.join(",") + "\n";
@@ -299,11 +309,11 @@ function SsnOrders(props) {
   const TruncatedCell = ({ text, maxWidth = 150 }) => {
     if (!text) return null;
     return (
-        <Tooltip label={text} multiline width={300} withinPortal>
-            <Text truncate style={{ maxWidth, cursor: "help" }} color="inherit">
-                {text}
-            </Text>
-        </Tooltip>
+      <Tooltip label={text} multiline width={300} withinPortal>
+        <Text truncate style={{ maxWidth, cursor: "help" }} color="inherit">
+          {text}
+        </Text>
+      </Tooltip>
     );
   };
 
@@ -312,9 +322,17 @@ function SsnOrders(props) {
     if (orders.length === 0) return null;
 
     return (
-      <Paper p="md" shadow="sm" radius="md" mb="xl" style={{ backgroundColor: '#1f2937' }}>
+      <Paper
+        p="md"
+        shadow="sm"
+        radius="md"
+        mb="xl"
+        style={{ backgroundColor: "#1f2937" }}
+      >
         <Group position="apart" mb="md">
-          <Title order={4} color="gray.2">{title}</Title>
+          <Title order={4} color="gray.2">
+            {title}
+          </Title>
           <Group spacing="xs">
             <Button
               size="xs"
@@ -338,8 +356,14 @@ function SsnOrders(props) {
         </Group>
 
         <ScrollArea>
-           <Table striped highlightOnHover withBorder withColumnBorders style={{ minWidth: "1500px" }}>
-            <thead style={{ backgroundColor: '#111827' }}>
+          <Table
+            striped
+            highlightOnHover
+            withBorder
+            withColumnBorders
+            style={{ minWidth: "1500px" }}
+          >
+            <thead style={{ backgroundColor: "#111827" }}>
               <tr>
                 <th style={{ width: 40 }}>
                   <Checkbox
@@ -347,21 +371,26 @@ function SsnOrders(props) {
                     onChange={(e) => handleSelectAll(e.currentTarget.checked)}
                   />
                 </th>
-                <th style={{ color: '#d1d5db' }}>Base</th>
-                <th style={{ color: '#d1d5db' }}>Name</th>
-                <th style={{ color: '#d1d5db' }}>DOB</th>
-                <th style={{ color: '#d1d5db' }}>Description</th>
-                <th style={{ color: '#d1d5db' }}>State</th>
-                <th style={{ color: '#d1d5db' }}>City</th>
-                <th style={{ color: '#d1d5db' }}>Zip</th>
-                <th style={{ color: '#d1d5db' }}>SSN</th>
-                <th style={{ color: '#d1d5db' }}>Address</th>
-                <th style={{ color: '#d1d5db' }}>Email</th>
-                <th style={{ color: '#d1d5db' }}>Email Pass</th>
-                <th style={{ color: '#d1d5db' }}>FA Uname</th>
-                <th style={{ color: '#d1d5db' }}>FA Pass</th>
-                <th style={{ color: '#d1d5db' }}>Backup Code</th>
-                <th style={{ color: '#d1d5db', minWidth: 200 }}>Security Q&A</th>
+                <th style={{ color: "#d1d5db" }}>Base</th>
+                <th style={{ color: "#d1d5db" }}>Name</th>
+                <th style={{ color: "#d1d5db" }}>DOB</th>
+                <th style={{ color: "#d1d5db" }}>Description</th>
+                <th style={{ color: "#d1d5db" }}>State</th>
+                <th style={{ color: "#d1d5db" }}>City</th>
+                <th style={{ color: "#d1d5db" }}>Zip</th>
+                <th style={{ color: "#d1d5db" }}>SSN</th>
+                <th style={{ color: "#d1d5db" }}>Address</th>
+                <th style={{ color: "#d1d5db" }}>Email</th>
+                <th style={{ color: "#d1d5db" }}>Email Pass</th>
+                <th style={{ color: "#d1d5db" }}>FA Uname</th>
+                <th style={{ color: "#d1d5db" }}>FA Pass</th>
+                <th style={{ color: "#d1d5db" }}>Backup Code</th>
+                <th style={{ color: "#d1d5db" }}>2FA</th>
+                <th style={{ color: "#d1d5db" }}>Enrollment</th>
+                <th style={{ color: "#d1d5db" }}>Enrollment Details</th>
+                <th style={{ color: "#d1d5db", minWidth: 200 }}>
+                  Security Q&A
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -372,7 +401,11 @@ function SsnOrders(props) {
                 return (
                   <tr
                     key={orderId || index}
-                    style={{ backgroundColor: isSelected ? 'rgba(37, 99, 235, 0.2)' : undefined }}
+                    style={{
+                      backgroundColor: isSelected
+                        ? "rgba(37, 99, 235, 0.2)"
+                        : undefined,
+                    }}
                   >
                     <td>
                       <Checkbox
@@ -382,32 +415,39 @@ function SsnOrders(props) {
                         }
                       />
                     </td>
-                    <td style={{ color: '#e5e7eb' }}>{item?.base}</td>
-                    <td style={{ color: '#e5e7eb' }}>
-                      <Text style={{ whiteSpace: 'nowrap' }}>
+                    <td style={{ color: "#e5e7eb" }}>{item?.base}</td>
+                    <td style={{ color: "#e5e7eb" }}>
+                      <Text style={{ whiteSpace: "nowrap" }}>
                         {item?.firstName || ""} {item?.lastName || ""}
                       </Text>
                     </td>
-                    <td style={{ color: '#e5e7eb' }}>{item?.dob?.split("-")[0]}</td>
-                    <td style={{ color: '#e5e7eb' }}>
-                        <TruncatedCell text={item?.description} maxWidth={200} />
+                    <td style={{ color: "#e5e7eb" }}>
+                      {item?.dob?.split("-")[0]}
                     </td>
-                    <td style={{ color: '#e5e7eb' }}>{item?.state}</td>
-                    <td style={{ color: '#e5e7eb' }}>{item.city}</td>
-                    <td style={{ color: '#e5e7eb' }}>{item?.zip}</td>
-                     <td style={{ color: '#e5e7eb' }}>{item?.ssn}</td>
-                    <td style={{ color: '#e5e7eb' }}>
-                        <TruncatedCell text={item?.address} maxWidth={200} />
+                    <td style={{ color: "#e5e7eb" }}>
+                      <TruncatedCell text={item?.description} maxWidth={200} />
                     </td>
-                    <td style={{ color: '#e5e7eb' }}>
-                         <TruncatedCell text={item?.email} maxWidth={150} />
+                    <td style={{ color: "#e5e7eb" }}>{item?.state}</td>
+                    <td style={{ color: "#e5e7eb" }}>{item.city}</td>
+                    <td style={{ color: "#e5e7eb" }}>{item?.zip}</td>
+                    <td style={{ color: "#e5e7eb" }}>{item?.ssn}</td>
+                    <td style={{ color: "#e5e7eb" }}>
+                      <TruncatedCell text={item?.address} maxWidth={200} />
                     </td>
-                    <td style={{ color: '#e5e7eb' }}>{item?.emailPass}</td>
-                    <td style={{ color: '#e5e7eb' }}>{item?.faUname}</td>
-                    <td style={{ color: '#e5e7eb' }}>{item?.faPass}</td>
-                    <td style={{ color: '#e5e7eb' }}>{item?.backupCode}</td>
-                    <td style={{ color: '#e5e7eb' }}>
-                        <TruncatedCell text={item?.securityQa} maxWidth={250} />
+                    <td style={{ color: "#e5e7eb" }}>
+                      <TruncatedCell text={item?.email} maxWidth={150} />
+                    </td>
+                    <td style={{ color: "#e5e7eb" }}>{item?.emailPass}</td>
+                    <td style={{ color: "#e5e7eb" }}>{item?.faUname}</td>
+                    <td style={{ color: "#e5e7eb" }}>{item?.faPass}</td>
+                    <td style={{ color: "#e5e7eb" }}>{item?.backupCode}</td>
+                    <td style={{ color: "#e5e7eb" }}>{item?.twoFa}</td>
+                    <td style={{ color: "#e5e7eb" }}>{item?.enrollment}</td>
+                    <td style={{ color: "#e5e7eb" }}>
+                      <TruncatedCell text={item?.enrollmentDetails} maxWidth={250} />
+                    </td>
+                    <td style={{ color: "#e5e7eb" }}>
+                      <TruncatedCell text={item?.securityQa} maxWidth={250} />
                     </td>
                   </tr>
                 );
@@ -427,31 +467,37 @@ function SsnOrders(props) {
       <div className="mb-[30px]">
         {/* Bulk Actions */}
         {selectedOrders.size > 0 && (
-          <Paper p="md" shadow="sm" radius="md" mb="md" style={{ backgroundColor: '#f3f4f6' }}>
+          <Paper
+            p="md"
+            shadow="sm"
+            radius="md"
+            mb="md"
+            style={{ backgroundColor: "#f3f4f6" }}
+          >
             <Group position="apart">
               <Text size="sm" color="dark">
                 {selectedOrders.size} order(s) selected
               </Text>
               <Group spacing="xs">
-                 <Button
-                    color="red"
-                    size="xs"
-                    onClick={() => bulkDeleteOrders(false)}
-                    loading={loadingMutate}
-                    leftIcon={<IconTrash size={16} />}
-                 >
-                    Delete Selected
-                 </Button>
-                 <Button
-                    variant="default"
-                    size="xs"
-                    onClick={() => {
-                        setSelectedOrders(new Set());
-                        setSelectAll(false);
-                    }}
-                 >
-                    Clear Selection
-                 </Button>
+                <Button
+                  color="red"
+                  size="xs"
+                  onClick={() => bulkDeleteOrders(false)}
+                  loading={loadingMutate}
+                  leftIcon={<IconTrash size={16} />}
+                >
+                  Delete Selected
+                </Button>
+                <Button
+                  variant="default"
+                  size="xs"
+                  onClick={() => {
+                    setSelectedOrders(new Set());
+                    setSelectAll(false);
+                  }}
+                >
+                  Clear Selection
+                </Button>
               </Group>
             </Group>
           </Paper>
@@ -467,7 +513,7 @@ function SsnOrders(props) {
           </div>
 
           {loadingMutate && (
-             <div className="text-center py-4">
+            <div className="text-center py-4">
               <Text color="dimmed">Processing...</Text>
             </div>
           )}
@@ -478,7 +524,7 @@ function SsnOrders(props) {
             earlierOrders,
             !todaysOrders.length && !yesterdaysOrders.length
               ? "All Orders"
-              : "Earlier Orders"
+              : "Earlier Orders",
           )}
         </div>
       </div>

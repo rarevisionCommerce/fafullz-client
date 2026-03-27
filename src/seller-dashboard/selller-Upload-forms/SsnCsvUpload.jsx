@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
+import config from "../../../config";
 // import ssnSample from '../../assets/Downloads/sample-ssncsv.csv';
 
 function SsnCsvUpload() {
@@ -72,7 +73,12 @@ function SsnCsvUpload() {
   const submitFile = () => {
     setSending(!sending);
     if (singleFile === "") {
-      toast.warn("Please apload csv file!");
+      toast.warn("Please upload csv file!");
+      setSending(false);
+      return 0;
+    }
+    if (base === null) {
+      toast.warn("Please select a base!");
       setSending(false);
       return 0;
     }
@@ -91,7 +97,9 @@ function SsnCsvUpload() {
       });
   };
   const handleDownload = async () => {
-    const response = await fetch("https://api.fafullz.org/uploads/ssnCsv.csv");
+    const BASE_URL = config.API;
+
+    const response = await fetch(`${BASE_URL}/samples/ssnCsv.csv`);
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -122,7 +130,7 @@ function SsnCsvUpload() {
           </p>
 
           <p className="mb-2 text-gray-100 font-mono">
-            firstName,lastName,country,state,zip,dob,address,ssn,cs,city,description
+            firstName,lastName,country,state,zip,dob,address,ssn,cs,city,description,enrollment,enrollmentDetails,twoFa,email,emailPass,faUname,faPass,backupCode,securityQa
           </p>
 
           <a

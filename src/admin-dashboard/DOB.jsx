@@ -327,6 +327,15 @@ function DOB() {
                 Description
               </th>
               <th className="border border-gray-700 py-3 px-3">
+                Enrollment
+              </th>
+              <th className="border border-gray-700 py-3 px-3">
+                Enrollment Details
+              </th>
+              <th className="border border-gray-700 py-3 px-3">
+                Two Fa
+              </th>
+              <th className="border border-gray-700 py-3 px-3">
                 State
               </th>
               <th className="border border-gray-700 py-3 px-3">
@@ -404,6 +413,15 @@ function DOB() {
                     {item?.description?.length > 30
                       ? item.description.substring(0, 30) + "..."
                       : item?.description}
+                  </td>
+                  <td className="border border-gray-700 py-2 px-3">
+                    {item?.enrollment || "N/A"}
+                  </td>
+                  <td className="border border-gray-700 py-2 px-3">
+                    {item?.enrollmentDetails || "N/A"}
+                  </td>
+                  <td className="border border-gray-700 py-2 px-3">
+                    {item?.twoFa || "N/A"}
                   </td>
                   <td className="border border-gray-700 py-2 px-3">
                     {item?.state}

@@ -1,7 +1,6 @@
- const config  = {
-    API:'https://api.fafullz.org',
-    // API:'http://localhost:3501'
+const config = {
+  API:'https://api.fafullz.org',
+  // API: "http://localhost:3501",
+};
 
-}
-
-export default config
+export default config;
