@@ -391,6 +391,9 @@ function SsnOrders(props) {
                 <th style={{ color: "#d1d5db", minWidth: 200 }}>
                   Security Q&A
                 </th>
+                {auth?.roles?.includes("Admin") && (
+                  <th style={{ color: "#d1d5db" }}>Seller</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -449,6 +452,9 @@ function SsnOrders(props) {
                     <td style={{ color: "#e5e7eb" }}>
                       <TruncatedCell text={item?.securityQa} maxWidth={250} />
                     </td>
+                    {auth?.roles?.includes("Admin") && (
+                      <td style={{ color: "#e5e7eb" }}>{item?.sellerId}</td>
+                    )}
                   </tr>
                 );
               })}

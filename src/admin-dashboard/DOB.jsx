@@ -375,6 +375,9 @@ function DOB() {
                 Status
               </th>
               <th className="border border-gray-700 py-3 px-3">
+                Purchase Date
+              </th>
+              <th className="border border-gray-700 py-3 px-3">
                 Is Paid
               </th>
             </tr>
@@ -463,6 +466,9 @@ function DOB() {
                   </td>
                   <td className="border border-gray-700 py-2 px-3">
                     {item?.status}
+                  </td>
+                  <td className="border border-gray-700 py-2 px-3">
+                    {item?.purchaseDate ? item?.purchaseDate.split("T")[0] : "Not Sold"} 
                   </td>
                   <td className="border border-gray-700 py-2 px-3">
                     {item?.isPaid == "Is Paid" ? <span className="text-green-400">Paid</span> : <span className="text-red-400">{item?.isPaid}</span>}
