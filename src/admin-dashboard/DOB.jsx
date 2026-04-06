@@ -2,7 +2,14 @@ import React, { useState, useEffect, useMemo } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
-import { Loader, Pagination, Select, Button, TextInput, Checkbox } from "@mantine/core";
+import {
+  Loader,
+  Pagination,
+  Select,
+  Button,
+  TextInput,
+  Checkbox,
+} from "@mantine/core";
 import countryList from "react-select-country-list";
 import { CgShoppingCart } from "react-icons/cg";
 import useAuth from "../hooks/useAuth";
@@ -19,7 +26,7 @@ function DOB() {
 
   const [showFilters, setShowFilters] = useState(true);
 
-  const [perPage, setPerPage] = useState("300");
+  const [perPage, setPerPage] = useState("50");
   const [base, setBase] = useState("");
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
@@ -40,9 +47,7 @@ function DOB() {
     return axios.get(
       `/ssn/admin/all?page=${activePage}&perPage=${perPage}&status=${
         status || ""
-      }&paid=${paid || ""}&sellerId=${sellerId || ""}&base=${
-        base || ""
-      }`
+      }&paid=${paid || ""}&sellerId=${sellerId || ""}&base=${base || ""}`,
     );
   };
 
@@ -57,7 +62,7 @@ function DOB() {
     {
       keepPreviousData: true,
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const totalPages = Math.ceil(ssnData?.data?.count / Number(perPage));
@@ -103,7 +108,7 @@ function DOB() {
     {
       refetchOnWindowFocus: true,
       keepPreviousData: true,
-    }
+    },
   );
   // making base optopns
   const baseOptions = [];
@@ -118,7 +123,7 @@ function DOB() {
 
   const fetchSellers = () => {
     return axios.get(
-      `/users?page=${1}&perPage=${100}&role=Seller&userName=${""}&jabberId=${""}`
+      `/users?page=${1}&perPage=${100}&role=Seller&userName=${""}&jabberId=${""}`,
     );
   };
 
@@ -128,7 +133,7 @@ function DOB() {
     {
       refetchOnWindowFocus: true,
       keepPreviousData: true,
-    }
+    },
   );
 
   const sellerOptions = [];
@@ -310,76 +315,37 @@ function DOB() {
             <tr>
               <th className="border border-gray-700 py-3 px-3 ">
                 <Checkbox
-                    checked={selectAll}
-                    onChange={(e) => handleSelectAll(e.currentTarget.checked)}
+                  checked={selectAll}
+                  onChange={(e) => handleSelectAll(e.currentTarget.checked)}
                 />
               </th>
-              <th className="border border-gray-700 py-3 px-3">
-                Base
-              </th>
-              <th className="border border-gray-700 py-3 px-3">
-                Name
-              </th>
-              <th className="border border-gray-700 py-3 px-3">
-                DOB
-              </th>
-              <th className="border border-gray-700 py-3 px-3">
-                Description
-              </th>
-              <th className="border border-gray-700 py-3 px-3">
-                Enrollment
-              </th>
+              <th className="border border-gray-700 py-3 px-3">Base</th>
+              <th className="border border-gray-700 py-3 px-3">Name</th>
+              <th className="border border-gray-700 py-3 px-3">DOB</th>
+              <th className="border border-gray-700 py-3 px-3">Description</th>
+              <th className="border border-gray-700 py-3 px-3">Enrollment</th>
               <th className="border border-gray-700 py-3 px-3">
                 Enrollment Details
               </th>
-              <th className="border border-gray-700 py-3 px-3">
-                Two Fa
-              </th>
-              <th className="border border-gray-700 py-3 px-3">
-                State
-              </th>
-              <th className="border border-gray-700 py-3 px-3">
-                City
-              </th>
-              <th className="border border-gray-700 py-3 px-3">
-                Zip
-              </th>
-              <th className="border border-gray-700 py-3 px-3">
-                SSN
-              </th>
-              <th className="border border-gray-700 py-3 px-3">
-                Address
-              </th>
-              <th className="border border-gray-700 py-3 px-3">
-                Email
-              </th>
-              <th className="border border-gray-700 py-3 px-3">
-                Email_Pass
-              </th>
-              <th className="border border-gray-700 py-3 px-3">
-                FAUname
-              </th>
-              <th className="border border-gray-700 py-3 px-3">
-                FAPass
-              </th>
-              <th className="border border-gray-700 py-3 px-3">
-                Backup_Code
-              </th>
+              <th className="border border-gray-700 py-3 px-3">Two Fa</th>
+              <th className="border border-gray-700 py-3 px-3">State</th>
+              <th className="border border-gray-700 py-3 px-3">City</th>
+              <th className="border border-gray-700 py-3 px-3">Zip</th>
+              <th className="border border-gray-700 py-3 px-3">SSN</th>
+              <th className="border border-gray-700 py-3 px-3">Address</th>
+              <th className="border border-gray-700 py-3 px-3">Email</th>
+              <th className="border border-gray-700 py-3 px-3">Email_Pass</th>
+              <th className="border border-gray-700 py-3 px-3">FAUname</th>
+              <th className="border border-gray-700 py-3 px-3">FAPass</th>
+              <th className="border border-gray-700 py-3 px-3">Backup_Code</th>
               <th className="border-collapse border border-gray-700 py-3 px-3">
                 Security_Q&A
               </th>
+              <th className="border border-gray-700 py-3 px-3">Seller</th>
               <th className="border border-gray-700 py-3 px-3">
-                Seller
+                Status & P-Date
               </th>
-              <th className="border border-gray-700 py-3 px-3">
-                Status
-              </th>
-              <th className="border border-gray-700 py-3 px-3">
-                Purchase Date
-              </th>
-              <th className="border border-gray-700 py-3 px-3">
-                Is Paid
-              </th>
+              <th className="border border-gray-700 py-3 px-3">Buyer</th>
             </tr>
           </thead>
           <tbody className="text-gray-300">
@@ -391,7 +357,9 @@ function DOB() {
                 <tr
                   key={orderId || index}
                   className={`text-center transition-colors ${
-                    isSelected ? "bg-blue-900/50 text-white" : "odd:bg-gray-800 hover:bg-gray-700"
+                    isSelected
+                      ? "bg-blue-900/50 text-white"
+                      : "odd:bg-gray-800 hover:bg-gray-700"
                   }`}
                 >
                   <td className="border border-gray-700 py-2 px-3">
@@ -464,14 +432,16 @@ function DOB() {
                   <td className="border border-gray-700 py-2 px-3">
                     {item?.sellerId}
                   </td>
+
                   <td className="border border-gray-700 py-2 px-3">
                     {item?.status}
+                    <br />
+                    {item?.purchaseDate
+                      ? item?.purchaseDate.split("T")[0]
+                      : "Not Sold"}
                   </td>
                   <td className="border border-gray-700 py-2 px-3">
-                    {item?.purchaseDate ? item?.purchaseDate.split("T")[0] : "Not Sold"} 
-                  </td>
-                  <td className="border border-gray-700 py-2 px-3">
-                    {item?.isPaid == "Is Paid" ? <span className="text-green-400">Paid</span> : <span className="text-red-400">{item?.isPaid}</span>}
+                    {item?.buyerId?.userName || "Not Sold"}
                   </td>
                 </tr>
               );
@@ -509,56 +479,100 @@ function DOB() {
                 value={sellerId}
                 onChange={setSellerId}
                 searchable
-                styles={{ 
-                    input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
-                    item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
-                    dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                styles={{
+                  input: {
+                    backgroundColor: "#1f2937",
+                    color: "white",
+                    borderColor: "#374151",
+                  },
+                  item: {
+                    "&[data-selected]": { backgroundColor: "#2563eb" },
+                    "&[data-hovered]": { backgroundColor: "#374151" },
+                  },
+                  dropdown: {
+                    backgroundColor: "#1f2937",
+                    color: "white",
+                    borderColor: "#374151",
+                  },
                 }}
               />
             </div>
             <div className="flex flex-col w-full gap-2  ">
-                <Select
-                    label="Base"
-                    labelProps={{ style: { color: "#d1d5db" } }}
-                    placeholder="Select Base"
-                    data={baseOptions}
-                    value={base}
-                    onChange={setBase}
-                    searchable
-                     styles={{ 
-                        input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
-                        item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
-                        dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
-                    }}
-                />
+              <Select
+                label="Base"
+                labelProps={{ style: { color: "#d1d5db" } }}
+                placeholder="Select Base"
+                data={baseOptions}
+                value={base}
+                onChange={setBase}
+                searchable
+                styles={{
+                  input: {
+                    backgroundColor: "#1f2937",
+                    color: "white",
+                    borderColor: "#374151",
+                  },
+                  item: {
+                    "&[data-selected]": { backgroundColor: "#2563eb" },
+                    "&[data-hovered]": { backgroundColor: "#374151" },
+                  },
+                  dropdown: {
+                    backgroundColor: "#1f2937",
+                    color: "white",
+                    borderColor: "#374151",
+                  },
+                }}
+              />
             </div>
             <div className="flex flex-col w-full gap-2  ">
-               <Select
+              <Select
                 label="Status"
                 labelProps={{ style: { color: "#d1d5db" } }}
                 placeholder="Select Status"
                 data={statusOptions}
                 value={status}
                 onChange={setStatus}
-                 styles={{ 
-                    input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
-                    item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
-                    dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                styles={{
+                  input: {
+                    backgroundColor: "#1f2937",
+                    color: "white",
+                    borderColor: "#374151",
+                  },
+                  item: {
+                    "&[data-selected]": { backgroundColor: "#2563eb" },
+                    "&[data-hovered]": { backgroundColor: "#374151" },
+                  },
+                  dropdown: {
+                    backgroundColor: "#1f2937",
+                    color: "white",
+                    borderColor: "#374151",
+                  },
                 }}
               />
             </div>
             <div className="flex flex-col w-full gap-2  ">
-               <Select
+              <Select
                 label="Is Paid"
                 labelProps={{ style: { color: "#d1d5db" } }}
                 placeholder="Paid Status"
                 data={paidOptions}
                 value={paid}
                 onChange={setIsPaid}
-                 styles={{ 
-                    input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
-                    item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
-                    dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+                styles={{
+                  input: {
+                    backgroundColor: "#1f2937",
+                    color: "white",
+                    borderColor: "#374151",
+                  },
+                  item: {
+                    "&[data-selected]": { backgroundColor: "#2563eb" },
+                    "&[data-hovered]": { backgroundColor: "#374151" },
+                  },
+                  dropdown: {
+                    backgroundColor: "#1f2937",
+                    color: "white",
+                    borderColor: "#374151",
+                  },
                 }}
               />
             </div>
@@ -578,26 +592,45 @@ function DOB() {
           value={activePage}
           color="blue"
           onChange={setPage}
-          styles={{ 
-            control: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151', '&[data-active]': { backgroundColor: '#2563eb' } } 
+          styles={{
+            control: {
+              backgroundColor: "#1f2937",
+              color: "white",
+              borderColor: "#374151",
+              "&[data-active]": { backgroundColor: "#2563eb" },
+            },
           }}
         />
         <div className="flex justify-center items-center ml-4 text-gray-300">
           <p>Showing </p>
           <Select
-             value={perPage}
-             onChange={setPerPage}
-             data={[
-                 { label: '300', value: '300' },
-                 { label: '500', value: '500' },
-                 { label: '700', value: '700' },
-                 { label: '3000', value: '3000' },
-             ]}
-             className="mx-2 w-24"
-              styles={{ 
-                input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
-                item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
-                dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
+            value={perPage}
+            onChange={setPerPage}
+            data={[
+              { label: "50", value: "50" },
+              { label: "100", value: "100" },
+              { label: "200", value: "200" },
+              { label: "300", value: "300" },
+              { label: "500", value: "500" },
+              { label: "700", value: "700" },
+              { label: "3000", value: "3000" },
+            ]}
+            className="mx-2 w-24"
+            styles={{
+              input: {
+                backgroundColor: "#1f2937",
+                color: "white",
+                borderColor: "#374151",
+              },
+              item: {
+                "&[data-selected]": { backgroundColor: "#2563eb" },
+                "&[data-hovered]": { backgroundColor: "#374151" },
+              },
+              dropdown: {
+                backgroundColor: "#1f2937",
+                color: "white",
+                borderColor: "#374151",
+              },
             }}
           />
           <p>Per page</p>
@@ -607,51 +640,66 @@ function DOB() {
       {/* table */}
       <div className="overflow-y-auto rounded-lg mt-1">
         {loadingSsns || refetchinSsn ? (
-            <div className="flex justify-center items-center py-20">
-               <Loader color="blue" size="xl" />
-            </div>
+          <div className="flex justify-center items-center py-20">
+            <Loader color="blue" size="xl" />
+          </div>
         ) : ssnData?.data?.message ? (
-             <div className="bg-gray-800 text-gray-300 text-center py-10 rounded-lg border border-gray-700">
-              {ssnData?.data?.message}
-            </div>
+          <div className="bg-gray-800 text-gray-300 text-center py-10 rounded-lg border border-gray-700">
+            {ssnData?.data?.message}
+          </div>
         ) : (
           <div>{renderOrderTable(ssnData?.data?.ssns)}</div>
         )}
-        
-        {(!loadingSsns && !refetchinSsn && ssnData?.data?.ssns?.length > 0) && (
-            <div className="py-3 px-3 flex justify-between items-center mt-2 bg-gray-800 rounded-lg border border-gray-700">
+
+        {!loadingSsns && !refetchinSsn && ssnData?.data?.ssns?.length > 0 && (
+          <div className="py-3 px-3 flex justify-between items-center mt-2 bg-gray-800 rounded-lg border border-gray-700">
             <Pagination
-                total={totalPages || 0}
-                value={activePage}
-                color="blue"
-                onChange={setPage}
-                styles={{ 
-                    control: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151', '&[data-active]': { backgroundColor: '#2563eb' } } 
-                }}
+              total={totalPages || 0}
+              value={activePage}
+              color="blue"
+              onChange={setPage}
+              styles={{
+                control: {
+                  backgroundColor: "#1f2937",
+                  color: "white",
+                  borderColor: "#374151",
+                  "&[data-active]": { backgroundColor: "#2563eb" },
+                },
+              }}
             />
             <div className="flex justify-center items-center ml-4 text-gray-300">
-                <p>Showing </p>
-                <Select
-                    value={perPage}
-                    onChange={setPerPage}
-                    data={[
-                        { label: '300', value: '300' },
-                        { label: '500', value: '500' },
-                        { label: '700', value: '700' },
-                        { label: '3000', value: '3000' },
-                    ]}
-                    className="mx-2 w-24"
-                    styles={{ 
-                        input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' },
-                        item: { '&[data-selected]': { backgroundColor: '#2563eb' }, '&[data-hovered]': { backgroundColor: '#374151' } },
-                        dropdown: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }
-                    }}
-                />
-                <p>Per page</p>
+              <p>Showing </p>
+              <Select
+                value={perPage}
+                onChange={setPerPage}
+                data={[
+                  { label: "300", value: "300" },
+                  { label: "500", value: "500" },
+                  { label: "700", value: "700" },
+                  { label: "3000", value: "3000" },
+                ]}
+                className="mx-2 w-24"
+                styles={{
+                  input: {
+                    backgroundColor: "#1f2937",
+                    color: "white",
+                    borderColor: "#374151",
+                  },
+                  item: {
+                    "&[data-selected]": { backgroundColor: "#2563eb" },
+                    "&[data-hovered]": { backgroundColor: "#374151" },
+                  },
+                  dropdown: {
+                    backgroundColor: "#1f2937",
+                    color: "white",
+                    borderColor: "#374151",
+                  },
+                }}
+              />
+              <p>Per page</p>
             </div>
-            </div>
+          </div>
         )}
-        
 
         {/* en of header */}
       </div>

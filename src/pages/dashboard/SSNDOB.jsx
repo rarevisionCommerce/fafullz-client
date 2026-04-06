@@ -103,7 +103,9 @@ const SsnRow = React.memo(
               paddingTop: 8,
             }}
           >
-            <Text style={{ whiteSpace: "normal" }}>{account?.description}</Text>
+            <Text style={{ whiteSpace: "normal" }}>
+              {account?.description || ""} - {account?.enrollmentDetails || ""}
+            </Text>
             {/* <Button variant="subtle" size="xs" style={{ marginTop: 6 }} onClick={() => onViewDescription(account?.description)}>View</Button> */}
           </td>
         )}
@@ -175,6 +177,7 @@ function SSNDOB() {
   const [modalOpen, setModalOpen] = useState(false);
   const [twoFa, setTwoFa] = useState("");
   const [modalContent, setModalContent] = useState("");
+  const [college, setCollege] = useState("");
   const handleViewDescription = useCallback((desc) => {
     setModalContent(desc || "");
     setModalOpen(true);
@@ -187,7 +190,7 @@ function SSNDOB() {
     return axios.get(
       `/ssn?page=${activePage}&perPage=${perPage}&base=${
         base || ""
-      }&city=${city}&zip=${zip}&country=${country1}&dob=${minValue}&dobMax=${maxValue}&cs=${cs}&name=${name}&state=${state}&enrollment=${enrollment}&twoFa=${twoFa}`,
+      }&city=${city}&zip=${zip}&country=${country1}&dob=${minValue}&dobMax=${maxValue}&cs=${cs}&name=${name}&state=${state}&enrollment=${enrollment}&twoFa=${twoFa}&college=${college}`,
     );
   };
 
@@ -211,6 +214,7 @@ function SSNDOB() {
       maxValue,
       enrollment,
       twoFa,
+      college,
     ],
     fetchFiles,
     {
@@ -261,7 +265,7 @@ function SSNDOB() {
     })) || [];
 
   const selectedBaseObj = basesData?.data?.bases?.find((b) => b.base === base);
-  const showDescription = selectedBaseObj?.showDescription;
+  const showDescription = selectedBaseObj?.showDescription ?? !!college;
 
   // sending cart details
   const createCart = (cartData) => {
@@ -485,6 +489,14 @@ function SSNDOB() {
                   onChange={setTwoFa}
                   placeholder="Select 2FA"
                   clearable
+                />
+              </Grid.Col>
+              <Grid.Col span={12} sm={6} md={3}>
+                <TextInput
+                  label="School/College"
+                  value={college}
+                  onChange={(e) => setCollege(e.target.value)}
+                  placeholder="School/College"
                 />
               </Grid.Col>
               <Grid.Col span={12} sm={12} md={6}>
