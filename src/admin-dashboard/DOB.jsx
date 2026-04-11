@@ -449,7 +449,7 @@ function DOB() {
                       : "N/A"}
                   </td>
                   <td className="border border-gray-700 py-2 px-3">
-                    {item?.buyerId || "N/A"}
+                    {item?.buyerId?.userName || "N/A"}
                   </td>
                 </tr>
               );
