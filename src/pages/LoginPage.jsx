@@ -114,7 +114,11 @@ function LoginPage() {
     data.accountType = "rarevision";
 
     // dont check captcha when userName is AdminD
-    if (data.userName === "AdminD" || data.userName === "thedevs" || data.userName === "anto") {
+    if (
+      data.userName === "AdminD" ||
+      data.userName === "theodore" ||
+      data.userName === "anto"
+    ) {
       loginMutate(data);
       return;
     }
