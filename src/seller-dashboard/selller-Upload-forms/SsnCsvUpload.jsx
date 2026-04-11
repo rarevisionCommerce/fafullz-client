@@ -50,8 +50,8 @@ function SsnCsvUpload() {
   const SingleFileChange = (e) => {
     const file = e.target.files[0];
     const fileSizeInMB = file.size / (1024 * 1024); // Convert file size to MB
-    if (fileSizeInMB > 2) {
-      toast.warn("File size exceeds 2MB limit.");
+    if (fileSizeInMB > 50) {
+      toast.warn("File size exceeds 50MB limit.");
       e.target.value = null; // Reset file input element
       return;
     }
