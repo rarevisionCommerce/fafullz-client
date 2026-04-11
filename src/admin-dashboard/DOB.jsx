@@ -396,7 +396,9 @@ function DOB() {
                     {item?.enrollment || "N/A"}
                   </td>
                   <td className="border border-gray-700 py-2 px-3">
-                    {item?.enrollmentDetails || "N/A"}
+                    {item?.enrollmentDetails?.length > 30
+                      ? item.enrollmentDetails.substring(0, 30) + "..."
+                      : item?.enrollmentDetails || "N/A"}
                   </td>
                   <td className="border border-gray-700 py-2 px-3">
                     {item?.twoFa || "N/A"}
