@@ -233,6 +233,8 @@ function DOB() {
       delete orderCopy.updatedAt;
       delete orderCopy.isDeleted;
       delete orderCopy.deletedAt;
+      delete orderCopy.isValid;
+      delete orderCopy.buyerId;
       return orderCopy;
     });
 
@@ -279,7 +281,7 @@ function DOB() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "orders_data.csv");
+    link.setAttribute("download", `${sellerId}__data.csv`);
     link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
@@ -309,8 +311,9 @@ function DOB() {
               size="xs"
               onClick={() => downloadOrdersAsCSV(orders)}
             >
-              Download CSV
+              Download All ({orders?.length}) CSV
             </Button>
+           
           </div>
         </div>
 
