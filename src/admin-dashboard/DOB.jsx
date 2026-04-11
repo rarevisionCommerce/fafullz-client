@@ -42,12 +42,14 @@ function DOB() {
   const [status, setStatus] = useState("");
   const [selectAll, setSelectAll] = useState(false);
   const [selectedOrders, setSelectedOrders] = useState(new Set());
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   const fetchFiles = () => {
     return axios.get(
       `/ssn/admin/all?page=${activePage}&perPage=${perPage}&status=${
         status || ""
-      }&paid=${paid || ""}&sellerId=${sellerId || ""}&base=${base || ""}`,
+      }&paid=${paid || ""}&sellerId=${sellerId || ""}&base=${base || ""}&fromDate=${fromDate || ""}&toDate=${toDate || ""}`,
     );
   };
 
@@ -57,7 +59,7 @@ function DOB() {
     refetch,
     isRefetching: refetchinSsn,
   } = useQuery(
-    ["ssns", activePage, base, perPage, status, paid, sellerId],
+    ["ssns", activePage, base, perPage, status, paid, sellerId, fromDate, toDate],
     fetchFiles,
     {
       keepPreviousData: true,
@@ -96,6 +98,8 @@ function DOB() {
     setSellerId("");
     setIsPaid("");
     setPage(1);
+    setFromDate("");
+    setToDate("");
   };
   //get all bases
   const getBases = () => {
@@ -310,7 +314,7 @@ function DOB() {
           </div>
         </div>
 
-        <table className="w-full text-center table-auto border-collapse border border-gray-700 text-gray-300 text-sm">
+        <table className="w-full text-center table-auto whitespace-nowrap border-collapse border border-gray-700 text-gray-300 text-sm">
           <thead className="bg-gray-800 text-gray-200">
             <tr>
               <th className="border border-gray-700 py-3 px-3 ">
@@ -338,7 +342,7 @@ function DOB() {
               <th className="border border-gray-700 py-3 px-3">FAUname</th>
               <th className="border border-gray-700 py-3 px-3">FAPass</th>
               <th className="border border-gray-700 py-3 px-3">Backup_Code</th>
-              <th className="border-collapse border border-gray-700 py-3 px-3">
+              <th className="border border-gray-700 py-3 px-3">
                 Security_Q&A
               </th>
               <th className="border border-gray-700 py-3 px-3">Seller</th>
@@ -409,19 +413,19 @@ function DOB() {
                   <td className="border border-gray-700 py-2 px-3">
                     {item?.address}
                   </td>
-                  <td className="border border-gray-700 py-2 px-3 break-all">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item?.email}
                   </td>
-                  <td className="border border-gray-700 py-2 px-3 break-all">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item?.emailPass}
                   </td>
-                  <td className="border border-gray-700 py-2 px-3 break-all">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item?.faUname}
                   </td>
-                  <td className="border border-gray-700 py-2 px-3 break-all">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item?.faPass}
                   </td>
-                  <td className="border border-gray-700 py-2 px-3 break-all">
+                  <td className="border border-gray-700 py-2 px-3">
                     {item?.backupCode}
                   </td>
                   <td className="border border-gray-700 py-2 px-3">
@@ -439,6 +443,10 @@ function DOB() {
                     {item?.purchaseDate
                       ? item?.purchaseDate.split("T")[0]
                       : "Not Sold"}
+                    <br />
+                    {item?.createdAt
+                      ? item?.createdAt.split("T")[0]
+                      : "N/A"}
                   </td>
                   <td className="border border-gray-700 py-2 px-3">
                     {item?.buyerId || "N/A"}
@@ -569,6 +577,38 @@ function DOB() {
                     "&[data-hovered]": { backgroundColor: "#374151" },
                   },
                   dropdown: {
+                    backgroundColor: "#1f2937",
+                    color: "white",
+                    borderColor: "#374151",
+                  },
+                }}
+              />
+            </div>
+            <div className="flex flex-col w-full gap-2  ">
+              <TextInput
+                label="From Date"
+                labelProps={{ style: { color: "#d1d5db" } }}
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                styles={{
+                  input: {
+                    backgroundColor: "#1f2937",
+                    color: "white",
+                    borderColor: "#374151",
+                  },
+                }}
+              />
+            </div>
+            <div className="flex flex-col w-full gap-2  ">
+              <TextInput
+                label="To Date"
+                labelProps={{ style: { color: "#d1d5db" } }}
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                styles={{
+                  input: {
                     backgroundColor: "#1f2937",
                     color: "white",
                     borderColor: "#374151",
