@@ -203,7 +203,7 @@ function SsnOrders(props) {
             order.description || ""
           }\nCS:  ${order.cs || ""}\nPurchase Date:  ${
             order.purchaseDate || ""
-          }\nEnrollment:  ${order.enrollment || ""}\nEnrollment Details:  ${order.enrollmentDetails || ""}\n2FA:  ${order.twoFa || ""}          
+          }\nEnrollment:  ${order.enrollment || ""}\nEnrollment Details:  ${order.enrollmentDetails || ""}\n2FA:  ${order.twoFa || ""} \nLevel:  ${order.level || ""} \nPrograms:  ${order.programs || ""}          
           \n\n_______________________________________ \n`;
         })
         .join("\n");
@@ -447,7 +447,10 @@ function SsnOrders(props) {
                     <td style={{ color: "#e5e7eb" }}>{item?.twoFa}</td>
                     <td style={{ color: "#e5e7eb" }}>{item?.enrollment}</td>
                     <td style={{ color: "#e5e7eb" }}>
-                      <TruncatedCell text={item?.enrollmentDetails} maxWidth={250} />
+                      <TruncatedCell
+                        text={item?.enrollmentDetails}
+                        maxWidth={250}
+                      />
                     </td>
                     <td style={{ color: "#e5e7eb" }}>
                       <TruncatedCell text={item?.securityQa} maxWidth={250} />

@@ -130,7 +130,7 @@ function SsnCsvUpload() {
           </p>
 
           <p className="mb-2 text-gray-100 font-mono whitespace-nowrap">
-            firstName,lastName,country,state,zip,dob,address,ssn,cs,city,description,enrollment,enrollmentDetails,twoFa,email,emailPass,faUname,faPass,backupCode,securityQa
+            firstName,lastName,country,state,zip,dob,address,ssn,cs,city,description,enrollment,enrollmentDetails,twoFa,level,programs,email,emailPass,faUname,faPass,backupCode,securityQa
           </p>
 
           <a

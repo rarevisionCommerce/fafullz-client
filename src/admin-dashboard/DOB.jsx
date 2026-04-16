@@ -334,6 +334,8 @@ function DOB() {
               <th className="border border-gray-700 py-3 px-3">
                 Enrollment Details
               </th>
+              <th className="border border-gray-700 py-3 px-3">Level</th>
+              <th className="border border-gray-700 py-3 px-3">Programs</th>
               <th className="border border-gray-700 py-3 px-3">Two Fa</th>
               <th className="border border-gray-700 py-3 px-3">State</th>
               <th className="border border-gray-700 py-3 px-3">City</th>
@@ -399,6 +401,14 @@ function DOB() {
                     {item?.enrollmentDetails?.length > 30
                       ? item.enrollmentDetails.substring(0, 30) + "..."
                       : item?.enrollmentDetails || "N/A"}
+                  </td>
+                  <td className="border border-gray-700 py-2 px-3">
+                    {item?.level || "N/A"}
+                  </td>
+                  <td className="border border-gray-700 py-2 px-3">
+                    {item?.programs?.length > 30
+                      ? item.programs.substring(0, 30) + "..."
+                      : item?.programs || "N/A"}
                   </td>
                   <td className="border border-gray-700 py-2 px-3">
                     {item?.twoFa || "N/A"}

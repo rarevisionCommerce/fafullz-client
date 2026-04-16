@@ -178,6 +178,7 @@ function SSNDOB() {
   const [twoFa, setTwoFa] = useState("");
   const [modalContent, setModalContent] = useState("");
   const [college, setCollege] = useState("");
+  const [level, setLevel] = useState("");
   const handleViewDescription = useCallback((desc) => {
     setModalContent(desc || "");
     setModalOpen(true);
@@ -190,7 +191,7 @@ function SSNDOB() {
     return axios.get(
       `/ssn?page=${activePage}&perPage=${perPage}&base=${
         base || ""
-      }&city=${city}&zip=${zip}&country=${country1}&dob=${minValue}&dobMax=${maxValue}&cs=${cs}&name=${name}&state=${state}&enrollment=${enrollment}&twoFa=${twoFa}&college=${college}`,
+      }&city=${city}&zip=${zip}&country=${country1}&dob=${minValue}&dobMax=${maxValue}&cs=${cs}&name=${name}&state=${state}&enrollment=${enrollment}&twoFa=${twoFa}&college=${college}&level=${level}`,
     );
   };
 
@@ -215,6 +216,7 @@ function SSNDOB() {
       enrollment,
       twoFa,
       college,
+      level,
     ],
     fetchFiles,
     {
@@ -239,6 +241,8 @@ function SSNDOB() {
     setEnrollment("");
     setDobRange([1910, currentYear]);
     setTwoFa("");
+    setLevel("");
+    setCollege("");
   };
 
   //get all bases
@@ -497,6 +501,17 @@ function SSNDOB() {
                   value={college}
                   onChange={(e) => setCollege(e.target.value)}
                   placeholder="School/College"
+                />
+              </Grid.Col>
+              {/* level dropdown */}
+              <Grid.Col span={12} sm={6} md={3}>
+                <Select
+                  label="Level"
+                  data={["University", "College", "Univesrity Withdrawn", "College Withdrawn"]}
+                  value={level}
+                  onChange={setLevel}
+                  placeholder="Select Level"
+                  clearable
                 />
               </Grid.Col>
               <Grid.Col span={12} sm={12} md={6}>
