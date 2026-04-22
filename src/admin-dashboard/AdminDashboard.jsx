@@ -101,13 +101,15 @@ function AdminDashboard() {
 
   const navLinks = [
     { label: "Dashboard", path: "admindash", icon: <IconDashboard size="1rem" />, color: "blue" },
+    { label: "Admins", path: "admins", icon: <IconUsers size="1rem" />, color: "cyan" },
     { label: "Sellers", path: "sellers", icon: <IconUsers size="1rem" />, color: "cyan" },
     { label: "Buyers", path: "buyers", icon: <IconUser size="1rem" />, color: "teal" },
     { label: "SSN Products", path: "all-products", icon: <IconCreditCard size="1rem" />, color: "violet" },
     { label: "Withdraw Requests", path: "requests", icon: <IconCashBanknote size="1rem" />, color: "orange" },
     { label: "Set Prices", path: "set-prices", icon: <IconAdjustmentsDollar size="1rem" />, color: "grape" },
-    { label: "Refunds", path: "refund", icon: <IconReceiptRefund size="1rem" />, color: "red" },
-    { label: "Support", path: "supports", icon: <IconHeadset size="1rem" />, color: "pink" },
+    { label: "Sell", path: "sell", icon: <IconReceiptRefund size="1rem" />, color: "red" },
+    // { label: "Support", path: "supports", icon: <IconHeadset size="1rem" />, color: "pink" },
+    { label: "Transactions", path: "transactions", icon: <IconHeadset size="1rem" />, color: "pink" },
   ];
 
   return (

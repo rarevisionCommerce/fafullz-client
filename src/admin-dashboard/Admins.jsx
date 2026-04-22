@@ -38,20 +38,21 @@ function Admins(props) {
 
   const fetchSellers = () => {
     return axios.get(
-      `/users?page=${activePage}&perPage=${perPage}&role=Manager&userName=${userName}&jabberId=${jabberId}`
+      `/users?page=${activePage}&perPage=${perPage}&role=Admin&userName=${userName}&jabberId=${jabberId}`
     );
   };
 
   const {
-    isLoading: loadingAdmins,
-    data: adminData,
+    isLoading: loadingSellers,
+    data: sellersData,
     refetch,
-    isRefetching: refetchingAdmins,
-  } = useQuery([`manager-`, activePage], fetchSellers, {
+    isRefetching: refetchingSellers,
+  } = useQuery([`seller-`, activePage], fetchSellers, {
+    refetchOnWindowFocus: true,
     keepPreviousData: true,
   });
 
-  const totalPages = Math.ceil(adminData?.data?.count / perPage) || 1;
+  const totalPages = Math.ceil(sellersData?.data?.count / perPage) || 1;
 
   // pagination refetch
   useEffect(() => {
@@ -97,12 +98,12 @@ function Admins(props) {
   }
   return (
     <div className="bg-gray-900 px-3 py-3 min-h-screen text-white">
-      <h1 className="font-bold text-lg">All Managers </h1>
+      <h1 className="font-bold text-lg">All Admins </h1>
       <div className="my-[20px] ">
         {/* filters */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:px-4 bg-gray-800 px-2 py-3 rounded-lg">
           <div className="flex flex-col gap-">
-             <TextInput
+            <TextInput
               label="UserName"
               placeholder="Search by username"
               value={userName}
@@ -114,7 +115,7 @@ function Admins(props) {
             />
           </div>
           <div className="flex flex-col w-full  ">
-            <TextInput
+             <TextInput
               label="Jabber ID:"
               placeholder="Search by Jabber ID"
               value={jabberId}
@@ -126,7 +127,7 @@ function Admins(props) {
             />
           </div>
           <div className="flex flex-col gap-">
-             <Select
+            <Select
               label="Per Page"
               data={perPageOptions}
               value={perPage}
@@ -141,7 +142,7 @@ function Admins(props) {
         {/* end of filters */}
 
         <div className="flex justify-between mt-10 px-1 md:px-4 items-center">
-          <h1>Total: {adminData?.data?.count || 0}</h1>
+          <h1>Total: {sellersData?.data?.count || 0}</h1>
           <Button
             variant="outline"
             color="green"
@@ -182,21 +183,21 @@ function Admins(props) {
             </thead>
 
             <tbody className="text-gray-200">
-              {loadingAdmins || refetchingAdmins ? (
+              {loadingSellers || refetchingSellers ? (
                 <tr className="flex justify-center py-4 pr-6 items-center">
                   <td colSpan={17} className="text-center ">
                     <PulseLoader color="#6ba54a" size={10} />
                   </td>
                 </tr>
-              ) : !adminData?.data?.users ||
-                adminData?.data?.users?.length < 1 ? (
+              ) : !sellersData?.data?.users ||
+                sellersData?.data?.users?.length < 1 ? (
                 <tr>
                   <td colSpan={7} className="text-gray-400 text-center py-3">
                     No users found!
                   </td>
                 </tr>
               ) : (
-                adminData?.data?.users?.map((item, index) => {
+                sellersData?.data?.users?.map((item, index) => {
                   return (
                     <tr
                       key={index}
@@ -248,11 +249,11 @@ function Admins(props) {
           </table>
         </div>
       </div>
-      <Modal opened={opened} onClose={close} title="Delete Manager" centered overlayProps={{ opacity: 0.55, blur: 3 }}>
-        <Text size="sm">Are you sure you want to delete this Manager?</Text>
+      <Modal opened={opened} onClose={close} title="Delete Seller" centered overlayProps={{ opacity: 0.55, blur: 3 }}>
+        <Text size="sm">Are you sure you want to delete this Seller?</Text>
         <Group position="right" mt="md">
-           <Button variant="default" onClick={close}>Cancel</Button>
-           <Button color="red" onClick={handleDelete} loading={isDeleting}>Delete</Button>
+          <Button variant="default" onClick={close}>Cancel</Button>
+          <Button color="red" onClick={handleDelete} loading={isDeleting}>Delete</Button>
         </Group>
       </Modal>
     </div>

@@ -43,6 +43,7 @@
     "react-spinners": "^0.13.8",
     "react-toastify": "^9.1.1",
     "react-typed": "^1.2.0",
+    "recharts": "^3.8.1",
     "spinners-react": "^1.0.7",
     "timeago.js": "^4.0.2",
     "totp-generator": "^2.0.1",

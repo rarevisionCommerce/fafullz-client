@@ -60,6 +60,8 @@ import AdminDetails from './admin-dashboard/AdminDetails'
 import DOB from './admin-dashboard/DOB'
 import TwoFaAuthPage from './pages/dashboard/TwoFaAuthPage'
 import TwoFaPage from './pages/dashboard/TwoFaPage'
+import Transactions from './admin-dashboard/Trasactions'
+import AdminSell from './admin-dashboard/AdminSell'
 
 function App() {
   // Create a client
@@ -169,6 +171,8 @@ function App() {
                 <Route path="set-prices" element={<SetPrices />} />
                 <Route path="edit-base/:baseId" element={<EditBasePrice />} />
                 <Route path="refund-request/:refundId" element={<RefundDetails />} />
+                <Route path="transactions" element={<Transactions />} />
+                <Route path="sell" element={<AdminSell />} />
               </Route>
             </Route>
           </Route>

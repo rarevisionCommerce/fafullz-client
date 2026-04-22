@@ -127,7 +127,7 @@ function DOB() {
 
   const fetchSellers = () => {
     return axios.get(
-      `/users?page=${1}&perPage=${100}&role=Seller&userName=${""}&jabberId=${""}`,
+      `/users?page=${1}&perPage=${100}&role=all&userName=${""}&jabberId=${""}`,
     );
   };
 

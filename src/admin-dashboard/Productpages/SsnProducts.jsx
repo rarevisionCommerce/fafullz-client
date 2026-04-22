@@ -145,7 +145,7 @@ function SsnProducts(props) {
               </tr>
             </thead>
 
-            <tbody className="text-dark">
+            <tbody className="text-light">
               {!productData?.data?.ssns ||
               productData?.data?.ssns?.length < 1 ? (
                 <tr>
@@ -164,7 +164,7 @@ function SsnProducts(props) {
                   return (
                     <tr
                       key={index}
-                      className="odd:bg-gray-50 hover:bg-gray-100"
+                      className=" hover:bg-gray-400"
                     >
                       <td className="border-collapse border-b border-slate-500 py-2 px-3">
                         {index + 1}
@@ -225,7 +225,7 @@ function SsnProducts(props) {
                             Pay
                           </button>
                         ) : (
-                          <h1>Not sold</h1>
+                          <h1 className="text-sm">Not sold</h1>
                         )}
                       </td>
                     </tr>

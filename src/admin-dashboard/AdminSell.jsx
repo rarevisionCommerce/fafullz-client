@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
-import axios from "../../api/axios";
-import useAuth from "../../hooks/useAuth";
 import Select from "react-select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
-import config from "../../../config";
-// import ssnSample from '../../assets/Downloads/sample-ssncsv.csv';
+import config from "../../config";
+import axios from "../api/axios";
+import useAuth from "../hooks/useAuth";
 
-function SsnCsvUpload() {
+function AdminSell() {
   const { auth } = useAuth();
   const [singleFile, setSingleFile] = useState("");
   const sellerId = auth?.jabberId;
@@ -57,7 +56,7 @@ function SsnCsvUpload() {
     }
     setSingleFile(e.target.files[0]);
   };
-  console.log(singleFile);
+  // console.log(singleFile);
 
   const base = watch("base");
 
@@ -213,4 +212,4 @@ function SsnCsvUpload() {
   );
 }
 
-export default SsnCsvUpload;
+export default AdminSell;

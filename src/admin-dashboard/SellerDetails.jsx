@@ -181,7 +181,7 @@ function SellerDetails() {
 
   // Pay all user products
   const payAll = (data) => {
-    return axios.put(`/sellers/all/${jabberId}/?amount=${sellerEarning}`, data);
+    return axios.put(`/sellers/all/${jabberId}/?amount=${sellerEarning}&profit=${pullzEarning}`, data);
   };
 
   const { mutate: payAllProductsMutate, isLoading: loadingPayAll } =
