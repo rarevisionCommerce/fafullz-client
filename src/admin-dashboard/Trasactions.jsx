@@ -118,7 +118,7 @@ function Transactions() {
         <Group position="apart" mb="md">
           <Title order={3}>Transactions History</Title>
           <TextInput
-            placeholder="Search by status, wallet..."
+            placeholder="Search by username, wallet, ID..."
             icon={<IconSearch size="1rem" />}
             value={search}
             onChange={(e) => {
@@ -142,6 +142,7 @@ function Transactions() {
                   <th>Coin</th>
                   <th>Amount</th>
                   <th>Wallet</th>
+                  <th>User</th>
                 </tr>
               </thead>
               <tbody>
@@ -166,6 +167,11 @@ function Transactions() {
                     <td>
                       <Text size="sm" color="dimmed" style={{ maxWidth: '200px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                         {tx.wallet || '--'}
+                      </Text>
+                    </td>
+                    <td>
+                      <Text size="sm" color="dimmed" style={{ maxWidth: '200px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                        {tx.userId?.userName || '--'}
                       </Text>
                     </td>
                   </tr>
