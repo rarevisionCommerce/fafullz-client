@@ -67,7 +67,7 @@ function Dash() {
     return await axios.get(`/admin/sales?filter=${salesFilter}`);
   };
 
-  const { isLoading: loadingSalesData, data: salesDataResponse } = useQuery(
+  const { isLoading: loadingSalesData, data: salesDataResponse, refetch: refetchSales } = useQuery(
     ["sales-data", salesFilter],
     getSalesData,
     {
@@ -84,6 +84,26 @@ function Dash() {
 
   const topClients = dashData.topClients || [];
   const bases = dashData.result || [];
+
+  // clear profits
+  const clearAllProfits = async () => {
+    try {
+      if (!dashboardData?.data?.totalProfit) {
+        toast.error("No profits to clear");
+        return;
+      }
+      // confirm before clearing profits
+      const confirm = window.confirm("Are you sure you want to clear all profits?");
+      if (!confirm) return;
+
+      await axios.post(`/admin/clear-profits`);
+      refetchSales();
+      refetch();
+      toast.success("All profits cleared");
+    } catch (error) {
+      toast.error("Failed to clear profits");
+    }
+  };
 
 
  
@@ -192,6 +212,13 @@ function Dash() {
               <div className="text-center text-2xl font-bold my-2 text-white">
                 ${formatCurrency(dashboardData?.data?.totalProfit || 0)}
               </div>
+              <button
+                onClick={() => clearAllProfits()}
+                disabled={loadingSalesData || !dashboardData?.data?.totalProfit}
+                className={`cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors w-full mt-3 ${!dashboardData?.data?.totalProfit ? 'bg-slate-500' : ''}`}
+              >
+                Clear Profits
+              </button>
             </div>
           </div>
         )}
