@@ -306,7 +306,7 @@ function SellerDetails() {
     });
 
   const handlePasswordChange = () => {
-    const data = { password: "123456q", type: "reset" };
+    const data = { password: "123456", type: "reset" };
     changePassMutate(data);
   };
 

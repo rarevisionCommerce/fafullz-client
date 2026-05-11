@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import PulseLoader from "react-spinners/PulseLoader";
 import { useParams } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
-import { Modal, Skeleton, TextInput, NumberInput, Button, Text } from "@mantine/core";
+import { Modal, Skeleton, TextInput, NumberInput, Button, Text, Loader } from "@mantine/core";
 import { MdAccountBalanceWallet } from "react-icons/md";
 import MyOrders from "../pages/dashboard/MyOrders";
 import { Tabs } from "@mantine/core";
@@ -123,6 +123,28 @@ function BuyerDetails() {
     close();
   };
 
+  const changePassword = (data) => {
+    return axios.patch(`/users/${userId}`, data);
+  };
+
+  const { mutate: changePassMutate, isLoading: loadingChangePass } =
+    useMutation(changePassword, {
+      onSuccess: (response) => {
+        const text = response?.data?.message;
+        toast.success(text);
+        reset();
+      },
+      onError: (err) => {
+        const text = err?.response?.data?.message || "something went wrong";
+        toast.error(text);
+      },
+    });
+
+  const handlePasswordChange = () => {
+    const data = { password: "123456", type: "reset" };
+    changePassMutate(data);
+  };
+
   return (
     <div className="bg-gray-900 min-h-screen text-white p-4">
       <Modal
@@ -171,87 +193,109 @@ function BuyerDetails() {
                 {buyerData?.data?.status}
               </p>
             </div>
+
+            <div className="flex items-center justify-center md:justify-start w-full">
+              {loadingChangePass ? (
+                <Loader size="sm" color="white" />
+              ) : (
+                <Button
+                  onClick={handlePasswordChange}
+                  variant="outline"
+                  color="blue"
+                  size="xs"
+                  className="w-full md:w-auto"
+                  styles={{
+                    label: {
+                      color: "#3b82f6",
+                      fontWeight: 700,
+                    },
+                  }}
+                >
+                  Reset Password
+                </Button>
+              )}
+            </div>
+
           </div>
 
           <div className="border-l border-gray-700 pl-6 flex flex-col justify-between">
             <div>
-                 <h1 className="font-bold text-gray-200 mb-2">User Balance</h1>
-                <div className="flex gap-2 justify-between items-center mb-4">
+              <h1 className="font-bold text-gray-200 mb-2">User Balance</h1>
+              <div className="flex gap-2 justify-between items-center mb-4">
                 <div className="flex items-center gap-2 text-2xl font-bold text-green-400">
-                    <MdAccountBalanceWallet size={28} />
-                    <h1>
+                  <MdAccountBalanceWallet size={28} />
+                  <h1>
                     {paymentsData?.data?.balance?.toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
+                      style: "currency",
+                      currency: "USD",
                     })}
-                    </h1>
+                  </h1>
                 </div>
                 <div className={`${!auth?.roles?.includes("Admin") && "hidden"}`}>
-                    <Button
+                  <Button
                     variant="subtle"
                     compact
                     color="blue"
                     onClick={() => {
-                        open();
+                      open();
                     }}
-                    >
+                  >
                     Deduct balance
-                    </Button>
+                  </Button>
                 </div>
-                </div>
+              </div>
             </div>
-            
+
             <div className="mt-4">
               {/* send message */}
               <form action="" className="flex flex-col gap-2">
-                  <TextInput
-                    label="Message Buyer"
-                    placeholder="Type message"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    error={errors.message?.type === "required" && "Message is required"}
-                     styles={{ input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }, label: { color: "#d1d5db" } }}
-                  />
-                  
-                  <Button
-                    onClick={(e) => {
-                        e.preventDefault();
-                        submitMessage();
-                    }}
-                    loading={loadingMessage}
-                    fullWidth
-                    mt="xs"
-                  >
-                    Send
-                  </Button>
+                <TextInput
+                  label="Message Buyer"
+                  placeholder="Type message"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  error={errors.message?.type === "required" && "Message is required"}
+                  styles={{ input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }, label: { color: "#d1d5db" } }}
+                />
+
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    submitMessage();
+                  }}
+                  loading={loadingMessage}
+                  fullWidth
+                  mt="xs"
+                >
+                  Send
+                </Button>
               </form>
             </div>
           </div>
 
           {/* deposit form  */}
           <div
-            className={`${
-              !auth?.roles?.includes("Admin") && "hidden"
-            } border-l border-gray-700 pl-6 `}
+            className={`${!auth?.roles?.includes("Admin") && "hidden"
+              } border-l border-gray-700 pl-6 `}
           >
             <h1 className="font-semibold text-gray-200 mb-2">Deposit to this user</h1>
             <form onSubmit={handleSubmit(submitDeposit)} className="flex flex-col gap-2">
-                <Controller
-                    name="amount"
-                    control={control}
-                    rules={{ required: "Amount is required" }}
-                    render={({ field }) => (
-                     <TextInput
-                        label="Amount"
-                        type="number"
-                        placeholder="0.00"
-                        error={errors.amount?.message}
-                        {...field}
-                         styles={{ input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }, label: { color: "#d1d5db" } }}
-                     />
-                    )}
-                />
-              
+              <Controller
+                name="amount"
+                control={control}
+                rules={{ required: "Amount is required" }}
+                render={({ field }) => (
+                  <TextInput
+                    label="Amount"
+                    type="number"
+                    placeholder="0.00"
+                    error={errors.amount?.message}
+                    {...field}
+                    styles={{ input: { backgroundColor: '#1f2937', color: 'white', borderColor: '#374151' }, label: { color: "#d1d5db" } }}
+                  />
+                )}
+              />
+
               <Button
                 type="submit"
                 loading={loadingDeposit}
@@ -319,7 +363,7 @@ function BuyerDetails() {
                     {loadingPayments ? (
                       <tr>
                         <td colSpan={7} className="text-center py-4">
-                           <PulseLoader color="#6ba54a" size={10} />
+                          <PulseLoader color="#6ba54a" size={10} />
                         </td>
                       </tr>
                     ) : paymentsData?.data?.message ? (
@@ -345,12 +389,11 @@ function BuyerDetails() {
                               {item?.id}{" "}
                             </td>
                             <td
-                              className={`border border-gray-700 py-2 px-1 text-center ${
-                                item?.status?.toLowerCase() === "confirmed" ||
+                              className={`border border-gray-700 py-2 px-1 text-center ${item?.status?.toLowerCase() === "confirmed" ||
                                 item?.status === "Approved"
-                                  ? "text-green-400"
-                                  : "text-red-400"
-                              }`}
+                                ? "text-green-400"
+                                : "text-red-400"
+                                }`}
                             >
                               {" "}
                               {item?.status}{" "}
