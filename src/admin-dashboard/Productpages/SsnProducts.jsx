@@ -81,7 +81,7 @@ function SsnProducts(props) {
     <div>
       <div className="my-[2px]">
         <div className="flex justify-between  px-1 md:px-4 ">
-          <h1>Total: {productData?.data?.count || 0}</h1>
+          {/* <h1>Total: {productData?.data?.count || 0}</h1> */}
         </div>
 
         <div className="overflow-x-auto mb-3">
