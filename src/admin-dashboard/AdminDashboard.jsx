@@ -109,7 +109,7 @@ function AdminDashboard() {
     { label: "Set Prices", path: "set-prices", icon: <IconAdjustmentsDollar size="1rem" />, color: "grape" },
     { label: "Sell", path: "sell", icon: <IconReceiptRefund size="1rem" />, color: "red" },
     // { label: "Support", path: "supports", icon: <IconHeadset size="1rem" />, color: "pink" },
-    { label: "Transactions", path: "transactions", icon: <IconHeadset size="1rem" />, color: "pink" },
+    // { label: "Transactions", path: "transactions", icon: <IconHeadset size="1rem" />, color: "pink" },
   ];
 
   return (
